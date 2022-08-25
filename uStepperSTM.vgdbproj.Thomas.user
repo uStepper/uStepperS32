@@ -11,25 +11,25 @@
     </CatchpointConfiguration>
     <MaskInterruptsWhileStepping>false</MaskInterruptsWhileStepping>
     <MemoryWindowPreferences />
-    <d />
+    <a />
     <e>
-      <a>
+      <c>
         <b>com.sysprogs.AllGlobals</b>
         <a />
-      </a>
-      <a>
+      </c>
+      <c>
         <b>com.sysprogs.SpecificVariables</b>
         <a />
-      </a>
-      <a>
+      </c>
+      <c>
         <b>com.sysprogs.Custom</b>
         <a />
-      </a>
+      </c>
     </e>
-    <b>
-      <b>SpecificVariables</b>
-      <a>false</a>
-    </b>
+    <d>
+      <a>SpecificVariables</a>
+      <b>false</b>
+    </d>
     <Suggestions>
       <HardwareRegisterFilters>
         <string>syst</string>

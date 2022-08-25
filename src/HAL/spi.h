@@ -14,6 +14,7 @@ struct spiSettings
 		uint32_t cs;
 		uint32_t sck;
 	} _pins;
+	
 };
 
 class Spi
