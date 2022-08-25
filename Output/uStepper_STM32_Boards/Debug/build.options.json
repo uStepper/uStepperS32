@@ -1,0 +1,12 @@
+{
+  "additionalFiles": "",
+  "builtInLibrariesFolders": "",
+  "builtInToolsFolders": "C:\\Users\\Thomas\\Documents/ArduinoData/packages,C:\\Users\\Thomas\\AppData\\Local/Arduino15/packages",
+  "compiler.optimization_flags": "",
+  "customBuildProperties": "com.sysprogs.extraflags=-ggdb,runtime.tools.STM32Tools.path=C:\\Users\\Thomas\\AppData\\Local\\Arduino15\\packages\\STMicroelectronics\\tools\\STM32Tools\\2.1.1,runtime.tools.xpack-arm-none-eabi-gcc.path=C:\\Users\\Thomas\\AppData\\Local\\Arduino15\\packages\\STMicroelectronics\\tools\\xpack-arm-none-eabi-gcc\\10.3.1-2.3,runtime.tools.ctags.path=C:\\Users\\Thomas\\AppData\\Local\\VisualGDB\\Arduino\\tools-builder\\ctags\\5.8-arduino11",
+  "fqbn": "STMicroelectronics:stm32:uStepper:pnum=USTEPPER_S_3_0,upload_method=MassStorage",
+  "hardwareFolders": "C:\\Users\\Thomas\\Documents\\ArduinoData\\packages,C:\\Users\\Thomas\\AppData\\Local\\Arduino15\\packages",
+  "otherLibrariesFolders": "C:\\Users\\Thomas\\Documents\\Arduino\\Libraries,C:\\Users\\Thomas\\Documents\\Arduino\\libraries",
+  "runtime.ide.version": "10600",
+  "sketchLocation": "C:\\Users\\Thomas\\Documents\\Arduino\\libraries\\uStepperSTM\\Examples\\readAngle\\readAngle.ino"
+}
