@@ -1,0 +1,7 @@
+{
+    "stm32-for-vscode.armToolchainPath": false,
+    "files.associations": {
+        "stm32f4xx_it.h": "c",
+        "main.h": "c"
+    }
+}
