@@ -4,7 +4,7 @@
 
 #include <Arduino.h>
 #include "HAL/spi.h"
-#include "peripherals/TMC5130/TMC5130.h"
+#include "peripherals/TMC5130.h"
 #include "peripherals/TLE5012B.h"
 #include "HAL/timer.h"
 

@@ -2,8 +2,8 @@
 #define __TMC5130_H_
 
 #include <Arduino.h>
-#include "../../HAL/spi.h"
-#include "../../HAL/gpio.h"
+#include "../HAL/spi.h"
+#include "../HAL/gpio.h"
 #include "TMC5130RegDef.h"
 
 class TMC5130
