@@ -31,6 +31,7 @@ extern "C" {
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_ll_dma.h"
 #include "stm32f4xx_ll_spi.h"
+#include "stm32f4xx_ll_tim.h"
 #include "stm32f4xx_ll_system.h"
 #include "stm32f4xx_ll_gpio.h"
 #include "stm32f4xx_ll_exti.h"

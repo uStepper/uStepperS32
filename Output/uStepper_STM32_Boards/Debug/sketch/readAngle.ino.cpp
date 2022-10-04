@@ -12,15 +12,15 @@ void loop();
 void setup()
 {
 	stepper.init();
-	stepper.driver.setRPM(50);
+	//stepper.driver.setRPM(50);
 }
 
 void loop()
 {
 	delay(1000);
-	//stepper.encoder.getAngle();
+	stepper.encoder.getAngle();
 	//stepper.driver.writeRegister(XACTUAL, 23);
 	//delay(100);
-	stepper.driver.readRegister(CHOPCONF);
+	//stepper.driver.readRegister(CHOPCONF);
 }
 

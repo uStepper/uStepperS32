@@ -32,14 +32,21 @@
 */
 #include <UstepperSTM.h>
 
-UstepperSTM::UstepperSTM()
+UstepperSTM *ptr;
+
+void _timerCallback()
 {
-	
+}
+
+UstepperSTM::UstepperSTM() : driver(), encoder()
+{
+	timerCallback = _timerCallback;
 }
 
 void UstepperSTM::init()
 {
-	this->encoderSpi.init();
-	this->encoder.init(&this->encoderSpi);
-	this->driver.init(&this->encoderSpi);
+	this->encoder.init();
+	//this->driver.init(&this->encoderSpi);
 }
+
+

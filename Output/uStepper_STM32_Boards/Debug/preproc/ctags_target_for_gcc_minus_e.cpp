@@ -6,14 +6,14 @@ UstepperSTM stepper;
 void setup()
 {
  stepper.init();
- stepper.driver.setRPM(50);
+ //stepper.driver.setRPM(50);
 }
 
 void loop()
 {
  delay(1000);
- //stepper.encoder.getAngle();
+ stepper.encoder.getAngle();
  //stepper.driver.writeRegister(XACTUAL, 23);
  //delay(100);
- stepper.driver.readRegister(0x6C /**< Please check datasheet for register description */);
+ //stepper.driver.readRegister(CHOPCONF);
 }

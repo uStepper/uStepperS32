@@ -14,4 +14,5 @@ C:\Users\Thomas\Documents\Arduino\libraries\uStepperSTM\Output\uStepper_STM32_Bo
  C:\Users\Thomas\AppData\Local\Arduino15\packages\STMicroelectronics\hardware\stm32\2.2.0\cores\arduino/stm32/LL/stm32yyxx_ll_gpio.h \
  C:\Users\Thomas\AppData\Local\Arduino15\packages\STMicroelectronics\hardware\stm32\2.2.0\system/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
  C:\Users\Thomas\AppData\Local\Arduino15\packages\STMicroelectronics\hardware\stm32\2.2.0\cores\arduino/stm32/LL/stm32yyxx_ll_bus.h \
- C:\Users\Thomas\AppData\Local\Arduino15\packages\STMicroelectronics\hardware\stm32\2.2.0\system/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h
+ C:\Users\Thomas\AppData\Local\Arduino15\packages\STMicroelectronics\hardware\stm32\2.2.0\system/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h \
+ C:\Users\Thomas\Documents\Arduino\Libraries\uStepperSTM\src\HAL\gpio.h

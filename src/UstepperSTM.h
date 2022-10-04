@@ -6,11 +6,12 @@
 #include "HAL/spi.h"
 #include "peripherals/TMC5130/TMC5130.h"
 #include "peripherals/TLE5012B.h"
+#include "HAL/timer.h"
+
 
 class UstepperSTM
 {
 	public:
-	Spi encoderSpi;
 	TLE5012B encoder;
 	TMC5130 driver;
 	/**
@@ -18,11 +19,10 @@ class UstepperSTM
 	 */
 	UstepperSTM();
 	void init();
-	
+	friend void _timerCallback();
   private:
+	friend void timerIrqHandler(void);
 	
 };
-
-
 
 #endif

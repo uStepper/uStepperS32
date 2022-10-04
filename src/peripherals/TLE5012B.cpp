@@ -1,28 +1,35 @@
 #include "TLE5012B.h"
 
-TLE5012B::TLE5012B()
+TLE5012B::TLE5012B() : spiHandle(
+									0, 
+									GPIO(LL_GPIO_PIN_15, 15, GPIOB),
+									 GPIO(LL_GPIO_PIN_14, 14, GPIOB),
+									 GPIO(LL_GPIO_PIN_13, 13, GPIOB),
+									 GPIO(LL_GPIO_PIN_2, 2, GPIOB),
+									SPI2
+							   )
 {
 }
 
-void TLE5012B::init(Spi *handle)
+void TLE5012B::init()
 {
-	this->spiHandle = handle;
+	this->spiHandle.init();
 }
 
 void TLE5012B::sendCommand(uint16_t rw, uint16_t lock, uint16_t upd, uint16_t addr, uint16_t nd)
 {
 	uint16_t cmd = ( (rw << 15) | (lock << 11) | (upd << 10) | (addr << 4) | nd );
 
-	spiHandle->transmit16BitData(cmd);
+	spiHandle.transmit16BitData(cmd);
 	
 }
 
 uint16_t TLE5012B::getAngle()
 {
-	spiHandle->csReset();
+	spiHandle.csReset();
 	sendCommand(0x1, 0x0, 0x0, 0x02, 0x0);
-	uint16_t angle = spiHandle->transmit16BitData(0x0000);
-	spiHandle->csSet();
+	uint16_t angle = spiHandle.transmit16BitData(0x0000);
+	spiHandle.csSet();
 	this->angle = convertRawAngleToDeg(angle);
 	return angle;
 }

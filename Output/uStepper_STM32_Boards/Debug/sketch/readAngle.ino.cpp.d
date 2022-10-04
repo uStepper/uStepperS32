@@ -105,8 +105,12 @@ C:\Users\Thomas\Documents\Arduino\libraries\uStepperSTM\Output\uStepper_STM32_Bo
  C:\Users\Thomas\AppData\Local\Arduino15\packages\STMicroelectronics\hardware\stm32\2.2.0\system/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_spi.h \
  C:\Users\Thomas\AppData\Local\Arduino15\packages\STMicroelectronics\hardware\stm32\2.2.0\cores\arduino/stm32/LL/stm32yyxx_ll_bus.h \
  C:\Users\Thomas\AppData\Local\Arduino15\packages\STMicroelectronics\hardware\stm32\2.2.0\system/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h \
+ C:\Users\Thomas\Documents\Arduino\Libraries\uStepperSTM\src/HAL/gpio.h \
  C:\Users\Thomas\Documents\Arduino\Libraries\uStepperSTM\src/peripherals/TMC5130/TMC5130.h \
  c:\users\thomas\documents\arduino\libraries\ustepperstm\src\hal\spi.h \
+ c:\users\thomas\documents\arduino\libraries\ustepperstm\src\hal\gpio.h \
  C:\Users\Thomas\Documents\Arduino\Libraries\uStepperSTM\src/peripherals/TMC5130/TMC5130RegDef.h \
  C:\Users\Thomas\Documents\Arduino\Libraries\uStepperSTM\src/peripherals/TLE5012B.h \
- c:\users\thomas\documents\arduino\libraries\ustepperstm\src\hal\spi.h
+ c:\users\thomas\documents\arduino\libraries\ustepperstm\src\hal\spi.h \
+ c:\users\thomas\documents\arduino\libraries\ustepperstm\src\hal\gpio.h \
+ C:\Users\Thomas\Documents\Arduino\Libraries\uStepperSTM\src/HAL/timer.h

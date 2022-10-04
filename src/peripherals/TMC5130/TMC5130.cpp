@@ -1,35 +1,22 @@
 #include "TMC5130.h"
 
-TMC5130::TMC5130()
+TMC5130::TMC5130() : spiHandle(
+						 0,
+						 GPIO(LL_GPIO_PIN_15, 15, GPIOB),
+						 GPIO(LL_GPIO_PIN_14, 14, GPIOB),
+						 GPIO(LL_GPIO_PIN_13, 13, GPIOB),
+						 GPIO(LL_GPIO_PIN_12, 12, GPIOB),
+						 SPI2),
+					 enablePin(LL_GPIO_PIN_1, 1, GPIOA)
 {
-	
 }
 
-void TMC5130::init(Spi *handle)
+void TMC5130::init()
 {
-	LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	/* Peripheral clock enable */
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-	
-	this->spiHandle = handle;
-	
-	GPIO_InitStruct.Pin = LL_GPIO_PIN_12;
-	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-	GPIOB->BSRR |= LL_GPIO_PIN_12; //Set cs pin high
-
-	GPIO_InitStruct.Pin = LL_GPIO_PIN_1;
-	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-	GPIOA->BSRR |= LL_GPIO_PIN_1 << 16; //Set EN low
+	this->spiHandle.init();
+	this->enablePin.configureOutput();
+	this->enablePin.reset(); //Set EN low
 
 	this->reset();
 
@@ -241,15 +228,15 @@ int32_t TMC5130::writeRegister(uint8_t address, uint32_t datagram)
 
 	GPIOB->BSRR |= LL_GPIO_PIN_12 << 16;  //Set CS low
 
-	this->status = this->spiHandle->transmit8BitData(address);
+	this->status = this->spiHandle.transmit8BitData(address);
 
-	package |= this->spiHandle->transmit8BitData((datagram >> 24) & 0xff);
+	package |= this->spiHandle.transmit8BitData((datagram >> 24) & 0xff);
 	package <<= 8;
-	package |= this->spiHandle->transmit8BitData((datagram >> 16) & 0xff);
+	package |= this->spiHandle.transmit8BitData((datagram >> 16) & 0xff);
 	package <<= 8;
-	package |= this->spiHandle->transmit8BitData((datagram >> 8) & 0xff);
+	package |= this->spiHandle.transmit8BitData((datagram >> 8) & 0xff);
 	package <<= 8;
-	package |= this->spiHandle->transmit8BitData((datagram)&0xff);
+	package |= this->spiHandle.transmit8BitData((datagram)&0xff);
 
 	GPIOB->BSRR |= LL_GPIO_PIN_12; //Set cs pin high
 
@@ -265,25 +252,25 @@ int32_t TMC5130::readRegister(uint8_t address)
 
 	// Request a reading on address
 	GPIOB->BSRR |= LL_GPIO_PIN_12 << 16; //Set CS low
-	this->status = this->spiHandle->transmit8BitData(address);
-	this->spiHandle->transmit8BitData(0x00);
-	this->spiHandle->transmit8BitData(0x00);
-	this->spiHandle->transmit8BitData(0x00);
-	this->spiHandle->transmit8BitData(0x00);
+	this->status = this->spiHandle.transmit8BitData(address);
+	this->spiHandle.transmit8BitData(0x00);
+	this->spiHandle.transmit8BitData(0x00);
+	this->spiHandle.transmit8BitData(0x00);
+	this->spiHandle.transmit8BitData(0x00);
 	GPIOB->BSRR |= LL_GPIO_PIN_12; //Set cs pin high
 
 	// Read the actual value on second request
 	int32_t value = 0;
 	delayMicroseconds(1);
 	GPIOB->BSRR |= LL_GPIO_PIN_12 << 16; //Set CS low
-	this->status = this->spiHandle->transmit8BitData(address);
-	value |= this->spiHandle->transmit8BitData(0x00);
+	this->status = this->spiHandle.transmit8BitData(address);
+	value |= this->spiHandle.transmit8BitData(0x00);
 	value <<= 8;
-	value |= this->spiHandle->transmit8BitData(0x00);
+	value |= this->spiHandle.transmit8BitData(0x00);
 	value <<= 8;
-	value |= this->spiHandle->transmit8BitData(0x00);
+	value |= this->spiHandle.transmit8BitData(0x00);
 	value <<= 8;
-	value |= this->spiHandle->transmit8BitData(0x00);
+	value |= this->spiHandle.transmit8BitData(0x00);
 	GPIOB->BSRR |= LL_GPIO_PIN_12; //Set cs pin high
 
 	this->lastReadValue = value;

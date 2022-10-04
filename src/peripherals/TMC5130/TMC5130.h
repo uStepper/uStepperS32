@@ -3,13 +3,14 @@
 
 #include <Arduino.h>
 #include "../../HAL/spi.h"
+#include "../../HAL/gpio.h"
 #include "TMC5130RegDef.h"
 
 class TMC5130
 {
   public:
 	TMC5130();
-	void init(Spi *handle);
+	void init();
 	int32_t readRegister(uint8_t address);
 	int32_t writeRegister(uint8_t address, uint32_t datagram);
 	void enableStealth();
@@ -24,7 +25,8 @@ class TMC5130
 	void setRPM(float rpm);
 
   private:
-	Spi *spiHandle;
+	Spi spiHandle;
+	GPIO enablePin;
 	/** Default acceleration profile for positioning mode */
 	uint32_t VSTART = 0;
 	uint32_t V1 = 0;
