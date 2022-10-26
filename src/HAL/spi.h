@@ -28,13 +28,15 @@ class Spi
 	uint16_t transmit16BitData(uint16_t data);
 	void csSet();
 	void csReset();
-
+	void releaseMosi();
+	void engageMosi();
+	SPI_TypeDef *_spiChannel;
   private:
 	GPIO _mosi;
 	GPIO _miso;
 	GPIO _cs;
 	GPIO _sck;
-	SPI_TypeDef *_spiChannel;
+	
 	bool chipSelectActivePolarity;
 };
 #endif

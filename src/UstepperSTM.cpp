@@ -45,8 +45,8 @@ UstepperSTM::UstepperSTM() : driver(), encoder()
 
 void UstepperSTM::init()
 {
-	this->encoder.init();
-	//this->driver.init(&this->encoderSpi);
+	//this->encoder.init();
+	this->driver.init();
 }
 
 

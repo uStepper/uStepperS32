@@ -218,15 +218,15 @@ int32_t TMC5130::writeRegister(uint8_t address, uint32_t datagram)
 {
 
 	// Enable SPI mode 3 to use TMC5130
-	LL_SPI_SetClockPhase(SPI2, LL_SPI_PHASE_2EDGE);
-	LL_SPI_SetClockPolarity(SPI2, LL_SPI_POLARITY_HIGH);
+	LL_SPI_SetClockPhase(this->spiHandle._spiChannel, LL_SPI_PHASE_2EDGE);
+	LL_SPI_SetClockPolarity(this->spiHandle._spiChannel, LL_SPI_POLARITY_HIGH);
 
 	uint32_t package = 0;
 
 	// Add the value of WRITE_ACCESS to enable register write
 	address += 0x80;
 
-	GPIOB->BSRR |= LL_GPIO_PIN_12 << 16;  //Set CS low
+	this->spiHandle.csReset();
 
 	this->status = this->spiHandle.transmit8BitData(address);
 
@@ -238,7 +238,7 @@ int32_t TMC5130::writeRegister(uint8_t address, uint32_t datagram)
 	package <<= 8;
 	package |= this->spiHandle.transmit8BitData((datagram)&0xff);
 
-	GPIOB->BSRR |= LL_GPIO_PIN_12; //Set cs pin high
+	this->spiHandle.csSet();
 
 	return package;
 }
@@ -247,22 +247,22 @@ int32_t TMC5130::readRegister(uint8_t address)
 {
 
 	// Enable SPI mode 3 to use TMC5130
-	LL_SPI_SetClockPhase(SPI2, LL_SPI_PHASE_2EDGE);
-	LL_SPI_SetClockPolarity(SPI2, LL_SPI_POLARITY_HIGH);
+	LL_SPI_SetClockPhase(this->spiHandle._spiChannel, LL_SPI_PHASE_2EDGE);
+	LL_SPI_SetClockPolarity(this->spiHandle._spiChannel, LL_SPI_POLARITY_HIGH);
 
 	// Request a reading on address
-	GPIOB->BSRR |= LL_GPIO_PIN_12 << 16; //Set CS low
+	this->spiHandle.csReset(); //Set CS low
 	this->status = this->spiHandle.transmit8BitData(address);
 	this->spiHandle.transmit8BitData(0x00);
 	this->spiHandle.transmit8BitData(0x00);
 	this->spiHandle.transmit8BitData(0x00);
 	this->spiHandle.transmit8BitData(0x00);
-	GPIOB->BSRR |= LL_GPIO_PIN_12; //Set cs pin high
+	this->spiHandle.csSet();//Set cs pin high
 
 	// Read the actual value on second request
 	int32_t value = 0;
 	delayMicroseconds(1);
-	GPIOB->BSRR |= LL_GPIO_PIN_12 << 16; //Set CS low
+	this->spiHandle.csReset();//Set CS low
 	this->status = this->spiHandle.transmit8BitData(address);
 	value |= this->spiHandle.transmit8BitData(0x00);
 	value <<= 8;
@@ -271,7 +271,7 @@ int32_t TMC5130::readRegister(uint8_t address)
 	value |= this->spiHandle.transmit8BitData(0x00);
 	value <<= 8;
 	value |= this->spiHandle.transmit8BitData(0x00);
-	GPIOB->BSRR |= LL_GPIO_PIN_12; //Set cs pin high
+	this->spiHandle.csSet(); //Set cs pin high
 
 	this->lastReadValue = value;
 

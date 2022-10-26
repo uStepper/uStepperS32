@@ -14,7 +14,7 @@ class GPIO
 	void set();
 	void reset();
 	bool read();
-	void configureSpi();
+	void configureSpi(SPI_TypeDef *spiChannel);
 	void configureOutput();
 	void configureInput();
 	void configureAnalog();
