@@ -10,9 +10,9 @@ void setup()
 
 void loop()
 {
-	delay(1000);
-	stepper.encoder.getAngle();
-	//stepper.driver.writeRegister(XACTUAL, 23);
-	//delay(100);
-	//stepper.driver.readRegister(CHOPCONF);
+	//delay(1000);
+	//stepper.encoder.getAngle();
+	stepper.driver.writeRegister(XACTUAL, 23);
+	delay(100);
+	stepper.driver.readRegister(XACTUAL);
 }

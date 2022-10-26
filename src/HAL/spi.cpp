@@ -14,17 +14,19 @@ void Spi::init()
 	LL_SPI_InitTypeDef SPI_InitStruct = {0};
 
 	/* Peripheral clock enable */
-	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI2);
-
+	if (this->_spiChannel == SPI1){LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);}
+	else if (this->_spiChannel == SPI2){LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI2);}
+	else if (this->_spiChannel == SPI3){LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI3);}
+	else if (this->_spiChannel == SPI4){LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI4);}
 	/**SPI2 GPIO Configuration
 	PB13   ------> SPI2_SCK
 	PB14   ------> SPI2_MISO
 	PB15   ------> SPI2_MOSI
 	*/
 
-	this->_mosi.configureSpi();
-	this->_miso.configureSpi();
-	this->_sck.configureSpi();
+	this->_mosi.configureSpi(this->_spiChannel);
+	this->_miso.configureSpi(this->_spiChannel);
+	this->_sck.configureSpi(this->_spiChannel);
 	this->_cs.configureOutput();
 
 	this->csSet();
@@ -36,7 +38,7 @@ void Spi::init()
 	SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
 	SPI_InitStruct.ClockPhase = LL_SPI_PHASE_2EDGE;
 	SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
-	SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV64;
+	SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV16;
 	SPI_InitStruct.BitOrder = LL_SPI_MSB_FIRST;
 	SPI_InitStruct.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
 	SPI_InitStruct.CRCPoly = 10;
@@ -92,4 +94,14 @@ void Spi::csSet()
 void Spi::csReset()
 {
 	this->_cs.reset(); //Set cs pin low
+}
+
+void Spi::releaseMosi()
+{
+	this->_mosi.configureInput();
+}
+
+void Spi::engageMosi()
+{
+	this->_mosi.configureSpi(this->_spiChannel);
 }

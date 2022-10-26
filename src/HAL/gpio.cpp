@@ -31,7 +31,7 @@ bool GPIO::read()
 	
 }
 
-void GPIO::configureSpi()
+void GPIO::configureSpi(SPI_TypeDef *spiChannel)
 {
 	LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
 	
@@ -42,7 +42,15 @@ void GPIO::configureSpi()
 	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
 	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
 	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	GPIO_InitStruct.Alternate = LL_GPIO_AF_5;
+	if (spiChannel == SPI3)
+	{
+		GPIO_InitStruct.Alternate = LL_GPIO_AF_6;
+	}
+	else
+	{
+		GPIO_InitStruct.Alternate = LL_GPIO_AF_5;
+	}
+	
 	LL_GPIO_Init(this->_port, &GPIO_InitStruct);
 }
 
@@ -90,7 +98,15 @@ void GPIO::enableClock()
 
 void GPIO::configureInput()
 {
-	
+	LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	this->enableClock();
+
+	GPIO_InitStruct.Pin = _pinMask;
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	LL_GPIO_Init(this->_port, &GPIO_InitStruct);
 }
 
 void GPIO::configureAnalog()
