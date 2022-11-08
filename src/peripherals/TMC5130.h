@@ -27,6 +27,8 @@ class TMC5130
   private:
 	Spi spiHandle;
 	GPIO enablePin;
+	GPIO sdPin;
+	GPIO spiPin;
 	/** Default acceleration profile for positioning mode */
 	uint32_t VSTART = 0;
 	uint32_t V1 = 0;

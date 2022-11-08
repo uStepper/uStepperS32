@@ -25,11 +25,180 @@
         <h>false</h>
         <a>false</a>
       </gp>
+      <gp>
+        <e>analog2</e>
+        <f>com.sysprogs.types.builtin.UInt16</f>
+        <b>true</b>
+        <c>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </c>
+        <g>false</g>
+        <h>false</h>
+        <a>false</a>
+      </gp>
+      <gp>
+        <e>analog3</e>
+        <f>com.sysprogs.types.builtin.UInt16</f>
+        <b>true</b>
+        <c>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </c>
+        <g>false</g>
+        <h>false</h>
+        <a>false</a>
+      </gp>
     </a>
     <e>
       <c>
         <b>com.sysprogs.AllGlobals</b>
-        <a />
+        <a>
+          <gp>
+            <e>analog10</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog11</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog12</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog13</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog2</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog3</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog4</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog5</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog6</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog7</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog8</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>analog9</e>
+            <f>com.sysprogs.types.builtin.UInt16</f>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>true</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+        </a>
       </c>
       <c>
         <b>com.sysprogs.SpecificVariables</b>
@@ -41,7 +210,7 @@
       </c>
     </e>
     <d>
-      <a>SpecificVariables</a>
+      <a>AllGlobals</a>
       <b>false</b>
     </d>
     <Suggestions>

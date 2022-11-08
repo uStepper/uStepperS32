@@ -7,7 +7,9 @@ TMC5130::TMC5130() : spiHandle(
 						 GPIO(LL_GPIO_PIN_13, 13, GPIOB),
 						 GPIO(LL_GPIO_PIN_12, 12, GPIOB),
 						 SPI2),
-					 enablePin(LL_GPIO_PIN_1, 1, GPIOA)
+					 enablePin(LL_GPIO_PIN_1, 1, GPIOA),
+					 sdPin(LL_GPIO_PIN_8, 8, GPIOC),
+					 spiPin(LL_GPIO_PIN_1, 1, GPIOC)
 {
 }
 
@@ -15,8 +17,13 @@ void TMC5130::init()
 {
 
 	this->spiHandle.init();
+	this->sdPin.configureOutput();
+	this->sdPin.reset(); //Set SD_MODE pin low
+	this->spiPin.configureOutput();
+	this->spiPin.set(); //Set SPI_MODE pin high
 	this->enablePin.configureOutput();
 	this->enablePin.reset(); //Set EN low
+	
 
 	this->reset();
 
