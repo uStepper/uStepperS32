@@ -1,17 +1,13 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "timer.h"
-void (*timerCallback)(void);
+
 /**
   * @brief TIM2 Initialization Function
   * @param None
   * @retval None
   */
-void timerInit(void)
+void mainTimerInit(void)
 {
-
 	/* USER CODE BEGIN TIM2_Init 0 */
 
 	/* USER CODE END TIM2_Init 0 */
@@ -36,12 +32,18 @@ void timerInit(void)
 
 	LL_TIM_ClearFlag_UPDATE(TIM2);
 	LL_TIM_EnableIT_UPDATE(TIM2);
-	TIM2->CR1 |= 0x01;
+	mainTimerStart();
 }
 
-void timerIrqHandler(void)
+void mainTimerPause()
 {
-	timerCallback();
+	TIM2->CR1 &= ~0x0001;
+}
+
+void mainTimerStart()
+{
+	TIM2->CNT = 0;
+	TIM2->CR1 |= 0x0001;
 }
 
 /**
@@ -50,10 +52,6 @@ void timerIrqHandler(void)
   */
 void TIM2_IRQHandler(void)
 {
-	timerIrqHandler();
+	callbacks._mainTimerCallback();
 	LL_TIM_ClearFlag_UPDATE(TIM2);
 }
-
-#ifdef __cplusplus
-}
-#endif

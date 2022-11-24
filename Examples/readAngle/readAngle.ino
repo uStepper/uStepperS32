@@ -20,26 +20,12 @@ void setup()
 {
 	stepper.init();
 	Serial.begin(115200);
-	//pinMode(pin, OUTPUT);
 	//stepper.driver.setRPM(0);
 }
 
 void loop()
 {
-	//analog0 = analogRead(A0);
-	//analog1 = analogRead(A1);
-	analog2 = analogRead(A2);
-	analog3 = analogRead(A3);
-	analog4 = analogRead(A4);
-	analog5 = analogRead(A5);
-	analog6 = analogRead(A6);
-	analog7 = analogRead(A7);
-	analog8 = analogRead(A8);
-	analog9 = analogRead(A9);
-	analog10 = analogRead(A10);
-	analog11 = analogRead(A11);
-	analog12 = analogRead(A12);
-	analog13 = analogRead(A13);
+	Serial.println("Hejsa");
 	
 	delay(1000);
 	//stepper.encoder.getAngle();

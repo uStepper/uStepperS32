@@ -7,6 +7,7 @@
 #include "peripherals/TMC5130.h"
 #include "peripherals/TLE5012B.h"
 #include "HAL/timer.h"
+#include "callbacks.h"
 
 
 class UstepperSTM
@@ -19,10 +20,15 @@ class UstepperSTM
 	 */
 	UstepperSTM();
 	void init();
-	friend void _timerCallback();
+	
   private:
-	friend void timerIrqHandler(void);
+	friend void mainTimerCallback();
+	friend void dropInStepInputEXTI();
+	friend void dropInDirInputEXTI();
+	friend void dropInEnableInputEXTI();
 	
 };
+
+extern UstepperSTM *ptr;
 
 #endif

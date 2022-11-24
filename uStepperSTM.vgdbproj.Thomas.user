@@ -15,31 +15,19 @@
       <gp>
         <e>DR</e>
         <d>((*((unsigned long *)0x40003c0c)))</d>
+        <f>com.sysprogs.types.builtin.UInt32</f>
+        <b>true</b>
+        <c>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </c>
+        <g>false</g>
+        <h>false</h>
+        <a>false</a>
+      </gp>
+      <gp>
+        <e>ptr</e>
         <f>com.sysprogs.types.builtin.HexInt32</f>
-        <b>true</b>
-        <c>
-          <ComparisonMode>Equals</ComparisonMode>
-          <Enabled>false</Enabled>
-        </c>
-        <g>false</g>
-        <h>false</h>
-        <a>false</a>
-      </gp>
-      <gp>
-        <e>analog2</e>
-        <f>com.sysprogs.types.builtin.UInt16</f>
-        <b>true</b>
-        <c>
-          <ComparisonMode>Equals</ComparisonMode>
-          <Enabled>false</Enabled>
-        </c>
-        <g>false</g>
-        <h>false</h>
-        <a>false</a>
-      </gp>
-      <gp>
-        <e>analog3</e>
-        <f>com.sysprogs.types.builtin.UInt16</f>
         <b>true</b>
         <c>
           <ComparisonMode>Equals</ComparisonMode>
@@ -53,156 +41,23 @@
     <e>
       <c>
         <b>com.sysprogs.AllGlobals</b>
+        <a />
+      </c>
+      <c>
+        <b>com.sysprogs.SpecificVariables</b>
         <a>
           <gp>
-            <e>analog10</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
+            <e>ptr-&gt;encoder</e>
             <b>true</b>
             <c>
               <ComparisonMode>Equals</ComparisonMode>
               <Enabled>false</Enabled>
             </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog11</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog12</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog13</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog2</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog3</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog4</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog5</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog6</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog7</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog8</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>analog9</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>true</g>
+            <g>false</g>
             <h>false</h>
             <a>false</a>
           </gp>
         </a>
-      </c>
-      <c>
-        <b>com.sysprogs.SpecificVariables</b>
-        <a />
       </c>
       <c>
         <b>com.sysprogs.Custom</b>
@@ -210,7 +65,7 @@
       </c>
     </e>
     <d>
-      <a>AllGlobals</a>
+      <a>SpecificVariables</a>
       <b>false</b>
     </d>
     <Suggestions>
@@ -577,6 +432,54 @@
           <IsFavorite>false</IsFavorite>
           <IsLive>false</IsLive>
           <LastUsed>133112855131661076</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.ODR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129297220246966</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.IDR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129297685394412</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.BSRR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129297913315558</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.MODER</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129298003684515</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.OTYPER</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129298047411991</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.OSPEEDR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129329641054366</LastUsed>
         </State>
       </HardwareRegisterRecord>
     </HardwareRegisters>

@@ -1,7 +1,7 @@
 #include "TMC5130.h"
 
 TMC5130::TMC5130() : spiHandle(
-						 0,
+						 csActivePolarity_t(activeLow),
 						 GPIO(LL_GPIO_PIN_15, 15, GPIOB),
 						 GPIO(LL_GPIO_PIN_14, 14, GPIOB),
 						 GPIO(LL_GPIO_PIN_13, 13, GPIOB),

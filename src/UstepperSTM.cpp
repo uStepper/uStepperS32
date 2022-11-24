@@ -31,22 +31,23 @@
 * @author     Thomas Hørring Olsen (thomas@ustepper.com)
 */
 #include <UstepperSTM.h>
-
+Callbacks_t callbacks;
 UstepperSTM *ptr;
-
-void _timerCallback()
-{
-}
-
 UstepperSTM::UstepperSTM() : driver(), encoder()
 {
-	timerCallback = _timerCallback;
+	
 }
 
 void UstepperSTM::init()
 {
-	//this->encoder.init();
+	ptr = this;
+	
+	callbacks._mainTimerCallback = mainTimerCallback;
+	
+	this->encoder.init();
 	this->driver.init();
+	
+	mainTimerInit();
 }
 
 
