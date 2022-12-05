@@ -218,6 +218,10 @@
               <Key>upload_method</Key>
               <Value>MassStorage</Value>
             </KeyValue>
+            <KeyValue>
+              <Key>usb</Key>
+              <Value>CDCgen</Value>
+            </KeyValue>
           </Entries>
         </Properties>
         <DebugUnoptimizedComponentTypes>Sketch</DebugUnoptimizedComponentTypes>

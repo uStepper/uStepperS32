@@ -38,7 +38,14 @@ void Spi::init()
 	SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
 	SPI_InitStruct.ClockPhase = LL_SPI_PHASE_2EDGE;
 	SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
-	SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV8;
+	if (this->_spiChannel == SPI2)
+	{
+		SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV16;
+	}
+	else if (this->_spiChannel == SPI3)
+	{
+		SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV8;
+	}
 	SPI_InitStruct.BitOrder = LL_SPI_MSB_FIRST;
 	SPI_InitStruct.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
 	SPI_InitStruct.CRCPoly = 10;
