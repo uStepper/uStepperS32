@@ -1,5 +1,6 @@
-#include "TMC5130.h"
+#include "../UstepperSTM.h"
 
+extern UstepperSTM *ptr;
 TMC5130::TMC5130() : spiHandle(
 						 csActivePolarity_t(activeLow),
 						 GPIO(LL_GPIO_PIN_15, 15, GPIOB),
@@ -48,7 +49,95 @@ void TMC5130::init()
 	this->stop();
 
 	while (this->readRegister(VACTUAL) != 0);
-	//GPIOA->BSRR |= LL_GPIO_PIN_1 << 16; //Set EN low
+}
+
+void TMC5130::enableStallguard(int8_t threshold, bool stopOnStall, float rpm)
+{
+	// Limit threshold
+	if (threshold > 63)
+		threshold = 63;
+	else if (threshold < -64)
+		threshold = -64;
+
+	rpm = abs(rpm);
+	// Limit rpm
+	if (rpm > 1000)
+		rpm = 1000;
+	else if (rpm < 2)
+		rpm = 2;
+
+	/* Disable StealthChop for stallguard operation */
+	this->writeRegister(GCONF, EN_PWM_MODE(0) | I_SCALE_ANALOG(1));
+	this->setShaftDirection(ptr->shaftDir);
+
+	// Configure COOLCONF for stallguard
+	this->writeRegister(COOLCONF, SGT(threshold) | SFILT(1) | SEMIN(5) | SEMAX(2) | SEDN(1));
+
+	//int32_t stall_speed = 1048576 / ptr->rpmToVelocity * speed // 1048576 = 2^20. See TSTEP in datasheet p.33
+	int32_t stall_speed = 1048576 / ptr->rpmToVelocity * (rpm / 2); //Should be 1048576 = 2^20.
+	stall_speed = stall_speed * 1.2;								// // Activate stallGuard sligthly below desired homing velocity (provide 20% tolerance)
+
+	// Set TCOOLTHRS to max speed value (enable stallguard for all speeds)
+	this->writeRegister(TCOOLTHRS, stall_speed); // Max value is 20bit = 0xFFFFF
+	this->writeRegister(THIGH, 0);
+
+	// Enable automatic stop on stall dectection
+	if (stopOnStall)
+		this->writeRegister(SW_MODE, SG_STOP(1));
+	else
+		this->writeRegister(SW_MODE, SG_STOP(0));
+}
+
+void TMC5130::disableStallguard(void)
+{
+	// Reenable stealthchop
+	this->writeRegister(GCONF, EN_PWM_MODE(1) | I_SCALE_ANALOG(1));
+	this->setShaftDirection(ptr->shaftDir);
+
+	// Disable all stallguard configuration
+	this->writeRegister(COOLCONF, 0);
+	this->writeRegister(TCOOLTHRS, 0);
+	this->writeRegister(THIGH, 0);
+	this->writeRegister(SW_MODE, 0);
+}
+
+int32_t TMC5130::getPosition(void)
+{
+	return this->readRegister(XACTUAL);
+}
+
+void TMC5130::setHome(int32_t initialSteps)
+{
+	int32_t xActual, xTarget;
+
+	if (this->mode == DRIVER_POSITION)
+	{
+		xActual = this->getPosition();
+		xTarget = this->readRegister(XTARGET);
+
+		xTarget -= xActual;
+		this->xTarget = xTarget + initialSteps;
+		this->xActual = initialSteps;
+		this->writeRegister(XACTUAL, initialSteps);
+		this->writeRegister(XTARGET, this->xTarget);
+	}
+	else
+	{
+		this->xTarget = initialSteps;
+		this->xActual = initialSteps;
+		this->writeRegister(XACTUAL, initialSteps);
+		this->writeRegister(XTARGET, initialSteps);
+	}
+
+	ptr->pidPositionStepsIssued = initialSteps;
+}
+
+void TMC5130::setPosition(int32_t position)
+{
+	this->mode = DRIVER_POSITION;
+	this->setRampMode(POSITIONING_MODE);
+	this->writeRegister(XTARGET, position);
+	this->xTarget = position;
 }
 
 void TMC5130::setDirection(bool direction)
@@ -80,6 +169,12 @@ void TMC5130::setRPM(float rpm)
 	uint32_t velocity = abs(velocityDir);
 
 	this->setVelocity((uint32_t)velocity);
+}
+
+uint16_t TMC5130::getStallValue(void)
+{
+	// Get the SG_RESULT from DRV_STATUS.
+	return this->readRegister(DRV_STATUS) & 0x3FF;
 }
 
 void TMC5130::reset(void)
@@ -122,6 +217,11 @@ void TMC5130::enableStealth()
 
 	/* Specifies the upper velocity (lower time delay) for operation in stealthChop voltage PWM mode */
 	this->writeRegister(TPWMTHRS, 5000);
+}
+
+void TMC5130::updateCurrent(void)
+{
+	this->writeRegister(IHOLD_IRUN, IHOLD(this->holdCurrent) | IRUN(this->current) | IHOLDDELAY(this->holdDelay));
 }
 
 void TMC5130::setShaftDirection(bool direction)
@@ -219,6 +319,18 @@ void TMC5130::clearStall(void)
 {
 	// Reading the RAMP_STAT register clears the stallguard flag, telling the driver to continue.
 	this->readRegister(RAMP_STAT);
+}
+
+void TMC5130::setCurrent(uint8_t current)
+{
+	this->current = current;
+	this->updateCurrent();
+}
+
+void TMC5130::setHoldCurrent(uint8_t current)
+{
+	this->holdCurrent = current;
+	this->updateCurrent();
 }
 
 int32_t TMC5130::writeRegister(uint8_t address, uint32_t datagram)

@@ -11,11 +11,15 @@ void setup()
 	//stepper.checkOrientation(30.0);   //Check orientation of motor connector with +/- 30 microsteps movement
 	Serial.begin(9600);
 	stepper.init();
-	stepper.driver.setRPM(50);
+	
 }
 
 void loop()
 {
+	stepper.driver.setRPM(50);
+	delay(3000);
+	stepper.driver.setRPM(0);
+	delay(3000);
 	// put your main code here, to run repeatedly:
 	/*if (!stepper.getMotorState()) //If motor is at standstill
 	{
