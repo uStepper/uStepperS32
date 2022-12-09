@@ -38,6 +38,8 @@ void Spi::init()
 	SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
 	SPI_InitStruct.ClockPhase = LL_SPI_PHASE_2EDGE;
 	SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
+	
+	//TODO: make this dynamic !
 	if (this->_spiChannel == SPI2)
 	{
 		SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV16;
