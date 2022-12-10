@@ -51,6 +51,12 @@ void TMC5130::init()
 	while (this->readRegister(VACTUAL) != 0);
 }
 
+uint8_t TMC5130::readMotorStatus(void)
+{
+	this->readRegister(XACTUAL);
+	return this->status;
+}
+
 void TMC5130::enableStallguard(int8_t threshold, bool stopOnStall, float rpm)
 {
 	// Limit threshold

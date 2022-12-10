@@ -181,6 +181,8 @@ class TMC5130
 	void disableStallguard(void);
 
 	void clearStall(void);
+
+	uint8_t readMotorStatus(void);
 	
 	Spi spiHandle;
 	GPIO enablePin;

@@ -32,7 +32,30 @@
       </c>
       <c>
         <b>com.sysprogs.SpecificVariables</b>
-        <a />
+        <a>
+          <gp>
+            <e>ptr-&gt;encoder</e>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>false</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>ptr-&gt;encoder.velocityEstimator</e>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>false</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+        </a>
       </c>
       <c>
         <b>com.sysprogs.Custom</b>

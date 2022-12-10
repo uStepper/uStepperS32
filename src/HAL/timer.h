@@ -7,8 +7,9 @@
 	#include "stm32yyxx_ll_tim.h"
 	#include "stm32yyxx_ll_bus.h"
 	#include "../callbacks.h"
-	
-	#define MAINTIMERINTERRUPTPERIOD 1.0f/1000.0f
+
+	#define MAINTIMERINTERRUPTFREQUENCY 1000.0f
+	#define MAINTIMERINTERRUPTPERIOD 1.0f / MAINTIMERINTERRUPTFREQUENCY
 	
 	void TIM2_IRQHandler(void);
 	void mainTimerInit(void);
