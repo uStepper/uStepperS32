@@ -8,7 +8,7 @@
 
 class TMC5130
 {
-	friend class UstepperSTM;
+	friend class UstepperS32;
   public:
 	TMC5130();
 	/**

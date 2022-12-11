@@ -1,4 +1,4 @@
-#include <UstepperSTM.h>
+#include <UstepperS32.h>
 
 UstepperSTM stepper;
 uint8_t pin = D21;

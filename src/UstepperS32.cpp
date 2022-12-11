@@ -30,10 +30,10 @@
 *
 * @author     Thomas Hørring Olsen (thomas@ustepper.com)
 */
-#include <UstepperSTM.h>
+#include <UstepperS32.h>
 Callbacks_t callbacks;
-UstepperSTM *ptr;
-UstepperSTM::UstepperSTM() : driver(), encoder()
+UstepperS32 *ptr;
+UstepperS32::UstepperS32() : driver(), encoder()
 {
 	ptr = this;
 	callbacks._mainTimerCallback = mainTimerCallback;
@@ -45,7 +45,7 @@ UstepperSTM::UstepperSTM() : driver(), encoder()
 	this->setMaxVelocity(100.0, false);
 }
 
-UstepperSTM::UstepperSTM(float acceleration, float velocity) : driver(), encoder()
+UstepperS32::UstepperS32(float acceleration, float velocity) : driver(), encoder()
 {
 	ptr = this;
 
@@ -56,7 +56,7 @@ UstepperSTM::UstepperSTM(float acceleration, float velocity) : driver(), encoder
 	this->setMaxVelocity(velocity, false);
 }
 
-void UstepperSTM::setup(uint8_t mode,
+void UstepperS32::setup(uint8_t mode,
 						uint16_t stepsPerRevolution,
 						float pTerm,
 						float iTerm,
@@ -104,7 +104,7 @@ void UstepperSTM::setup(uint8_t mode,
 	mainTimerInit();
 }
 
-bool UstepperSTM::getMotorState(uint8_t statusType)
+bool UstepperS32::getMotorState(uint8_t statusType)
 {
 	this->driver.readMotorStatus();
 	if (this->driver.status & statusType)
@@ -114,7 +114,7 @@ bool UstepperSTM::getMotorState(uint8_t statusType)
 	return 1;
 }
 
-void UstepperSTM::checkOrientation(float distance)
+void UstepperS32::checkOrientation(float distance)
 {
 	float startAngle;
 	uint8_t inverted = 0;
@@ -152,7 +152,7 @@ void UstepperSTM::checkOrientation(float distance)
 	this->enablePid();
 }
 
-void UstepperSTM::setMaxVelocity(float velocity, bool applyToDriver)
+void UstepperS32::setMaxVelocity(float velocity, bool applyToDriver)
 {
 	velocity *= (float)this->microSteps;
 	velocity = abs(velocity) * VELOCITYCONVERSION;
@@ -167,7 +167,7 @@ void UstepperSTM::setMaxVelocity(float velocity, bool applyToDriver)
 	this->driver.setVelocity((uint32_t)(this->maxVelocity));
 }
 
-void UstepperSTM::setMaxAcceleration(float acceleration, bool applyToDriver)
+void UstepperS32::setMaxAcceleration(float acceleration, bool applyToDriver)
 {
 	acceleration *= (float)this->microSteps;
 	acceleration = abs(acceleration) * ACCELERATIONCONVERSION;
@@ -183,7 +183,7 @@ void UstepperSTM::setMaxAcceleration(float acceleration, bool applyToDriver)
 	this->driver.setAcceleration((uint32_t)(this->maxAcceleration));
 }
 
-void UstepperSTM::setMaxDeceleration(float deceleration, bool applyToDriver)
+void UstepperS32::setMaxDeceleration(float deceleration, bool applyToDriver)
 {
 	deceleration *= (float)this->microSteps;
 	deceleration = abs(deceleration) * ACCELERATIONCONVERSION;
@@ -199,7 +199,7 @@ void UstepperSTM::setMaxDeceleration(float deceleration, bool applyToDriver)
 	this->driver.setDeceleration((uint32_t)(this->maxDeceleration));
 }
 
-void UstepperSTM::moveSteps(int32_t steps)
+void UstepperS32::moveSteps(int32_t steps)
 {
 	this->driver.setDeceleration((uint16_t)(this->maxDeceleration));
 	this->driver.setAcceleration((uint16_t)(this->maxAcceleration));
@@ -212,7 +212,7 @@ void UstepperSTM::moveSteps(int32_t steps)
 	this->driver.setPosition(current + steps);
 }
 
-void UstepperSTM::moveAngle(float angle)
+void UstepperS32::moveAngle(float angle)
 {
 	int32_t steps;
 
@@ -228,7 +228,7 @@ void UstepperSTM::moveAngle(float angle)
 	}
 }
 
-void UstepperSTM::moveToAngle(float angle)
+void UstepperS32::moveToAngle(float angle)
 {
 	float diff;
 	int32_t steps;
@@ -246,7 +246,7 @@ void UstepperSTM::moveToAngle(float angle)
 	}
 }
 
-void UstepperSTM::setCurrent(double current)
+void UstepperS32::setCurrent(double current)
 {
 	if (current <= 100.0 && current >= 0.0)
 	{
@@ -262,7 +262,7 @@ void UstepperSTM::setCurrent(double current)
 	driver.updateCurrent();
 }
 
-void UstepperSTM::enableStallguard(int8_t threshold, bool stopOnStall, float rpm)
+void UstepperS32::enableStallguard(int8_t threshold, bool stopOnStall, float rpm)
 {
 	this->clearStall();
 	this->stallThreshold = threshold;
@@ -273,24 +273,24 @@ void UstepperSTM::enableStallguard(int8_t threshold, bool stopOnStall, float rpm
 	this->stallEnabled = true;
 }
 
-void UstepperSTM::disableStallguard(void)
+void UstepperS32::disableStallguard(void)
 {
 	ptr->driver.disableStallguard();
 
 	this->stallEnabled = false;
 }
 
-void UstepperSTM::clearStall(void)
+void UstepperS32::clearStall(void)
 {
 	ptr->driver.clearStall();
 }
 
-bool UstepperSTM::isStalled(void)
+bool UstepperS32::isStalled(void)
 {
 	return this->isStalled(this->stallThreshold);
 }
 
-bool UstepperSTM::isStalled(int8_t threshold)
+bool UstepperS32::isStalled(int8_t threshold)
 {
 	// If the threshold is different from what is configured..
 	if (threshold != this->stallThreshold || this->stallEnabled == false)
@@ -305,7 +305,7 @@ bool UstepperSTM::isStalled(int8_t threshold)
 	return (stats >> 13);
 }
 
-void UstepperSTM::setBrakeMode(uint8_t mode, float brakeCurrent)
+void UstepperS32::setBrakeMode(uint8_t mode, float brakeCurrent)
 {
 	int32_t registerContent = this->driver.readRegister(PWMCONF);
 	registerContent &= ~(3UL << 20);
@@ -326,38 +326,38 @@ void UstepperSTM::setBrakeMode(uint8_t mode, float brakeCurrent)
 	}
 }
 
-float UstepperSTM::getDriverRPM(void)
+float UstepperS32::getDriverRPM(void)
 {
 	int32_t velocity = this->driver.getVelocity();
 
 	return (float)velocity * this->velToRpm;
 }
 
-void UstepperSTM::setControlThreshold(float threshold)
+void UstepperS32::setControlThreshold(float threshold)
 {
 	this->controlThreshold = threshold;
 }
-void UstepperSTM::enablePid(void)
+void UstepperS32::enablePid(void)
 {
 	this->pidDisabled = 0;
 }
 
-void UstepperSTM::disablePid(void)
+void UstepperS32::disablePid(void)
 {
 	this->pidDisabled = 1;
 }
 
-void UstepperSTM::enableClosedLoop(void)
+void UstepperS32::enableClosedLoop(void)
 {
 	this->enablePid();
 }
 
-void UstepperSTM::disableClosedLoop(void)
+void UstepperS32::disableClosedLoop(void)
 {
 	this->disablePid();
 }
 
-void UstepperSTM::stop(bool mode)
+void UstepperS32::stop(bool mode)
 {
 
 	if (mode == HARD)
@@ -382,7 +382,7 @@ void UstepperSTM::stop(bool mode)
 	this->driver.setPosition(current);
 }
 
-float UstepperSTM::moveToEnd(bool dir, float rpm, int8_t threshold, uint32_t timeOut)
+float UstepperS32::moveToEnd(bool dir, float rpm, int8_t threshold, uint32_t timeOut)
 {
 	uint32_t timeOutStart = micros();
 	// Lowest reliable speed for stallguard
@@ -421,12 +421,12 @@ float UstepperSTM::moveToEnd(bool dir, float rpm, int8_t threshold, uint32_t tim
 	return abs(length);
 }
 
-float UstepperSTM::getPidError(void)
+float UstepperS32::getPidError(void)
 {
 	return this->currentPidError;
 }
 
-void UstepperSTM::setHoldCurrent(double current)
+void UstepperS32::setHoldCurrent(double current)
 {
 	// The current needs to be in the range of 0-31
 	if (current <= 100.0 && current >= 0.0)
@@ -443,7 +443,7 @@ void UstepperSTM::setHoldCurrent(double current)
 	driver.updateCurrent();
 }
 
-float UstepperSTM::pid(float error)
+float UstepperS32::pid(float error)
 {
 	float u;
 	float limit = abs(this->currentPidSpeed) + 10000.0;
@@ -509,27 +509,27 @@ float UstepperSTM::pid(float error)
 	this->driver.setAcceleration(0xFFFE);
 }
 
-void UstepperSTM::setProportional(float P)
+void UstepperS32::setProportional(float P)
 {
 	this->pTerm = P;
 }
 
-void UstepperSTM::setIntegral(float I)
+void UstepperS32::setIntegral(float I)
 {
 	this->iTerm = I * MAINTIMERINTERRUPTPERIOD;
 }
 
-void UstepperSTM::setDifferential(float D)
+void UstepperS32::setDifferential(float D)
 {
 	this->dTerm = D * MAINTIMERINTERRUPTFREQUENCY;
 }
 
-void UstepperSTM::invertDropinDir(bool invert)
+void UstepperS32::invertDropinDir(bool invert)
 {
 	this->invertPidDropinDirection = invert;
 }
 
-void UstepperSTM::parseCommand(String *cmd)
+void UstepperS32::parseCommand(String *cmd)
 {
 	uint8_t i = 0;
 	String value;
@@ -933,7 +933,7 @@ void UstepperSTM::parseCommand(String *cmd)
 	}
 }
 
-void UstepperSTM::dropinCli()
+void UstepperS32::dropinCli()
 {
 	static String stringInput;
 	static uint32_t t = millis();
@@ -959,7 +959,7 @@ void UstepperSTM::dropinCli()
 	}
 }
 
-void UstepperSTM::dropinPrintHelp()
+void UstepperS32::dropinPrintHelp()
 {
 	Serial.println(F("uStepper S Dropin !"));
 	Serial.println(F(""));
@@ -978,7 +978,7 @@ void UstepperSTM::dropinPrintHelp()
 	Serial.println(F(""));
 }
 
-bool UstepperSTM::loadDropinSettings(void)
+bool UstepperS32::loadDropinSettings(void)
 {
 	dropinCliSettings_t tempSettings;
 	//TODO: FIX THIS !
@@ -999,14 +999,14 @@ bool UstepperSTM::loadDropinSettings(void)
 	return 1;
 }
 
-void UstepperSTM::saveDropinSettings(void)
+void UstepperS32::saveDropinSettings(void)
 {
 	this->dropinSettings.checksum = this->dropinSettingsCalcChecksum(&this->dropinSettings);
 	//TODO: FIX THIS !
 	//EEPROM.put(0, this->dropinSettings);
 }
 
-uint8_t UstepperSTM::dropinSettingsCalcChecksum(dropinCliSettings_t *settings)
+uint8_t UstepperS32::dropinSettingsCalcChecksum(dropinCliSettings_t *settings)
 {
 	uint8_t i;
 	uint8_t checksum = 0xAA;

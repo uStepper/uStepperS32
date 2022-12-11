@@ -10,7 +10,7 @@
 #include "callbacks.h"
 #include "utils/dropin.h"
 
-class UstepperSTM;
+class UstepperS32;
 
 #define FREEWHEELBRAKE 0 /**< Define label users can use as argument for setBrakeMode() function to specify freewheeling as brake mode. This will result in no holding torque at standstill */
 #define COOLBRAKE 1		 /**< Define label users can use as argument for setBrakeMode() function to make the motor brake by shorting the two bottom FET's of the H-Bridge. This will provide less holding torque, but will significantly reduce driver heat */
@@ -37,7 +37,7 @@ class UstepperSTM;
 
 #define DRIVERCLOCKFREQ 10000000.0 /**< MCU Clock frequency */
 
-class UstepperSTM
+class UstepperS32
 {
 	friend class TMC5130;
 	friend class TLE5012B;
@@ -48,11 +48,11 @@ class UstepperSTM
 	/**
 	 * @brief	Constructor of uStepper class
 	 */
-	UstepperSTM();
+	UstepperS32();
 	/**
 	 * @brief	Overloaded Constructor of uStepper class
 	 */
-	UstepperSTM(float acceleration, float velocity);
+	UstepperS32(float acceleration, float velocity);
 	/**
 	 * @brief      Initializes the different parts of the uStepper S object
 	 *
@@ -536,6 +536,6 @@ class UstepperSTM
 	
 };
 
-extern UstepperSTM *ptr;
+extern UstepperS32 *ptr;
 
 #endif

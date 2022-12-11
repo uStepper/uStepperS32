@@ -1,6 +1,6 @@
-#include <UstepperSTM.h>
+#include <UstepperS32.h>
 
-UstepperSTM stepper;
+UstepperS32 stepper;
 float angle = 360.0; //amount of degrees to move
 void setup()
 {

@@ -1,6 +1,6 @@
-#include "../UstepperSTM.h"
+#include "../UstepperS32.h"
 
-extern UstepperSTM *ptr;
+extern UstepperS32 *ptr;
 TMC5130::TMC5130() : spiHandle(
 						 csActivePolarity_t(activeLow),
 						 GPIO(LL_GPIO_PIN_15, 15, GPIOB),
@@ -8,7 +8,7 @@ TMC5130::TMC5130() : spiHandle(
 						 GPIO(LL_GPIO_PIN_13, 13, GPIOB),
 						 GPIO(LL_GPIO_PIN_12, 12, GPIOB),
 						 SPI2),
-					 enablePin(LL_GPIO_PIN_1, 1, GPIOA),
+					 enablePin(LL_GPIO_PIN_1, 1, GPIOA),	//#TODO: USE PIN DEFINITIONS FROM gpio.h
 					 sdPin(LL_GPIO_PIN_8, 8, GPIOC),
 					 spiPin(LL_GPIO_PIN_1, 1, GPIOC)
 {

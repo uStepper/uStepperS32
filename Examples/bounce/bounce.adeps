@@ -2,14 +2,6 @@
 <ArduinoDependencyCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Dependencies>
     <Dependency>
-      <Type>Platform</Type>
-      <Key>
-        <Packager>STMicroelectronics</Packager>
-        <Name>stm32</Name>
-        <Version>2.2.0</Version>
-      </Key>
-    </Dependency>
-    <Dependency>
       <Type>Library</Type>
       <Key>
         <Packager>uStepper ApS</Packager>
