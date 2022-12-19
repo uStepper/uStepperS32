@@ -10,7 +10,6 @@ void setup()
 	stepper.setMaxVelocity(500);	  //Max velocity of 500 fullsteps/s
 	//stepper.checkOrientation(30.0);   //Check orientation of motor connector with +/- 30 microsteps movement
 	Serial.begin(9600);
-	
 }
 
 void loop()

@@ -6,11 +6,12 @@
 #include "../HAL/timer.h"
 #include "utils/velocityEstimator.h"
 
-#define CONVERTENCODERRAWTOANGLE(x) (0.010986328125 * (float)(this->angle & 0x7FFF))
-#define CONVERTENCODERANGLETORAW(x) ((uint16_t)(x * (1.0 / 0.010986328125)))
-#define ENCODERRAWTOSTEP(x) (x*200.0) * (1.0/65536.0)		/**< Constant to convert raw encoder data to 1/256th steps*/
-#define ENCODERRAWTOREVOLUTIONS 60.0 * (1.0 / 65536.0) /**< Constant to convert raw encoder data to revolutions */
-#define ANGLETOENCODERRAW 65535.0 * (1.0 / 360.0)		/**< Constant to convert angle to raw encoder data */
+#define ANGLETOENCODERRAW 32768.0 * (1.0 / 360.0) /**< Constant to convert angle to raw encoder data */
+#define CONVERTENCODERRAWTOANGLE(x) ((1.0 / ANGLETOENCODERRAW) * (float)x)
+#define CONVERTENCODERANGLETORAW(x) ((uint16_t)(x * ANGLETOENCODERRAW))
+#define ENCODERRAWTOSTEP(x) (x*256.0*200.0) * (1.0/32768.0)		/**< Constant to convert raw encoder data to 1/256th steps*/
+#define ENCODERRAWTOREVOLUTIONS 60.0 * (1.0 / 32768.0) /**< Constant to convert raw encoder data to revolutions */
+
 
 class TLE5012B
 {

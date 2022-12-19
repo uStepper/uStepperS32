@@ -31,12 +31,17 @@
 * @author     Thomas Hørring Olsen (thomas@ustepper.com)
 */
 #include <UstepperS32.h>
-Callbacks_t callbacks;
+Callbacks_t callbacks = {
+							._closedLoopCallback = closedLoopCallback,
+							._mainTimerCallback = mainTimerCallback,
+							._dropInStepInputEXTI = dropInStepInputEXTI,
+							._dropInDirInputEXTI = dropInDirInputEXTI,
+							._dropInEnableInputEXTI = dropInEnableInputEXTI
+						};
 UstepperS32 *ptr;
 UstepperS32::UstepperS32() : driver(), encoder()
 {
 	ptr = this;
-	callbacks._mainTimerCallback = mainTimerCallback;
 	
 	this->microSteps = 256;
 
@@ -116,12 +121,15 @@ bool UstepperS32::getMotorState(uint8_t statusType)
 
 void UstepperS32::checkOrientation(float distance)
 {
+	// TODO: FIX THIS FUNCTION!
+	return;
 	float startAngle;
 	uint8_t inverted = 0;
 	uint8_t noninverted = 0;
 	this->disablePid();
 	this->shaftDir = 0;
 	this->driver.setShaftDirection(this->shaftDir);
+	return;
 
 	while(inverted < 3 && noninverted < 3)
 	{
@@ -326,6 +334,11 @@ void UstepperS32::setBrakeMode(uint8_t mode, float brakeCurrent)
 	}
 }
 
+float UstepperS32::angleMoved(void)
+{
+	return this->encoder.getAngleMoved();
+}
+
 float UstepperS32::getDriverRPM(void)
 {
 	int32_t velocity = this->driver.getVelocity();
@@ -355,6 +368,25 @@ void UstepperS32::enableClosedLoop(void)
 void UstepperS32::disableClosedLoop(void)
 {
 	this->disablePid();
+}
+
+void UstepperS32::setRPM(float rpm)
+{
+	int32_t velocityDir = rpmToVelocity * rpm;
+
+	if (velocityDir > 0)
+	{
+		driver.setDirection(1);
+	}
+	else
+	{
+		driver.setDirection(0);
+	}
+
+	// The velocity cannot be signed
+	uint32_t velocity = abs(velocityDir);
+
+	driver.setVelocity((uint32_t)velocity);
 }
 
 void UstepperS32::stop(bool mode)
