@@ -7,7 +7,8 @@ TLE5012B::TLE5012B() : spiHandle(
 						   ENCODERSCK,
 						   ENCODERCS,
 						   SPI3),
-					   velocityEstimator(MAINTIMERINTERRUPTPERIOD)
+					   velocityEstimator(MAINTIMERINTERRUPTPERIOD),
+					   semaphore()
 {
 }
 
@@ -28,10 +29,15 @@ void TLE5012B::sendCommand(uint16_t rw, uint16_t lock, uint16_t upd, uint16_t ad
 	spiHandle.transmit16BitData(cmd);
 }
 
-void TLE5012B::sample()
+bool TLE5012B::sample()
 {
 	int16_t deltaAngle;
 	uint16_t newAngle;
+
+	if (!semaphore.getLock())
+	{
+		return false;
+	}
 
 	spiHandle.csReset();
 	sendCommand(0x1, 0x0, 0x0, 0x02, 0x0);
@@ -41,7 +47,8 @@ void TLE5012B::sample()
 	this->spiHandle.engageMosi();
 	if (this->spiHandle.getTransmissionStatus() != SPI_TRANSMISSION_SUCCESS)
 	{
-		return;
+		semaphore.releaseLock();
+		return false;
 	}
 
 	newAngle -= this->encoderOffset;
@@ -66,6 +73,9 @@ void TLE5012B::sample()
 	this->angleMoved -= deltaAngle;
 	this->angle = newAngle;
 	this->velocityEstimator.runIteration(this->angleMoved);
+	
+	semaphore.releaseLock();
+	return true;
 }
 
 float TLE5012B::getAngle()

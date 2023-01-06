@@ -2,10 +2,15 @@
 void mainTimerCallback()
 {
 	digitalToggle(D0);
-	ptr->encoder.sample();
-	if (ptr->mode == CLOSEDLOOP)
+	if (!ptr->encoder.semaphore.isLocked())
 	{
-		callbacks._closedLoopCallback();
+		ptr->encoder.sample();
+		if (ptr->mode == CLOSEDLOOP)
+		{
+			callbacks._closedLoopCallback();
+		}
 	}
+	
+	
 	digitalToggle(D0);
 }

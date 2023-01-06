@@ -5,6 +5,8 @@
 #include "../HAL/spi.h"
 #include "../HAL/gpio.h"
 #include "TMC5130RegDef.h"
+#include "utils/semaphore.h"
+#include "../callbacks.h"
 
 class TMC5130
 {
@@ -205,7 +207,9 @@ class TMC5130
 	uint8_t holdDelay = 0;
 	/** STOP, VELOCITY, POSITION*/
 	uint8_t mode = DRIVER_STOP;
+	Semaphore semaphore;
 	float rpmToVelocity = (float)(279620.267 * 200 * 256) / (12500000);
+	friend void closedLoopCallback();
 };
 
 #endif

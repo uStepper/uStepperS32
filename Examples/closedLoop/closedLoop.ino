@@ -54,6 +54,6 @@ void setup(void)
 
 void loop(void)
 {
-	//stepper.moveSteps(5120); //Turn shaft 51200 steps, counterClockWise (equal to one revolution with the TMC native 1/256 microstepping)
+	stepper.moveSteps(5120); //Turn shaft 51200 steps, counterClockWise (equal to one revolution with the TMC native 1/256 microstepping)
 	delay(3000);
 }
