@@ -8,9 +8,10 @@ TMC5130::TMC5130() : spiHandle(
 						 GPIO(LL_GPIO_PIN_13, 13, GPIOB),
 						 GPIO(LL_GPIO_PIN_12, 12, GPIOB),
 						 SPI2),
-					 enablePin(LL_GPIO_PIN_1, 1, GPIOA),	//#TODO: USE PIN DEFINITIONS FROM gpio.h
+					 enablePin(LL_GPIO_PIN_1, 1, GPIOA), //#TODO: USE PIN DEFINITIONS FROM gpio.h
 					 sdPin(LL_GPIO_PIN_8, 8, GPIOC),
-					 spiPin(LL_GPIO_PIN_1, 1, GPIOC)
+					 spiPin(LL_GPIO_PIN_1, 1, GPIOC),
+					 semaphore()
 {
 }
 
@@ -352,6 +353,7 @@ void TMC5130::setHoldCurrent(uint8_t current)
 
 int32_t TMC5130::writeRegister(uint8_t address, uint32_t datagram)
 {
+	semaphore.getLock();
 	// Enable SPI mode 3 to use TMC5130
 	LL_SPI_SetClockPhase(this->spiHandle._spiChannel, LL_SPI_PHASE_2EDGE);
 	LL_SPI_SetClockPolarity(this->spiHandle._spiChannel, LL_SPI_POLARITY_HIGH);
@@ -374,13 +376,16 @@ int32_t TMC5130::writeRegister(uint8_t address, uint32_t datagram)
 	package |= this->spiHandle.transmit8BitData((datagram)&0xff);
 
 	this->spiHandle.csSet();
-
+	
+	semaphore.releaseLock();
+	
 	return package;
 }
 
 int32_t TMC5130::readRegister(uint8_t address)
 {
-
+	semaphore.getLock();
+	
 	// Enable SPI mode 3 to use TMC5130
 	LL_SPI_SetClockPhase(this->spiHandle._spiChannel, LL_SPI_PHASE_2EDGE);
 	LL_SPI_SetClockPolarity(this->spiHandle._spiChannel, LL_SPI_POLARITY_HIGH);
@@ -396,7 +401,7 @@ int32_t TMC5130::readRegister(uint8_t address)
 
 	// Read the actual value on second request
 	int32_t value = 0;
-	delayMicroseconds(1);
+	delayMicroseconds(1);		//TODO: check this
 	this->spiHandle.csReset();//Set CS low
 	this->status = this->spiHandle.transmit8BitData(address);
 	value |= this->spiHandle.transmit8BitData(0x00);
@@ -409,6 +414,8 @@ int32_t TMC5130::readRegister(uint8_t address)
 	this->spiHandle.csSet(); //Set cs pin high
 
 	this->lastReadValue = value;
-
+	
+	semaphore.releaseLock();
+	
 	return value;
 }

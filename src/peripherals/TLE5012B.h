@@ -5,6 +5,8 @@
 #include "../HAL/spi.h"
 #include "../HAL/timer.h"
 #include "utils/velocityEstimator.h"
+#include "utils/semaphore.h"
+#include "../callbacks.h"
 
 #define ANGLETOENCODERRAW 32768.0 * (1.0 / 360.0) /**< Constant to convert angle to raw encoder data */
 #define CONVERTENCODERRAWTOANGLE(x) ((1.0 / ANGLETOENCODERRAW) * (float)x)
@@ -36,8 +38,9 @@ class TLE5012B
 	/** Angle of the shaft at the reference position. */
 	volatile uint16_t encoderOffset;
 	void sendCommand(uint16_t rw, uint16_t lock, uint16_t upd, uint16_t addr, uint16_t nd);
-	void sample();
+	bool sample();
 	VelocityEstimator velocityEstimator;
+	Semaphore semaphore;
 	friend void mainTimerCallback();
 };
 
