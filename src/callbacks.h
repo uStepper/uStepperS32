@@ -5,6 +5,7 @@ extern "C" {
 #endif
 typedef struct
 {
+	void (*_closedLoopCallback)(void);
 	void (*_mainTimerCallback)(void);
 	void (*_dropInStepInputEXTI)(void);
 	void (*_dropInDirInputEXTI)(void);
@@ -13,6 +14,7 @@ typedef struct
 
 extern Callbacks_t callbacks;
 
+void closedLoopCallback();
 void mainTimerCallback();
 void dropInStepInputEXTI();
 void dropInDirInputEXTI();

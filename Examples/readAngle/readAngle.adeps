@@ -13,8 +13,8 @@
       <Type>Library</Type>
       <Key>
         <Packager>uStepper ApS</Packager>
-        <Name>uStepperSTM</Name>
-        <Version>2.3.1</Version>
+        <Name>uStepperS32</Name>
+        <Version>0.1.0</Version>
       </Key>
     </Dependency>
   </Dependencies>

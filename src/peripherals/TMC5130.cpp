@@ -51,6 +51,17 @@ void TMC5130::init()
 	while (this->readRegister(VACTUAL) != 0);
 }
 
+int32_t TMC5130::getVelocity(void)
+{
+	int32_t value = this->readRegister(VACTUAL);
+
+	// VACTUAL is 24bit two's compliment
+	if (value & 0x00800000)
+		value |= 0xFF000000;
+
+	return value;
+}
+
 uint8_t TMC5130::readMotorStatus(void)
 {
 	this->readRegister(XACTUAL);
@@ -341,7 +352,6 @@ void TMC5130::setHoldCurrent(uint8_t current)
 
 int32_t TMC5130::writeRegister(uint8_t address, uint32_t datagram)
 {
-
 	// Enable SPI mode 3 to use TMC5130
 	LL_SPI_SetClockPhase(this->spiHandle._spiChannel, LL_SPI_PHASE_2EDGE);
 	LL_SPI_SetClockPolarity(this->spiHandle._spiChannel, LL_SPI_POLARITY_HIGH);

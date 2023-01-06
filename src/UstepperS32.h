@@ -463,6 +463,7 @@ class UstepperS32
 	friend void dropInStepInputEXTI();
 	friend void dropInDirInputEXTI();
 	friend void dropInEnableInputEXTI();
+	friend void closedLoopCallback();
 
 	float stepTime;
 	float rpmToVel;

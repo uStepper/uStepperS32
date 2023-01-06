@@ -45,25 +45,14 @@
             <a>false</a>
           </gp>
           <gp>
-            <e>ptr-&gt;encoder.angle</e>
-            <f>com.sysprogs.types.builtin.UInt16</f>
+            <e>ptr-&gt;currentPidError</e>
+            <f>com.sysprogs.types.builtin.Float32</f>
             <b>true</b>
             <c>
               <ComparisonMode>Equals</ComparisonMode>
               <Enabled>false</Enabled>
             </c>
             <g>true</g>
-            <h>false</h>
-            <a>false</a>
-          </gp>
-          <gp>
-            <e>ptr-&gt;encoder.velocityEstimator</e>
-            <b>true</b>
-            <c>
-              <ComparisonMode>Equals</ComparisonMode>
-              <Enabled>false</Enabled>
-            </c>
-            <g>false</g>
             <h>false</h>
             <a>false</a>
           </gp>
