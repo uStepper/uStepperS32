@@ -27,7 +27,7 @@ class TLE5012B
 	float getRPM();
 	uint8_t getStatus(void);
 	bool detectMagnet(void);
-
+	
   private:
 	Spi spiHandle;
 	uint16_t angle;
