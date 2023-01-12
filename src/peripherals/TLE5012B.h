@@ -8,9 +8,9 @@
 #include "utils/semaphore.h"
 #include "../callbacks.h"
 
-#define ANGLETOENCODERRAW 32768.0 * (1.0 / 360.0) /**< Constant to convert angle to raw encoder data */
-#define CONVERTENCODERRAWTOANGLE(x) ((1.0 / ANGLETOENCODERRAW) * (float)x)
-#define CONVERTENCODERANGLETORAW(x) ((uint16_t)(x * ANGLETOENCODERRAW))
+#define ANGLETOENCODERRAW 32768.0 / 360.0 /**< Constant to convert angle to raw encoder data */
+#define CONVERTENCODERRAWTOANGLE(x) ((360.0 / 32768.0) * (float)x)
+#define CONVERTENCODERANGLETORAW(x) ((uint16_t)(x * (32768.0 / 360.0)))
 #define ENCODERRAWTOSTEP(x) (x*256.0*200.0) * (1.0/32768.0)		/**< Constant to convert raw encoder data to 1/256th steps*/
 #define ENCODERRAWTOREVOLUTIONS 60.0 * (1.0 / 32768.0) /**< Constant to convert raw encoder data to revolutions */
 

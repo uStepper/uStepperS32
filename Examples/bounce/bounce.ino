@@ -10,6 +10,7 @@ void setup()
 	stepper.setMaxVelocity(500);	  //Max velocity of 500 fullsteps/s
 	//stepper.checkOrientation(30.0);   //Check orientation of motor connector with +/- 30 microsteps movement
 	Serial.begin(9600);
+	
 }
 
 void loop()
@@ -22,6 +23,7 @@ void loop()
 		angle = -angle;			  //invert angle variable, so the next move is in opposite direction
 	}
 	Serial.print("Angle: ");
-	Serial.print(stepper.encoder.getAngleMoved()); //print out angle moved since last reset
+	float angle = stepper.encoder.getAngleMoved();
+	Serial.print(angle); //print out angle moved since last reset
 	Serial.println(" Degrees");
 }
