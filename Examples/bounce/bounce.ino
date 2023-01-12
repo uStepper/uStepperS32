@@ -22,6 +22,7 @@ void loop()
 		angle = -angle;			  //invert angle variable, so the next move is in opposite direction
 	}
 	Serial.print("Angle: ");
-	Serial.print(stepper.encoder.getAngleMoved()); //print out angle moved since last reset
+	float angle = stepper.encoder.getAngleMoved();
+	Serial.print(angle); //print out angle moved since last reset
 	Serial.println(" Degrees");
 }
