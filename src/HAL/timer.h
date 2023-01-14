@@ -11,7 +11,7 @@
 	#define MAINTIMERINTERRUPTFREQUENCY 1000.0f
 	#define MAINTIMERINTERRUPTPERIOD 1.0f / MAINTIMERINTERRUPTFREQUENCY
 	
-	void TIM2_IRQHandler(void);
+	void TIM4_IRQHandler(void);
 	void mainTimerInit(void);
 	void mainTimerPause();
 	void mainTimerStart();

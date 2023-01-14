@@ -11,6 +11,5 @@ void mainTimerCallback()
 		}
 	}
 	
-	
 	digitalToggle(D0);
 }
