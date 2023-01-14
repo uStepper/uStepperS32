@@ -109,6 +109,19 @@ void UstepperS32::setup(uint8_t mode,
 	mainTimerInit();
 }
 
+void UstepperS32::runContinous(bool direction)
+{
+	this->driver.setDeceleration((uint32_t)(this->maxDeceleration));
+	this->driver.setAcceleration((uint32_t)(this->maxAcceleration));
+	this->driver.setVelocity((uint32_t)(this->maxVelocity));
+
+	// Make sure we use velocity mode
+	this->driver.setRampMode(VELOCITY_MODE_POS);
+
+	// Set the direction
+	this->driver.setDirection(direction);
+}
+
 bool UstepperS32::getMotorState(uint8_t statusType)
 {
 	this->driver.readMotorStatus();

@@ -12,11 +12,11 @@
       <GroupSourcesByTypes>true</GroupSourcesByTypes>
       <GroupSourcesByPaths>true</GroupSourcesByPaths>
       <SketchSubdirectory>.</SketchSubdirectory>
-      <MainSketchFile>continuous.ino</MainSketchFile>
+      <MainSketchFile>robotArm.ino</MainSketchFile>
       <RootSketchFolder>
         <Subfolders />
         <Files>
-          <string>continuous.ino</string>
+          <string>robotArm.ino</string>
         </Files>
       </RootSketchFolder>
       <OtherFiles />
@@ -34,6 +34,7 @@
     <PreprocessorMacros />
     <ExtraCompilerFlags>
       <string>-ggdb</string>
+      <string>-I.</string>
     </ExtraCompilerFlags>
     <AutoBuildSPIFFSPartition>true</AutoBuildSPIFFSPartition>
   </Build>
