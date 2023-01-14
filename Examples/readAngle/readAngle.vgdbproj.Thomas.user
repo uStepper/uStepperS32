@@ -15,6 +15,18 @@
       <gp>
         <e>DR</e>
         <d>((*((unsigned long *)0x40003c0c)))</d>
+        <f>com.sysprogs.types.builtin.UInt32</f>
+        <b>true</b>
+        <c>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </c>
+        <g>false</g>
+        <h>false</h>
+        <a>false</a>
+      </gp>
+      <gp>
+        <e>ptr</e>
         <f>com.sysprogs.types.builtin.HexInt32</f>
         <b>true</b>
         <c>
@@ -33,7 +45,63 @@
       </c>
       <c>
         <b>com.sysprogs.SpecificVariables</b>
-        <a />
+        <a>
+          <gp>
+            <e>ptr-&gt;encoder</e>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>false</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>ptr-&gt;driver</e>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>false</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>ptr-&gt;driver.spiHandle</e>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>false</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>ptr-&gt;driver._enablePin</e>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>false</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+          <gp>
+            <e>ptr-&gt;driver._enablePin._settings</e>
+            <b>true</b>
+            <c>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </c>
+            <g>false</g>
+            <h>false</h>
+            <a>false</a>
+          </gp>
+        </a>
       </c>
       <c>
         <b>com.sysprogs.Custom</b>
@@ -408,6 +476,102 @@
           <IsFavorite>false</IsFavorite>
           <IsLive>false</IsLive>
           <LastUsed>133112855131661076</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.ODR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129297220246966</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.IDR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129297685394412</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.BSRR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129297913315558</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.MODER</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129298003684515</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.OTYPER</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129298047411991</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOC.OSPEEDR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133129329641054366</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOA.MODER</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133142042633444645</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOA.ODR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133142042742268115</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOA.ODR.ODR1</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133142042812927036</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOA.ODR.ODR2</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133142043053323108</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOA.BSRR.BR15</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133142043078934047</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>GPIOA.BSRR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133142044957952500</LastUsed>
         </State>
       </HardwareRegisterRecord>
     </HardwareRegisters>

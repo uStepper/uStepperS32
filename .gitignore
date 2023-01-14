@@ -8,3 +8,7 @@ VisualGDB
 .vs
 VisualGDBCache
 CodeDB
+Output/
+.visualgdb/
+*/.visualgdb/
+*.dat

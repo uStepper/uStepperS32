@@ -1,14 +1,14 @@
 #include "gpio.h"
 
+GPIO::GPIO()
+{
+}
+
 GPIO::GPIO(uint32_t pinMask, uint32_t pin, GPIO_TypeDef *port)
 {
 	this->_pinMask = pinMask;
 	this->_pin = pin;
 	this->_port = port;
-}
-
-GPIO::GPIO()
-{
 }
 
 void GPIO::toggle()

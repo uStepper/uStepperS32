@@ -11,12 +11,12 @@
       <ProjectGUID>f7e64df9-23f0-4a57-867e-3ee1f41161cf</ProjectGUID>
       <GroupSourcesByTypes>true</GroupSourcesByTypes>
       <GroupSourcesByPaths>true</GroupSourcesByPaths>
-      <SketchSubdirectory>Examples</SketchSubdirectory>
-      <MainSketchFile>readAngle\readAngle.ino</MainSketchFile>
+      <SketchSubdirectory>.</SketchSubdirectory>
+      <MainSketchFile>readAngle.ino</MainSketchFile>
       <RootSketchFolder>
         <Subfolders />
         <Files>
-          <string>readAngle\readAngle.ino</string>
+          <string>readAngle.ino</string>
         </Files>
       </RootSketchFolder>
       <OtherFiles />
@@ -25,8 +25,8 @@
   <Build xsi:type="com.visualgdb.build.external.arduino">
     <BuildLogMode xsi:nil="true" />
     <AdditionalLibraryDirectories>
-      <string>..\..\..\..\Arduino\libraries</string>
-      <string>..</string>
+      <string>..\..\..\..\..\..\Arduino\libraries</string>
+      <string>..\..\..</string>
     </AdditionalLibraryDirectories>
     <IgnoreNormalLibraryDirectories>false</IgnoreNormalLibraryDirectories>
     <OutputSubdirectory>Output\$(PlatformName.defuse)\$(ConfigurationName.defuse)</OutputSubdirectory>

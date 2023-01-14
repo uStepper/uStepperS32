@@ -1,6 +1,6 @@
 #include "spi.h"
 
-Spi::Spi(bool csPolarity, GPIO mosi, GPIO miso, GPIO sck, GPIO cs, SPI_TypeDef *spiChannel)
+Spi::Spi(csActivePolarity_t csPolarity, GPIO mosi, GPIO miso, GPIO sck, GPIO cs, SPI_TypeDef *spiChannel)
 {
 	_mosi = mosi;
 	_miso = miso;
@@ -38,7 +38,16 @@ void Spi::init()
 	SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
 	SPI_InitStruct.ClockPhase = LL_SPI_PHASE_2EDGE;
 	SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
-	SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV16;
+	
+	//TODO: make this dynamic !
+	if (this->_spiChannel == SPI2)
+	{
+		SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV16;
+	}
+	else if (this->_spiChannel == SPI3)
+	{
+		SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV8;
+	}
 	SPI_InitStruct.BitOrder = LL_SPI_MSB_FIRST;
 	SPI_InitStruct.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
 	SPI_InitStruct.CRCPoly = 10;
@@ -47,33 +56,42 @@ void Spi::init()
 	LL_SPI_Enable(this->_spiChannel);
 }
 
-uint8_t Spi::transmit8BitData(uint8_t data)
+SpiTransmissionStatus_t Spi::getTransmissionStatus()
+{
+	return this->spiTransmissionStatus;
+}
+
+uint8_t Spi::transmit8BitData(uint8_t data, uint32_t timeout)
 {
 	LL_SPI_SetDataWidth(this->_spiChannel, LL_SPI_DATAWIDTH_8BIT);
-	while (((this->_spiChannel->SR) & (1 << 7)))
-		; // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
-	while (!((this->_spiChannel->SR) & (1 << 1)))
-		;						  // wait for TXE bit to set -> This will indicate that the buffer is empty
+	
+	SPITIMEOUT(this->_spiChannel->SR, 1 << 7, true, timeout); // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
+	
+	SPITIMEOUT(this->_spiChannel->SR, 1 << 1, false, timeout); // wait for TXE bit to set -> This will indicate that the buffer is empty
+	
 	this->_spiChannel->DR = data; // send data
-	while (!((this->_spiChannel->SR) & (1 << 0)))
-		; // Wait for RXNE to set -> This will indicate that the Rx buffer is not empty
-	while (((this->_spiChannel->SR) & (1 << 7)))
-		; // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
-	while (!((this->_spiChannel->SR) & (1 << 1)))
-		;						  // wait for TXE bit to set -> This will indicate that the buffer is empty
+	
+	SPITIMEOUT(this->_spiChannel->SR, 1 << 0, false, timeout); // Wait for RXNE to set -> This will indicate that the Rx buffer is not empty
+
+	SPITIMEOUT(this->_spiChannel->SR, 1 << 7, true, timeout); // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
+	
+	SPITIMEOUT(this->_spiChannel->SR, 1 << 1, false, timeout); // wait for TXE bit to set -> This will indicate that the buffer is empty
+	
 	return this->_spiChannel->DR; //Return data
 }
 
-uint16_t Spi::transmit16BitData(uint16_t data)
+uint16_t Spi::transmit16BitData(uint16_t data, uint32_t timeout)
 {
 	LL_SPI_SetDataWidth(this->_spiChannel, LL_SPI_DATAWIDTH_16BIT);
-	while (((this->_spiChannel->SR) & (1 << 7)))
-		; // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
-	while (!((this->_spiChannel->SR) & (1 << 1)))
-		;						  // wait for TXE bit to set -> This will indicate that the buffer is empty
+	
+	SPITIMEOUT(this->_spiChannel->SR, 1 << 7, true, timeout); // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
+	
+	SPITIMEOUT(this->_spiChannel->SR, 1 << 1, false, timeout); // wait for TXE bit to set -> This will indicate that the buffer is empty
+
 	this->_spiChannel->DR = data; // send data
-	while (!((this->_spiChannel->SR) & (1 << 0)))
-		;						  // Wait for RXNE to set -> This will indicate that the Rx buffer is not empty
+	
+	SPITIMEOUT(this->_spiChannel->SR, 1 << 0, false, timeout); // Wait for RXNE to set -> This will indicate that the Rx buffer is not empty
+
 	return this->_spiChannel->DR; //Return data
 }
 
