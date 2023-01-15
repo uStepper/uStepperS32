@@ -4,16 +4,8 @@
     <Dependency>
       <Type>Platform</Type>
       <Key>
-        <Packager>STMicroelectronics</Packager>
+        <Packager>uStepperSTM32Boards</Packager>
         <Name>stm32</Name>
-        <Version>2.2.0</Version>
-      </Key>
-    </Dependency>
-    <Dependency>
-      <Type>Library</Type>
-      <Key>
-        <Packager>uStepper ApS</Packager>
-        <Name>uStepperGcode</Name>
         <Version>1.0.0</Version>
       </Key>
     </Dependency>

@@ -366,11 +366,13 @@ void UstepperS32::setControlThreshold(float threshold)
 void UstepperS32::enablePid(void)
 {
 	this->pidDisabled = 0;
+	this->mode = CLOSEDLOOP;
 }
 
 void UstepperS32::disablePid(void)
 {
 	this->pidDisabled = 1;
+	this->mode = NORMAL;
 }
 
 void UstepperS32::enableClosedLoop(void)
