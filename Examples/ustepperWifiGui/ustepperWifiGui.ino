@@ -112,8 +112,44 @@ void uart_default(char *cmd, char *data)
 void uart_move(char *cmd, char *data)
 {
 	int32_t steps = 0;
-	comm.value("A", &steps);
 
+	char *start;
+	char *end;
+	size_t len;
+
+	char buf[20] = {'\0'};
+	start = strstr(comm.packet, "A");
+	// Find start of parameter value
+	if (start)
+	{
+
+		// Not interested in the param name, f.x. the X in "G1 X10"
+		start++;
+
+		// Find end of parameter value by searching for a space or newline
+		end = strpbrk(start, " \n");
+
+		if (end == NULL)
+		{
+			len = strlen(comm.packet);
+		}
+		else
+		{
+			len = end - start;
+		}
+
+		// Check if there is an argument, otherwise return false
+		if (len > 0)
+		{
+			strncpy(buf, start, len);
+			buf[len] = '\0';
+
+			// Now convert the string in buf to a float
+			steps = atof(buf);
+		}
+	}
+	
+	//comm.value("A", &steps);		//TODO: THE ABOVE IS A WORKAROUND, AS THIS LINE FUCKS UP FOR SOME REASON. MAKES NO SENSE, BUT SHOULD BE FIXED !
 	stepper.setMaxVelocity(conf.velocity);
 	stepper.moveSteps(steps);
 
@@ -154,10 +190,117 @@ void uart_home(char *cmd, char *data)
 	float velocity = conf.homeVelocity;
 	int32_t threshold = conf.homeThreshold;
 	int32_t dir = conf.homeDirection;
+	char *start;
+	char *end;
+	size_t len;
 
-	comm.value("V", &velocity);
-	comm.value("T", &threshold);
-	comm.value("D", &dir);
+	char buf[20] = {'\0'};
+	
+	start = strstr(comm.packet, "V");
+	// Find start of parameter value
+	if (start)
+	{
+
+		// Not interested in the param name, f.x. the X in "G1 X10"
+		start++;
+
+		// Find end of parameter value by searching for a space or newline
+		end = strpbrk(start, " \n");
+
+		if (end == NULL)
+		{
+			len = strlen(comm.packet);
+		}
+		else
+		{
+			len = end - start;
+		}
+
+		// Check if there is an argument, otherwise return false
+		if (len > 0)
+		{
+			strncpy(buf, start, len);
+			buf[len] = '\0';
+
+			// Now convert the string in buf to a float
+			velocity = atof(buf);
+		}
+	}
+
+	for (int32_t i = 0; i < 20; i++)
+	{
+		buf[i] = '\0';
+	}
+
+	start = strstr(comm.packet, "T");
+	// Find start of parameter value
+	if (start)
+	{
+
+		// Not interested in the param name, f.x. the X in "G1 X10"
+		start++;
+
+		// Find end of parameter value by searching for a space or newline
+		end = strpbrk(start, " \n");
+
+		if (end == NULL)
+		{
+			len = strlen(comm.packet);
+		}
+		else
+		{
+			len = end - start;
+		}
+
+		// Check if there is an argument, otherwise return false
+		if (len > 0)
+		{
+			strncpy(buf, start, len);
+			buf[len] = '\0';
+
+			// Now convert the string in buf to a float
+			threshold = atoi(buf);
+		}
+	}
+
+	for (int32_t i = 0; i < 20; i++)
+	{
+		buf[i] = '\0';
+	}
+
+	start = strstr(comm.packet, "D");
+	// Find start of parameter value
+	if (start)
+	{
+
+		// Not interested in the param name, f.x. the X in "G1 X10"
+		start++;
+
+		// Find end of parameter value by searching for a space or newline
+		end = strpbrk(start, " \n");
+
+		if (end == NULL)
+		{
+			len = strlen(comm.packet);
+		}
+		else
+		{
+			len = end - start;
+		}
+
+		// Check if there is an argument, otherwise return false
+		if (len > 0)
+		{
+			strncpy(buf, start, len);
+			buf[len] = '\0';
+
+			// Now convert the string in buf to a float
+			dir = atoi(buf);
+		}
+	}
+	//comm.value("V", &velocity); //TODO: THE ABOVE IS A WORKAROUND, AS THIS LINE FUCKS UP FOR SOME REASON. MAKES NO SENSE, BUT SHOULD BE FIXED !
+	//comm.value("T", &threshold);//TODO: THE ABOVE IS A WORKAROUND, AS THIS LINE FUCKS UP FOR SOME REASON. MAKES NO SENSE, BUT SHOULD BE FIXED !
+	//comm.value("D", &dir);//TODO: THE ABOVE IS A WORKAROUND, AS THIS LINE FUCKS UP FOR SOME REASON. MAKES NO SENSE, BUT SHOULD BE FIXED !
 
 	conf.homeVelocity = velocity;
 	conf.homeThreshold = (int8_t)threshold;
@@ -165,6 +308,7 @@ void uart_home(char *cmd, char *data)
 
 	stepper.moveToEnd(conf.homeDirection, conf.homeVelocity, conf.homeThreshold);
 	stepper.encoder.setHome(); // Reset home position
+	stepper.driver.setHome();
 
 	comm.send("DONE"); // Tell GUI homing is done
 }
