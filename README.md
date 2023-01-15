@@ -14,12 +14,12 @@ Installation is split into two parts - Hardware and Library. Both are required t
 To add hardware support for uStepper in the Arduino IDE (1.8.8+) do the following:
  - Open Arduino
  - Go to "File->preferences"
- - Almost at the bottom there is a field stating: "Additional Boards Manager URLs" insert this url: https://raw.githubusercontent.com/uStepper/uStepperHardware/master/package_ustepper_index.json
+ - Almost at the bottom there is a field stating: "Additional Boards Manager URLs" insert this url: https://raw.githubusercontent.com/uStepper/uStepperSTM32Hardware/master/package.json
  - Press OK
  - Go to "Tools->Board->Boards Manager..."
- - Go to the bottom (after it has loaded new files) select "uStepper by ON Development IVS" and press install
+ - Go to the bottom (after it has loaded new files) select "uStepper STM32 boards" and press install
 
-You have now added uStepper hardware support and should be able to select uStepper under tools -> boards.
+You have now added uStepper hardware support and should be able to select uStepper STM32 boards under tools -> boards.
 
 ### Library Installation
 
@@ -36,6 +36,8 @@ The documentation for this library can be found at the following URL:
 ## Known bugs
 
 ## Change Log
+0.1.1:	
+- Fixed wifiGui example
 
 0.1.0:	
 - Initial release
