@@ -1,6 +1,0 @@
-D3 (PortA 4) contains ADC functionality. add "A3" in silkscreen
-D4 (PortA 7) contains ADC functionality. add "A4" in silkscreen
-D5 (PortA 6) contains ADC functionality. add "A5" in silkscreen
-D6 (PortA 5) contains ADC functionality. add "A6" in silkscreen
-A0 and A1 (PortB 9 and PortB10) does NOT contain ADC functionality
-Expansion header "PL4" pin 6 not connected in schematic?
