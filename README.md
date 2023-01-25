@@ -9,15 +9,15 @@ For more information, visit www.ustepper.com
 
 **Follow this after completing the installation section further down.**
 
-Since uStepper S32 uses an STM32 MCU the procedure for programming involver some specific steps.
+Since uStepper S32 uses an STM32 MCU the procedure for programming involves some specific steps.
 
 When programming attach your uStepper S32 board to your PC and verify it shows up under "port" in the tools menu.
 Load your program and compile it.
  
 Once error free do as follows:
-• Press and hold down the "boot" switch.
-• Press the "reset" switch and release it again and then.
-• Release the "boot" switch.
+ - Press and hold down the "boot" switch.
+ - Press the "reset" switch and release it again and then.
+ - Release the "boot" switch.
 
 Now press upload in the Arduino IDE and the program will upload.
 
