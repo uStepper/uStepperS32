@@ -23,7 +23,8 @@ Now press upload in the Arduino IDE and the program will upload.
 
 ## Installation
 
-Installation is split into two parts - Hardware and Library. Both are required to use the uStepper S boards.
+Installation is split into two parts - Hardware and Library. Both are required to use the uStepper S32 boards.
+A video tutorial walking you through the below steps can be found here: https://youtu.be/CyVZvoLPSM4
 
 ### Hardware Installation 
 
@@ -41,7 +42,7 @@ You have now added uStepper STM32 hardware support and should be able to select 
 
 ### Library Installation
 
-To add the uStepper S library do the following:
+To add the uStepper S32 library do the following:
 - Open Arduino IDE (Version 1.8.8 or above)
 - Go to "Sketch->Include Library->Manage Libraries..."
 - Search for "uStepper S32"
