@@ -11,26 +11,82 @@
     </CatchpointConfiguration>
     <MaskInterruptsWhileStepping>false</MaskInterruptsWhileStepping>
     <MemoryWindowPreferences />
-    <a />
     <e>
-      <c>
-        <b>com.sysprogs.AllGlobals</b>
-        <a />
-      </c>
-      <c>
-        <b>com.sysprogs.SpecificVariables</b>
-        <a />
-      </c>
-      <c>
-        <b>com.sysprogs.Custom</b>
-        <a />
-      </c>
+      <e32>
+        <c>stepper</c>
+        <f>true</f>
+        <e>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </e>
+        <h>false</h>
+        <g>false</g>
+        <a>false</a>
+      </e32>
     </e>
-    <d>
-      <a>SpecificVariables</a>
-      <b>false</b>
-    </d>
+    <b>
+      <a>
+        <a>com.sysprogs.AllGlobals</a>
+        <b />
+      </a>
+      <a>
+        <a>com.sysprogs.SpecificVariables</a>
+        <b>
+          <e32>
+            <c>stepper.encoder</c>
+            <f>true</f>
+            <e>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </e>
+            <h>false</h>
+            <g>false</g>
+            <a>false</a>
+          </e32>
+          <e32>
+            <c>stepper.encoder.angleMoved</c>
+            <b>com.sysprogs.types.builtin.SInt32</b>
+            <f>true</f>
+            <e>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </e>
+            <h>true</h>
+            <g>false</g>
+            <a>false</a>
+          </e32>
+          <e32>
+            <c>stepper.encoder.velocityEstimator</c>
+            <f>true</f>
+            <e>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </e>
+            <h>false</h>
+            <g>false</g>
+            <a>false</a>
+          </e32>
+        </b>
+      </a>
+      <a>
+        <a>com.sysprogs.Custom</a>
+        <b />
+      </a>
+    </b>
+    <c>
+      <b>SpecificVariables</b>
+      <a>false</a>
+    </c>
     <Suggestions />
-    <HardwareRegisters />
+    <HardwareRegisters>
+      <HardwareRegisterRecord>
+        <Name>I2C1.CR1.NOSTRETCH</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133229103557928240</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+    </HardwareRegisters>
   </DebugPreferences>
 </VisualGDBUserPreferences>
