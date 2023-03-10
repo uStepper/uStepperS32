@@ -29,6 +29,36 @@ void TLE5012B::sendCommand(uint16_t rw, uint16_t lock, uint16_t upd, uint16_t ad
 	spiHandle.transmit16BitData(cmd);
 }
 
+uint16_t TLE5012B::readAngle()
+{
+	uint16_t angle;
+	spiHandle.csReset();
+	sendCommand(0x1, 0x0, 0x0, 0x02, 0x0);
+	this->spiHandle.releaseMosi();
+	angle = spiHandle.transmit16BitData(0x0000) & 0x7FFF;
+	spiHandle.csSet();
+	this->spiHandle.engageMosi();
+	return angle;
+}
+
+int16_t TLE5012B::readSpeed()
+{
+	int16_t speed;
+	spiHandle.csReset();
+	sendCommand(0x1, 0x0, 0x0, 0x03, 0x0);
+	this->spiHandle.releaseMosi();
+	speed = spiHandle.transmit16BitData(0x0000) & 0x7FFF;
+	spiHandle.csSet();
+	this->spiHandle.engageMosi();
+	
+	if(speed & 0x4000)		//Check bit 14 for sign
+	{
+		speed -= 0x8000;
+	}
+	
+	return speed;
+}
+
 bool TLE5012B::sample()
 {
 	int16_t deltaAngle;
@@ -39,12 +69,8 @@ bool TLE5012B::sample()
 		return false;
 	}
 
-	spiHandle.csReset();
-	sendCommand(0x1, 0x0, 0x0, 0x02, 0x0);
-	this->spiHandle.releaseMosi();
-	newAngle = spiHandle.transmit16BitData(0x0000) & 0x7FFF;
-	spiHandle.csSet();
-	this->spiHandle.engageMosi();
+	newAngle = readAngle();
+
 	if (this->spiHandle.getTransmissionStatus() != SPI_TRANSMISSION_SUCCESS)
 	{
 		semaphore.releaseLock();
@@ -58,7 +84,6 @@ bool TLE5012B::sample()
 		newAngle -= 0x8000;
 	}
 
-	
 	deltaAngle = (int16_t)this->angle - (int16_t)newAngle;
 
 	if (deltaAngle < -0x4000)
@@ -70,6 +95,14 @@ bool TLE5012B::sample()
 		deltaAngle -= 0x8000;
 	}
 
+	/*this->speed = readSpeed();
+	
+	if (this->spiHandle.getTransmissionStatus() != SPI_TRANSMISSION_SUCCESS)
+	{
+		semaphore.releaseLock();
+		return false;
+	}*/
+	
 	this->angleMoved -= deltaAngle;
 	this->angle = newAngle;
 	this->velocityEstimator.runIteration(this->angleMoved);
@@ -113,11 +146,17 @@ int32_t TLE5012B::getAngleMovedRaw(bool filtered)
 
 float TLE5012B::getSpeed(uint32_t stepSize)
 {
+	//float temp;
 	return ENCODERRAWTOSTEP((float)stepSize) * this->velocityEstimator.getVelocityEstimation();
+	/*temp = (float)this->speed;
+	temp *= (0.5 * 23419.2037470726 * 0.010986328125 * 142.22222222222);
+
+	return temp;*/
 }
 
 float TLE5012B::getRPM(){
-	return this->velocityEstimator.getVelocityEstimation() * ENCODERRAWTOREVOLUTIONS;
+	float rpm = this->velocityEstimator.getVelocityEstimation() * ENCODERRAWTOREVOLUTIONS;
+	return rpm;
 }
 
 uint8_t TLE5012B::getStatus(void)
