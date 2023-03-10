@@ -8,7 +8,7 @@
 	#include "stm32yyxx_ll_bus.h"
 	#include "../callbacks.h"
 
-	#define MAINTIMERINTERRUPTFREQUENCY 1000.0f
+	#define MAINTIMERINTERRUPTFREQUENCY 1541.85f
 	#define MAINTIMERINTERRUPTPERIOD 1.0f / MAINTIMERINTERRUPTFREQUENCY
 	
 	void TIM4_IRQHandler(void);

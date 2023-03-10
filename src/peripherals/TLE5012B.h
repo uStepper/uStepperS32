@@ -13,6 +13,7 @@
 #define CONVERTENCODERANGLETORAW(x) ((uint16_t)(x * (32768.0 / 360.0)))
 #define ENCODERRAWTOSTEP(x) (x*256.0*200.0) * (1.0/32768.0)		/**< Constant to convert raw encoder data to 1/256th steps*/
 #define ENCODERRAWTOREVOLUTIONS 60.0 * (1.0 / 32768.0) /**< Constant to convert raw encoder data to revolutions */
+#define ANGULARUPDATESPEED 42.7		//microseconds
 
 
 class TLE5012B
@@ -33,12 +34,15 @@ class TLE5012B
   private:
 	Spi spiHandle;
 	uint16_t angle;
+	int16_t speed;
 	volatile int32_t angleMoved;
 	int32_t userAngleOffset = 0;
 	/** Angle of the shaft at the reference position. */
 	volatile uint16_t encoderOffset;
 	void sendCommand(uint16_t rw, uint16_t lock, uint16_t upd, uint16_t addr, uint16_t nd);
 	bool sample();
+	uint16_t readAngle();
+	int16_t readSpeed();
 	VelocityEstimator velocityEstimator;
 	Semaphore semaphore;
 	friend void mainTimerCallback();
