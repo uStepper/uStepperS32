@@ -17,7 +17,7 @@ void mainTimerInit(void)
 	/* Peripheral clock enable */
 	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
 	
-	NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+	NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 3, 0));
 	NVIC_EnableIRQ(TIM4_IRQn);
 	
 	TIM_InitStruct.Prescaler = 0;

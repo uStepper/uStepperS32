@@ -49,6 +49,40 @@
         <g>false</g>
         <a>false</a>
       </e32>
+      <e32>
+        <c>Wire</c>
+        <f>true</f>
+        <e>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </e>
+        <h>false</h>
+        <g>true</g>
+        <a>false</a>
+      </e32>
+      <e32>
+        <c>stepper</c>
+        <f>true</f>
+        <e>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </e>
+        <h>false</h>
+        <g>true</g>
+        <a>false</a>
+      </e32>
+      <e32>
+        <c>nextCommand</c>
+        <b>com.sysprogs.types.builtin.UInt8</b>
+        <f>true</f>
+        <e>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </e>
+        <h>true</h>
+        <g>false</g>
+        <a>false</a>
+      </e32>
     </e>
     <b>
       <a>
@@ -57,7 +91,31 @@
       </a>
       <a>
         <a>com.sysprogs.SpecificVariables</a>
-        <b />
+        <b>
+          <e32>
+            <c>arm.bus</c>
+            <b>com.sysprogs.types.builtin.UInt32</b>
+            <f>true</f>
+            <e>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </e>
+            <h>false</h>
+            <g>false</g>
+            <a>false</a>
+          </e32>
+          <e32>
+            <c>arm.comm</c>
+            <f>true</f>
+            <e>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </e>
+            <h>false</h>
+            <g>false</g>
+            <a>false</a>
+          </e32>
+        </b>
       </a>
       <a>
         <a>com.sysprogs.Custom</a>
@@ -563,7 +621,7 @@
         <State>
           <IsFavorite>false</IsFavorite>
           <IsLive>false</IsLive>
-          <LastUsed>133226942389077553</LastUsed>
+          <LastUsed>133230186895657654</LastUsed>
         </State>
       </HardwareRegisterRecord>
     </HardwareRegisters>

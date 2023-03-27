@@ -1,45 +1,49 @@
-// Wire Master Reader
-// by Nicholas Zambetti <http://www.zambetti.com>
-
-// Demonstrates use of the Wire library
-// Reads data from an I2C/TWI slave device
-// Refer to the "Wire Slave Sender" example for use with this
-
-// Created 29 March 2006
-
-// This example code is in the public domain.
 /*
-#include <Wire.h>
 
+#include <Wire.h>
+#include <UstepperS32.h>
+const int SDA_PIN = PB9;
+const int SCL_PIN = PB8;
+
+#define I2C_ADDR 2
+UstepperS32 stepper;
 void setup()
 {
-	Wire.begin();		// join i2c bus (address optional for master)
-	Serial.begin(9600); // start serial for output
+	stepper.setup();
+	Wire.begin(I2C_ADDR); // join i2c bus with address #4
+	Wire.setSCL(SDA_PIN);
+	Wire.setSDA(SCL_PIN);
+	Wire.onRequest(requestEvent); // register event
+	Wire.onReceive(receiveEvent); // register event
+	Serial.begin(9600);			  // start serial for output
 }
 
 void loop()
 {
-	Wire.requestFrom(9, 4); // request 6 bytes from slave device #2
-
-	while (Wire.available()) // slave may send less than requested
-	{
-		char c = Wire.read(); // receive a byte as character
-		Serial.print(c);	  // print the character
-	}
-
-	delay(1);
-	
-	Wire.requestFrom(10, 4); // request 6 bytes from slave device #2
-
-	while (Wire.available()) // slave may send less than requested
-	{
-		char c = Wire.read(); // receive a byte as character
-		Serial.print(c);	  // print the character
-	}
-
-	delay(500);
+	//empty loop
 }
-*/
+
+// function that executes whenever data is received from master
+// this function is registered as an event, see setup()
+void receiveEvent(int howMany)
+{
+	while (1 < Wire.available()) // loop through all but the last
+	{
+		char c = Wire.read(); // receive byte as a character
+		Serial.print(c);	  // print the character
+	}
+	int x = Wire.read(); // receive byte as an integer
+	Serial.println(x);   // print the integer
+}
+
+// function that executes whenever data is requested by master
+// this function is registered as an event, see setup()
+void requestEvent()
+{
+	Wire.write("hello\n"); // respond with message of 6 bytes
+						   // as expected by master
+}*/
+
 #include <robotArmControl.h>
 
 robotArmControl arm;
