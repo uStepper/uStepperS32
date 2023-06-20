@@ -1,0 +1,18 @@
+digraph "GPIO::configureOutput"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="GPIO::configureOutput",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Spi::init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSpi.html#a680fddffd252143734d5451651453bbd",tooltip=" "];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="TLE5012B::init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTLE5012B.html#a328bf23d2b7fdc7ce77b2c041ba4c661",tooltip=" "];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="UstepperS32::setup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a9db3b9f02f66bb17424b3e114c851d37",tooltip="Initializes the different parts of the uStepper S object."];
+  Node2 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="TMC5130::init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a32a5a9d3c3a1823101860159835750ff",tooltip="Initiation of the motor driver."];
+  Node5 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

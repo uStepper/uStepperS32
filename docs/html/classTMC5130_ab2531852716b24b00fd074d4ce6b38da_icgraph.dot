@@ -1,0 +1,22 @@
+digraph "TMC5130::getPosition"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="TMC5130::getPosition",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Returns the current position of the motor driver."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="UstepperS32::moveSteps",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#ac7cfedc6d9559b4f2aee469cb5aabef1",tooltip="Make the motor perform a predefined number of steps."];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="UstepperS32::moveAngle",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a0884116876e952894164dbd53852136c",tooltip="Makes the motor rotate a specific angle relative to the current position."];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="UstepperS32::checkOrientation",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a8c33940faaf4f7ce0389a7fa450ff9af",tooltip="This method is used to check the orientation of the motor connector."];
+  Node2 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="UstepperS32::moveToAngle",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a7a0eac3dfbcd538effe4236a1823e367",tooltip="Makes the motor rotate to a specific absolute angle."];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="TMC5130::setHome",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#af388cdfdd81762bab86acab57b7d4c7e",tooltip="Resets the internal position counter of the motor driver."];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="UstepperS32::stop",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a7afb893d380ef3fe43a1216ec7de1845",tooltip="Stop the motor."];
+  Node7 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="UstepperS32::moveToEnd",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a0945c7790bbdf22c749cf54d18c981ce",tooltip="Moves the motor to its physical limit, without limit switch."];
+}

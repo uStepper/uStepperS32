@@ -1,0 +1,53 @@
+digraph "UstepperS32::moveToAngle"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="UstepperS32::moveToAngle",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Makes the motor rotate to a specific absolute angle."];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="UstepperS32::angleMoved",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a24354a0645bb89cc3ae91d219ac9910d",tooltip="Get the angle moved from reference position in degrees."];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="TLE5012B::getAngleMoved",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTLE5012B.html#a0fd0d49d5e5731924707503aecb7669e",tooltip=" "];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="UstepperS32::moveSteps",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#ac7cfedc6d9559b4f2aee469cb5aabef1",tooltip="Make the motor perform a predefined number of steps."];
+  Node4 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="TMC5130::getPosition",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#ab2531852716b24b00fd074d4ce6b38da",tooltip="Returns the current position of the motor driver."];
+  Node5 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="TMC5130::readRegister",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a4482071220c28fab8016caee51080e7f",tooltip="Reads a register from the motor driver."];
+  Node6 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Spi::csReset",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSpi.html#a3b471964739067a6906e57df98d78fe2",tooltip=" "];
+  Node7 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="GPIO::reset",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGPIO.html#ac07b8ccefa9a990b153da9d7ebb7d7de",tooltip=" "];
+  Node6 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="Spi::csSet",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSpi.html#ab9158600079479c20578394fcb9969de",tooltip=" "];
+  Node9 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="GPIO::set",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGPIO.html#a73b95aed006181f6dc4fad393ba79d18",tooltip=" "];
+  Node6 -> Node11 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="Semaphore::getLock",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSemaphore.html#ac8c9e668dc718e19dda74d247ef9a7a3",tooltip=" "];
+  Node6 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="Semaphore::releaseLock",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSemaphore.html#ae562c7d568619eee1e52cde42ab5e3d1",tooltip=" "];
+  Node6 -> Node13 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="Spi::transmit8BitData",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSpi.html#acc3687f52447566ac68dc63993bf2b75",tooltip=" "];
+  Node4 -> Node14 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="TMC5130::setAcceleration",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#acc4c436d13911ef0b3c7b677804639f9",tooltip="Set motor acceleration."];
+  Node14 -> Node15 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 [label="TMC5130::writeRegister",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#aac757e7e7a63a1269783bd95aeb29aac",tooltip="Write a register of the motor driver."];
+  Node15 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 -> Node11 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 -> Node13 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 -> Node16 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node16 [label="TMC5130::setDeceleration",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a610fb3af12d2511dd1dd2bac3a48bec0",tooltip="Set motor deceleration."];
+  Node16 -> Node15 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 -> Node17 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node17 [label="TMC5130::setPosition",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a0ba32a1188b11727ebe094b3446b37fc",tooltip="Set the motor position."];
+  Node17 -> Node18 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node18 [label="TMC5130::setRampMode",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a0bf326e7d355189b31c4d9f72cafa5d6",tooltip="Set motor driver to position mode or velocity mode."];
+  Node18 -> Node15 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node17 -> Node15 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 -> Node19 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node19 [label="TMC5130::setVelocity",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#af66eff0a942554bd513a65181cacc7d5",tooltip="Set motor velocity."];
+  Node19 -> Node15 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

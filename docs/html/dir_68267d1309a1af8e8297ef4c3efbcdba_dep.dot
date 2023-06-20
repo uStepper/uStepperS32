@@ -1,0 +1,16 @@
+digraph "C:/Users/Thomas/Documents/Arduino/libraries/uStepperSTM/src" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_68267d1309a1af8e8297ef4c3efbcdba {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_68267d1309a1af8e8297ef4c3efbcdba.html"];
+    dir_68267d1309a1af8e8297ef4c3efbcdba [shape=plaintext label="src"];
+  dir_ba144cc142e2000a234564bcf1628ca1 [shape=box label="callbacks" fillcolor="white" style="filled" URL="dir_ba144cc142e2000a234564bcf1628ca1.html"];
+  dir_7ebd55e50c14fd51de6fa090121df543 [shape=box label="HAL" fillcolor="white" style="filled" URL="dir_7ebd55e50c14fd51de6fa090121df543.html"];
+  dir_fbf0f2406da70b7242e9fe36900a795c [shape=box label="peripherals" fillcolor="white" style="filled" URL="dir_fbf0f2406da70b7242e9fe36900a795c.html"];
+  dir_313caf1132e152dd9b58bea13a4052ca [shape=box label="utils" fillcolor="white" style="filled" URL="dir_313caf1132e152dd9b58bea13a4052ca.html"];
+  }
+  dir_68267d1309a1af8e8297ef4c3efbcdba->dir_fbf0f2406da70b7242e9fe36900a795c [headlabel="2", labeldistance=1.5 headhref="dir_000000_000003.html"];
+  dir_fbf0f2406da70b7242e9fe36900a795c->dir_313caf1132e152dd9b58bea13a4052ca [headlabel="3", labeldistance=1.5 headhref="dir_000003_000004.html"];
+  dir_fbf0f2406da70b7242e9fe36900a795c->dir_7ebd55e50c14fd51de6fa090121df543 [headlabel="5", labeldistance=1.5 headhref="dir_000003_000002.html"];
+}

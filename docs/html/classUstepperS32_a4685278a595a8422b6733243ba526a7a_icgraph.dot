@@ -1,0 +1,12 @@
+digraph "UstepperS32::disablePid"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="UstepperS32::disablePid",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="This method disables the PID until calling enablePid."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="UstepperS32::checkOrientation",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a8c33940faaf4f7ce0389a7fa450ff9af",tooltip="This method is used to check the orientation of the motor connector."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="UstepperS32::disableClosedLoop",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a4d06606ebcf13dcb356bc268fb7e0b16",tooltip="This method disables the closed loop mode until calling enableClosedLoop."];
+}

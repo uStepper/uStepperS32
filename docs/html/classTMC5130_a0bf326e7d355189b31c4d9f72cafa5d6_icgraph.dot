@@ -1,0 +1,28 @@
+digraph "TMC5130::setRampMode"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="TMC5130::setRampMode",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Set motor driver to position mode or velocity mode."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="TMC5130::init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a32a5a9d3c3a1823101860159835750ff",tooltip="Initiation of the motor driver."];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="UstepperS32::setup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a9db3b9f02f66bb17424b3e114c851d37",tooltip="Initializes the different parts of the uStepper S object."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="UstepperS32::runContinous",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a277089355de44fcdccc7d2e1a968ca75",tooltip="Make the motor rotate continuously."];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="TMC5130::setPosition",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a0ba32a1188b11727ebe094b3446b37fc",tooltip="Set the motor position."];
+  Node5 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="UstepperS32::moveSteps",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#ac7cfedc6d9559b4f2aee469cb5aabef1",tooltip="Make the motor perform a predefined number of steps."];
+  Node6 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="UstepperS32::moveAngle",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a0884116876e952894164dbd53852136c",tooltip="Makes the motor rotate a specific angle relative to the current position."];
+  Node7 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="UstepperS32::checkOrientation",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a8c33940faaf4f7ce0389a7fa450ff9af",tooltip="This method is used to check the orientation of the motor connector."];
+  Node6 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="UstepperS32::moveToAngle",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a7a0eac3dfbcd538effe4236a1823e367",tooltip="Makes the motor rotate to a specific absolute angle."];
+  Node5 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="UstepperS32::stop",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a7afb893d380ef3fe43a1216ec7de1845",tooltip="Stop the motor."];
+  Node10 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="UstepperS32::moveToEnd",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a0945c7790bbdf22c749cf54d18c981ce",tooltip="Moves the motor to its physical limit, without limit switch."];
+}

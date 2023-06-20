@@ -1,0 +1,17 @@
+digraph "TLE5012B::readAngle"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="TLE5012B::readAngle",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="TLE5012B::sample",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTLE5012B.html#aa2fd38efe1afcbf9762864144a509344",tooltip=" "];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="TLE5012B::init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTLE5012B.html#a328bf23d2b7fdc7ce77b2c041ba4c661",tooltip=" "];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="UstepperS32::setup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a9db3b9f02f66bb17424b3e114c851d37",tooltip="Initializes the different parts of the uStepper S object."];
+  Node2 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="TLE5012B::setHome",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTLE5012B.html#a96b932ad326cb5c284aac3b9cd6db92e",tooltip=" "];
+  Node5 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

@@ -1,0 +1,12 @@
+digraph "UstepperS32::getPidError"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="UstepperS32::getPidError",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="This method returns the current PID error."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="UstepperS32::parseCommand",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#ac188ef30bfddec87c6a3a82b25299154",tooltip="This method is used for the dropinCli to take in user commands."];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="UstepperS32::dropinCli",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a6266ace54357b5d78a9ad187d0a09e7c",tooltip="This method is used to tune Drop-in parameters. After tuning uStepper S, the parameters are saved in ..."];
+}

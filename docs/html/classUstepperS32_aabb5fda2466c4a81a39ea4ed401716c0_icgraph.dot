@@ -1,0 +1,10 @@
+digraph "UstepperS32::setMaxAcceleration"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="UstepperS32::setMaxAcceleration",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Set the maximum acceleration of the stepper motor."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="UstepperS32::UstepperS32",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#ab2b9c906a9bb652398ce8a14d7e54c14",tooltip="Constructor of uStepper class."];
+}

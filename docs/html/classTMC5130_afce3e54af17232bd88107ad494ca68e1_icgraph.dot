@@ -1,0 +1,29 @@
+digraph "TMC5130::setShaftDirection"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="TMC5130::setShaftDirection",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Set motor driver direction."];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="UstepperS32::checkOrientation",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a8c33940faaf4f7ce0389a7fa450ff9af",tooltip="This method is used to check the orientation of the motor connector."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="TMC5130::disableStallguard",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#afc6748bd28bf3ca79fea356b64710a20",tooltip=" "];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="UstepperS32::disableStallguard",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a7aaaf391eb107e63cef66af3e42c36a8",tooltip="Disables the builtin stallguard offered from TMC5130, and reenables StealthChop."];
+  Node3 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="UstepperS32::moveToEnd",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a0945c7790bbdf22c749cf54d18c981ce",tooltip="Moves the motor to its physical limit, without limit switch."];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="TMC5130::enableStallguard",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a65b2ed48d10ea270bf81ea71941644d0",tooltip=" "];
+  Node6 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="UstepperS32::enableStallguard",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a7498b52fe416a3d5e0a56d27b6984287",tooltip="Enable TMC5130 StallGuard."];
+  Node7 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="UstepperS32::isStalled",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a3e6b884fce56cf58075378b88b9de547",tooltip="This method returns a bool variable indicating wether the motor is stalled or not...."];
+  Node6 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="TMC5130::enableStealth",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a7c9ddb9a2b2bf5f4980223911326774e",tooltip=" "];
+  Node9 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="TMC5130::init",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTMC5130.html#a32a5a9d3c3a1823101860159835750ff",tooltip="Initiation of the motor driver."];
+  Node10 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="UstepperS32::setup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUstepperS32.html#a9db3b9f02f66bb17424b3e114c851d37",tooltip="Initializes the different parts of the uStepper S object."];
+}
