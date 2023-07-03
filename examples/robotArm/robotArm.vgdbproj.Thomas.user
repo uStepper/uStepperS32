@@ -79,7 +79,7 @@
           <ComparisonMode>Equals</ComparisonMode>
           <Enabled>false</Enabled>
         </e>
-        <h>true</h>
+        <h>false</h>
         <g>false</g>
         <a>false</a>
       </e32>
@@ -112,6 +112,18 @@
               <Enabled>false</Enabled>
             </e>
             <h>false</h>
+            <g>false</g>
+            <a>false</a>
+          </e32>
+          <e32>
+            <c>arm.tx</c>
+            <b>com.sysprogs.types.builtin.Float32</b>
+            <f>true</f>
+            <e>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </e>
+            <h>true</h>
             <g>false</g>
             <a>false</a>
           </e32>
