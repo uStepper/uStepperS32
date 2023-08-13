@@ -7,6 +7,8 @@
 #include "TMC5130RegDef.h"
 #include "utils/semaphore.h"
 #include "../callbacks.h"
+#include "../UstepperS32.h"
+#define DRIVERCLOCKFREQ 10000000.0 /**< MCU Clock frequency */
 
 class TMC5130
 {
@@ -208,7 +210,7 @@ class TMC5130
 	/** STOP, VELOCITY, POSITION*/
 	uint8_t mode = DRIVER_STOP;
 	Semaphore semaphore;
-	float rpmToVelocity = (float)(279620.267 * 200 * 256) / (12500000);
+	float rpmToVelocity = (float)(279620.267 * 200 * 256) / (DRIVERCLOCKFREQ);
 	friend void closedLoopCallback();
 };
 
