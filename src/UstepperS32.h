@@ -32,10 +32,8 @@ class UstepperS32;
 #define CLOSEDLOOP 2   /**< Value defining closed loop mode for normal library functions*/
 #define PID CLOSEDLOOP /**< Value defining PID mode for normal library functions. only here for backwards compatibility*/
 
-#define ACCELERATIONCONVERSION 1.0 / 116.415321827 /**< page 74 datasheet*/
-#define VELOCITYCONVERSION 1.0 / 0.953674316	   /**< page 74 datasheet*/
-
-#define DRIVERCLOCKFREQ 10000000.0 /**< MCU Clock frequency */
+#define ACCELERATIONCONVERSION 0.0220 //1.0 / (DRIVERCLOCKFREQ*DRIVERCLOCKFREQ / (512*256) / 16777216) /**< page 74 datasheet*/
+#define VELOCITYCONVERSION 1.677 //1.0 / (DRIVERCLOCKFREQ/2/8388608)   /**< page 74 datasheet*/
 
 class UstepperS32
 {
