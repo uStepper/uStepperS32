@@ -30,6 +30,12 @@ class TLE5012B
 	float getRPM();
 	uint8_t getStatus(void);
 	bool detectMagnet(void);
+	/** Encoder stalldetect enable - enabled when set to 1 **/
+	volatile  bool encoderStallDetectEnable = 0;
+	/** Encoder stalldetect return value - stall = 1 **/
+	volatile  bool encoderStallDetect;
+	/** Encoder stalldetect sensitivity - From -10 to 1 where lower number is less sensitive and higher is more sensitive. **/
+	volatile  float encoderStallDetectSensitivity = -0.5;	
 	
   private:
 	Spi spiHandle;
@@ -46,6 +52,10 @@ class TLE5012B
 	VelocityEstimator velocityEstimator;
 	Semaphore semaphore;
 	friend void mainTimerCallback();
+	/** Encoder stall detect counter - Delay start of the stalldetect to let the encoder velocity filter initialize properly */
+	volatile uint16_t startDelay = 0;
+	/** Encoder stall detect counter - Counter for number of consecutive samples that must show a stall */
+	volatile uint16_t errorCnt = 0;	
 };
 
 #endif
