@@ -11,38 +11,37 @@
     </CatchpointConfiguration>
     <MaskInterruptsWhileStepping>false</MaskInterruptsWhileStepping>
     <MemoryWindowPreferences />
-    <e>
-      <e32>
-        <c>ptr</c>
-        <b>com.sysprogs.types.builtin.HexInt32</b>
-        <f>true</f>
-        <e>
+    <a>
+      <gp>
+        <e>ptr</e>
+        <b>true</b>
+        <c>
           <ComparisonMode>Equals</ComparisonMode>
           <Enabled>false</Enabled>
-        </e>
+        </c>
+        <g>false</g>
         <h>false</h>
-        <g>true</g>
         <a>false</a>
-      </e32>
+      </gp>
+    </a>
+    <e>
+      <c>
+        <b>com.sysprogs.AllGlobals</b>
+        <a />
+      </c>
+      <c>
+        <b>com.sysprogs.SpecificVariables</b>
+        <a />
+      </c>
+      <c>
+        <b>com.sysprogs.Custom</b>
+        <a />
+      </c>
     </e>
-    <b>
-      <a>
-        <a>com.sysprogs.AllGlobals</a>
-        <b />
-      </a>
-      <a>
-        <a>com.sysprogs.SpecificVariables</a>
-        <b />
-      </a>
-      <a>
-        <a>com.sysprogs.Custom</a>
-        <b />
-      </a>
-    </b>
-    <c>
-      <b>AllGlobals</b>
-      <a>false</a>
-    </c>
+    <d>
+      <a>SpecificVariables</a>
+      <b>false</b>
+    </d>
     <Suggestions />
     <HardwareRegisters>
       <HardwareRegisterRecord>

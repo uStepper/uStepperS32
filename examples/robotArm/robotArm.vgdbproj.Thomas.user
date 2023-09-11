@@ -68,7 +68,7 @@
           <Enabled>false</Enabled>
         </e>
         <h>false</h>
-        <g>true</g>
+        <g>false</g>
         <a>false</a>
       </e32>
       <e32>
@@ -118,6 +118,29 @@
           <e32>
             <c>arm.tx</c>
             <b>com.sysprogs.types.builtin.Float32</b>
+            <f>true</f>
+            <e>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </e>
+            <h>true</h>
+            <g>false</g>
+            <a>false</a>
+          </e32>
+          <e32>
+            <c>stepper.encoder</c>
+            <f>true</f>
+            <e>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </e>
+            <h>false</h>
+            <g>false</g>
+            <a>false</a>
+          </e32>
+          <e32>
+            <c>stepper.encoder.angleMoved</c>
+            <b>com.sysprogs.types.builtin.SInt32</b>
             <f>true</f>
             <e>
               <ComparisonMode>Equals</ComparisonMode>

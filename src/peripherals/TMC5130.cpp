@@ -3,7 +3,7 @@
 extern UstepperS32 *ptr;
 TMC5130::TMC5130() : spiHandle(
 						 csActivePolarity_t(activeLow),
-						 GPIO(LL_GPIO_PIN_15, 15, GPIOB),
+						 GPIO(LL_GPIO_PIN_15, 15, GPIOB), //DRIVERMOSI
 						 GPIO(LL_GPIO_PIN_14, 14, GPIOB),
 						 GPIO(LL_GPIO_PIN_13, 13, GPIOB),
 						 GPIO(LL_GPIO_PIN_12, 12, GPIOB),
@@ -11,6 +11,8 @@ TMC5130::TMC5130() : spiHandle(
 					 enablePin(LL_GPIO_PIN_1, 1, GPIOA), //#TODO: USE PIN DEFINITIONS FROM gpio.h
 					 sdPin(LL_GPIO_PIN_8, 8, GPIOC),
 					 spiPin(LL_GPIO_PIN_1, 1, GPIOC),
+					 stepPin(LL_GPIO_PIN_1, 1, GPIOC),
+					 dirPin(LL_GPIO_PIN_1, 1, GPIOC),
 					 semaphore()
 {
 }
@@ -23,6 +25,10 @@ void TMC5130::init()
 	this->sdPin.reset(); //Set SD_MODE pin low
 	this->spiPin.configureOutput();
 	this->spiPin.set(); //Set SPI_MODE pin high
+	//this->stepPin.configureOutput();
+	//this->stepPin.reset();
+	//this->dirPin.configureOutput();
+	//this->dirPin.reset();
 	this->enablePin.configureOutput();
 	this->enablePin.reset(); //Set EN low
 	
@@ -35,7 +41,7 @@ void TMC5130::init()
 	this->enableStealth();
 	
 	/* Set all-round chopper configuration */
-	this->writeRegister(CHOPCONF, TOFF(2) | TBL(2) | HSTRT_TFD(4) | HEND(0));
+	this->writeRegister(CHOPCONF, TOFF(2) | TBL(2) | HSTRT_TFD(4) | HEND(0) | DEDGE(0));
 
 	/* Set startup ramp mode */
 	this->setRampMode(POSITIONING_MODE);
@@ -418,4 +424,18 @@ int32_t TMC5130::readRegister(uint8_t address)
 	semaphore.releaseLock();
 	
 	return value;
+}
+
+void TMC5130::setOperationMode(uint8_t mode)
+{
+	if (mode == TMC5130OperationModes::spi)
+	{
+		this->sdPin.reset(); //Set SD_MODE pin low
+		this->spiPin.set();  //Set SPI_MODE pin high
+	}
+	else if (mode == TMC5130OperationModes::stepDir)
+	{
+		this->sdPin.set(); //Set SD_MODE pin high
+		this->spiPin.reset();  //Set SPI_MODE pin low
+	}
 }

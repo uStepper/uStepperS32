@@ -2,6 +2,7 @@
 #define __DROPIN_H
 
 #include <inttypes.h>
+#include "../UstepperS32.h"
 
 /**
  * @brief      	Struct to store dropin settings
@@ -21,5 +22,20 @@ typedef struct
 	uint8_t runCurrent;  /**< Current to use when the motor is rotating. 0-100 %	*/
 	uint8_t checksum;	/**< Checksum	*/
 } dropinCliSettings_t;
+
+class Dropin
+{
+  public:
+	Dropin();
+	void init();
+
+  private:
+	GPIO stepPin;
+	GPIO dirPin;
+	GPIO enaPin;
+	friend void dropInStepInputEXTI();
+	friend void dropInDirInputEXTI();
+	friend void dropInEnableInputEXTI();
+};
 
 #endif // !__DROPIN_H

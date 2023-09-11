@@ -39,7 +39,7 @@ Callbacks_t callbacks = {
 							._dropInEnableInputEXTI = dropInEnableInputEXTI
 						};
 UstepperS32 *ptr;
-UstepperS32::UstepperS32() : driver(), encoder()
+UstepperS32::UstepperS32() : driver(), encoder(), dropin()
 {
 	ptr = this;
 	
@@ -134,17 +134,20 @@ bool UstepperS32::getMotorState(uint8_t statusType)
 
 void UstepperS32::checkOrientation(float distance)
 {
-	// TODO: FIX THIS FUNCTION!
-	return;
 	float startAngle;
 	uint8_t inverted = 0;
 	uint8_t noninverted = 0;
-	this->disablePid();
+	bool pidEnabled = this->mode == NORMAL ? false : true;
+	
+	if (pidEnabled)
+	{
+		this->disablePid();
+	}
+	
 	this->shaftDir = 0;
 	this->driver.setShaftDirection(this->shaftDir);
-	return;
 
-	while(inverted < 3 && noninverted < 3)
+	while(inverted < 2 && noninverted < 2)
 	{
 		startAngle = this->encoder.getAngleMoved();
 		this->moveAngle(distance);
@@ -170,7 +173,10 @@ void UstepperS32::checkOrientation(float distance)
 		this->shaftDir = 1;
 		this->driver.setShaftDirection(this->shaftDir);
 	}
-	this->enablePid();
+	if (pidEnabled)
+	{
+		this->enablePid();
+	}
 }
 
 void UstepperS32::setMaxVelocity(float velocity, bool applyToDriver)
@@ -1065,4 +1071,9 @@ uint8_t UstepperS32::dropinSettingsCalcChecksum(dropinCliSettings_t *settings)
 	}
 
 	return checksum;
+}
+
+extern "C" uint8_t getUstepperMode() 
+{
+	return ptr->mode;
 }

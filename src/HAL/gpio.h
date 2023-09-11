@@ -4,6 +4,8 @@
 #include <inttypes.h>
 #include "stm32yyxx_ll_gpio.h"
 #include "stm32yyxx_ll_bus.h"
+#include "stm32yyxx_ll_exti.h"
+#include "stm32yyxx_ll_system.h"
 
 class GPIO
 {
@@ -17,6 +19,10 @@ class GPIO
 	void configureSpi(SPI_TypeDef *spiChannel);
 	void configureOutput();
 	void configureInput();
+	void configureInterrupt(uint32_t pull = LL_GPIO_PULL_UP,
+							uint32_t mode = LL_EXTI_MODE_IT,
+							uint32_t trigger = LL_EXTI_TRIGGER_RISING,
+							uint32_t prio = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
 	void configureAnalog();
 	void enableClock();
 
@@ -31,5 +37,6 @@ class GPIO
 #define ENCODERMISO GPIO(LL_GPIO_PIN_11, 11, GPIOC)
 #define ENCODERSCK GPIO(LL_GPIO_PIN_10, 10, GPIOC)
 #define ENCODERCS GPIO(LL_GPIO_PIN_15, 15, GPIOA)
+//#define DRIVERMOSI GPIO(LL_GPIO_PIN_15, 15, GPIOB)
 
 #endif

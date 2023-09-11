@@ -1,4 +1,5 @@
-#include "TLE5012B.h"
+#include "../UstepperS32.h"
+extern UstepperS32 *ptr;
 
 TLE5012B::TLE5012B() : spiHandle(
 						   csActivePolarity_t(activeLow),
@@ -15,6 +16,16 @@ TLE5012B::TLE5012B() : spiHandle(
 void TLE5012B::init()
 {
 	this->spiHandle.init();
+	volatile uint16_t angle;
+	//Invert angle direction of encoder
+	spiHandle.csReset();
+	sendCommand(0x0, 0xA, 0x0, 0x08, 0x1);
+	spiHandle.transmit16BitData(0x0800);
+	this->spiHandle.releaseMosi();
+	angle = spiHandle.transmit16BitData(0x0000) & 0x7FFF;
+	spiHandle.csSet();
+	this->spiHandle.engageMosi();
+	
 	this->sample();
 	this->encoderOffset = this->angle;
 	this->angle = 0;
@@ -103,7 +114,7 @@ bool TLE5012B::sample()
 		return false;
 	}*/
 	
-	this->angleMoved -= deltaAngle;
+	this->angleMoved += deltaAngle;
 	this->angle = newAngle;
 	this->velocityEstimator.runIteration(this->angleMoved);
 	
@@ -119,6 +130,7 @@ float TLE5012B::getAngle()
 void TLE5012B::setHome(float initialAngle)
 {
 	mainTimerPause();
+	ptr->driver.getVelocity();
 	this->encoderOffset = 0;
 	this->sample();
 	this->encoderOffset = this->angle;

@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include "HAL/spi.h"
+#include "HAL/gpio.h"
 #include "peripherals/TMC5130.h"
 #include "peripherals/TLE5012B.h"
 #include "HAL/timer.h"
@@ -35,14 +36,24 @@ class UstepperS32;
 #define ACCELERATIONCONVERSION 0.0220 //1.0 / (DRIVERCLOCKFREQ*DRIVERCLOCKFREQ / (512*256) / 16777216) /**< page 74 datasheet*/
 #define VELOCITYCONVERSION 1.677 //1.0 / (DRIVERCLOCKFREQ/2/8388608)   /**< page 74 datasheet*/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	uint8_t getUstepperMode();
+#ifdef __cplusplus
+}
+#endif
+
 class UstepperS32
 {
 	friend class TMC5130;
 	friend class TLE5012B;
-	
-	public:
+	friend class Dropin;
+
+  public:
 	TLE5012B encoder;
 	TMC5130 driver;
+	Dropin dropin;
 	/**
 	 * @brief	Constructor of uStepper class
 	 */
@@ -532,9 +543,10 @@ class UstepperS32
 	bool loadDropinSettings(void);
 	void saveDropinSettings(void);
 	uint8_t dropinSettingsCalcChecksum(dropinCliSettings_t *settings);
-	
+	friend uint8_t getUstepperMode();
 };
 
 extern UstepperS32 *ptr;
+
 
 #endif
