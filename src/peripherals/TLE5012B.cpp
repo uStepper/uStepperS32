@@ -117,7 +117,7 @@ bool TLE5012B::sample()
 	if(encoderStallDetectEnable)
 	{
 		float driverSpeed = ptr->driver.getVelocity();
-		float encoderSpeed = this->getSpeed(1);
+		float encoderSpeed = this->getSpeed(ptr->microSteps);
 		float stallSpeed = driverSpeed*this->encoderStallDetectSensitivity;
 		if (driverSpeed < 0)
 		{
