@@ -113,6 +113,48 @@ bool TLE5012B::sample()
 		semaphore.releaseLock();
 		return false;
 	}*/
+
+	if(encoderStallDetectEnable)
+	{
+		float driverSpeed = ptr->driver.getVelocity();
+		float encoderSpeed = this->getSpeed(1);
+		float stallSpeed = driverSpeed*this->encoderStallDetectSensitivity;
+		if (driverSpeed < 0)
+		{
+			if ((((driverSpeed+stallSpeed) < encoderSpeed) || (driverSpeed-stallSpeed) > encoderSpeed) && startDelay > 500)
+		    {
+		       errorCnt++;
+		    }
+		    else
+		    {
+		        errorCnt = 0;
+		    }
+		}
+		else
+		{
+		    if ((((driverSpeed+stallSpeed) > encoderSpeed) || (driverSpeed-stallSpeed) < encoderSpeed) && startDelay > 500)
+		    {
+		       errorCnt++;
+		    }
+		    else
+		    {
+		        errorCnt = 0;
+		    }
+		}
+	    if(errorCnt > 3)
+	    {
+	        this->encoderStallDetect = 1;
+	    }
+	    else
+	    {
+	    	this->encoderStallDetect = 0;
+	    }
+	    startDelay++;
+	    if(startDelay > 500)
+	    {
+	    	startDelay = 501;
+	    }
+	}
 	
 	this->angleMoved += deltaAngle;
 	this->angle = newAngle;
