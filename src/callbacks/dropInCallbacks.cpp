@@ -1,18 +1,18 @@
 #include "../UstepperS32.h"
 void dropInStepInputEXTI()
 {
-	ptr->driver.stepPin.toggle();
-}
-void dropInDirInputEXTI()
-{
-	if (ptr->dropin.dirPin.read())
+	if (ptr->dropin.stepPin.read())
 	{
-		ptr->driver.dirPin.set();
+		ptr->driver.stepPin.set();
 	}
 	else
 	{
-		ptr->driver.dirPin.reset();
+		ptr->driver.stepPin.reset();
 	}
+	
+}
+void dropInDirInputEXTI()
+{
 }
 void dropInEnableInputEXTI()
 {

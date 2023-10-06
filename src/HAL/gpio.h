@@ -20,7 +20,6 @@ class GPIO
 	void configureOutput();
 	void configureInput();
 	void configureInterrupt(uint32_t pull = LL_GPIO_PULL_UP,
-							uint32_t mode = LL_EXTI_MODE_IT,
 							uint32_t trigger = LL_EXTI_TRIGGER_RISING,
 							uint32_t prio = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
 	void configureAnalog();

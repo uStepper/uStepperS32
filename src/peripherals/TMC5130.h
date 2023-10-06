@@ -167,7 +167,7 @@ class TMC5130
 	volatile int32_t xActual = 0;
 
 	void setRPM(float rpm);
-
+	GPIO stepPin;
   private:
 	/**
 		 * @brief		Writes the current setting registers of the motor driver  
@@ -201,7 +201,7 @@ class TMC5130
 	GPIO enablePin;
 	GPIO sdPin;
 	GPIO spiPin;
-	GPIO stepPin;
+	
 	GPIO dirPin;
 	/** Default acceleration profile for positioning mode */
 	uint32_t VSTART = 0;
@@ -226,6 +226,7 @@ class TMC5130
 	friend void dropInStepInputEXTI();
 	friend void dropInDirInputEXTI();
 	friend void dropInEnableInputEXTI();
+	friend class Dropin;
 };
 
 #endif

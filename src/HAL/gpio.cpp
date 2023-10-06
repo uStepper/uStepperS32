@@ -110,7 +110,6 @@ void GPIO::configureInput()
 }
 
 void GPIO::configureInterrupt(uint32_t pull, 
-							  uint32_t mode, 
 							  uint32_t trigger,
 							  uint32_t prio)
 {
@@ -129,14 +128,14 @@ void GPIO::configureInterrupt(uint32_t pull,
 	GPIO_InitStruct.Pin = this->_pinMask;
 	GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
 	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
+	GPIO_InitStruct.Pull = pull;
 	LL_GPIO_Init(this->_port, &GPIO_InitStruct);
 
 	LL_SYSCFG_SetEXTISource(sysCfgPortMask, sysCfgLineMask);
 	EXTI_InitStruct.Line_0_31 = extiLineMask;
 	EXTI_InitStruct.LineCommand = ENABLE;
 	EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
-	EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_RISING;
+	EXTI_InitStruct.Trigger = trigger;
 	LL_EXTI_Init(&EXTI_InitStruct);
 
 	//TODO: We need to disable IRQ in other "configure" functions for this pin, in case the pin is reconfigured runtime
