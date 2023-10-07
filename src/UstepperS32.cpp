@@ -36,7 +36,8 @@ Callbacks_t callbacks = {
 							._mainTimerCallback = mainTimerCallback,
 							._dropInStepInputEXTI = dropInStepInputEXTI,
 							._dropInDirInputEXTI = dropInDirInputEXTI,
-							._dropInEnableInputEXTI = dropInEnableInputEXTI
+							._dropInEnableInputEXTI = dropInEnableInputEXTI,
+							._dropInHandler = dropInHandler
 						};
 UstepperS32 *ptr;
 UstepperS32::UstepperS32() : driver(), encoder(), dropin()
@@ -106,7 +107,10 @@ void UstepperS32::setup(uint8_t mode,
 	mainTimerInit();
 	if (mode == DROPIN)
 	{
-		dropin.init();
+		dropin.init(dropinStepSize);
+		dropin.setProportional(pTerm);
+		dropin.setIntegral(iTerm);
+		dropin.setDifferential(dTerm);
 	}
 }
 

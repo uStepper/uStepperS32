@@ -28,7 +28,7 @@ class Dropin
 {
   public:
 	Dropin();
-	void init();
+	void init(uint16_t stepSize);
 	bool loadDropinSettings(void);
 	void saveDropinSettings(void);
 	/**
@@ -102,11 +102,11 @@ class Dropin
 	GPIO stepPin;
 	GPIO dirPin;
 	GPIO enaPin;
-	int32_t stepCnt;
+	volatile int32_t stepCnt;
 	bool correctionEngaged;
 	float accumError;
+	VelocityEstimator externalStepFrequencyEstimator;
 	
-	void handler();
 	/**
 	 * @brief      	This method is used for the dropinCli to take in user commands.
 	 *
@@ -118,6 +118,7 @@ class Dropin
 	friend void dropInStepInputEXTI();
 	friend void dropInDirInputEXTI();
 	friend void dropInEnableInputEXTI();
+	friend void dropInHandler();
 	friend class TMC5130;
 };
 

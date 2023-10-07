@@ -448,6 +448,7 @@ class UstepperS32
 	/** Flag to keep track of shaft direction setting */
 	volatile bool shaftDir = 0;
 	friend uint8_t getUstepperMode();
+	friend void dropInHandler();
 };
 
 extern UstepperS32 *ptr;

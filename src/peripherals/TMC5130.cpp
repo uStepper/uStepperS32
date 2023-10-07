@@ -63,7 +63,7 @@ void TMC5130::init()
 	this->enableStealth();
 
 	/* Set all-round chopper configuration */
-	this->writeRegister(CHOPCONF, TOFF(2) | TBL(2) | HSTRT_TFD(4) | HEND(0) | DEDGE(0) | INTPOL(1));
+	this->writeRegister(CHOPCONF, TOFF(2) | TBL(2) | HSTRT_TFD(4) | HEND(0) | DEDGE(0));
 
 	/* Set startup ramp mode */
 	this->setRampMode(POSITIONING_MODE);

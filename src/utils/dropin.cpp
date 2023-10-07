@@ -1,18 +1,21 @@
 #include "../UstepperS32.h"
 extern UstepperS32 *ptr;
 
-Dropin::Dropin() : stepPin(LL_GPIO_PIN_6, 6, GPIOA),
-				   dirPin(LL_GPIO_PIN_2, 2, GPIOA),
-				   enaPin(LL_GPIO_PIN_7, 7, GPIOA)
+Dropin::Dropin() :	stepPin(LL_GPIO_PIN_6, 6, GPIOA),
+					dirPin(LL_GPIO_PIN_2, 2, GPIOA),
+					enaPin(LL_GPIO_PIN_7, 7, GPIOA),
+					externalStepFrequencyEstimator(MAINTIMERINTERRUPTPERIOD)
 {
 	
 }
 
-void Dropin::init() 
+void Dropin::init(uint16_t stepSize) 
 {
+	this->settings.externalStepSize = stepSize;
+	
 	this->dirPin.configureInput();
-	this->stepPin.configureInterrupt(LL_GPIO_PULL_NO, LL_EXTI_TRIGGER_RISING_FALLING, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 1));
-	//this->enaPin.configureInterrupt(LL_GPIO_PULL_NO, LL_EXTI_TRIGGER_RISING_FALLING, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+	this->stepPin.configureInterrupt(LL_GPIO_PULL_NO, LL_EXTI_TRIGGER_RISING, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 1));
+	this->enaPin.configureInterrupt(LL_GPIO_PULL_NO, LL_EXTI_TRIGGER_RISING_FALLING, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
 }
 void Dropin::printHelp()
 {

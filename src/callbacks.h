@@ -10,6 +10,7 @@ typedef struct
 	void (*_dropInStepInputEXTI)(void);
 	void (*_dropInDirInputEXTI)(void);
 	void (*_dropInEnableInputEXTI)(void);
+	void(*_dropInHandler)(void);
 } Callbacks_t;
 
 extern Callbacks_t callbacks;
@@ -19,6 +20,7 @@ void mainTimerCallback();
 void dropInStepInputEXTI();
 void dropInDirInputEXTI();
 void dropInEnableInputEXTI();
+void dropInHandler();
 #ifdef __cplusplus
 }
 #endif

@@ -8,5 +8,9 @@ void mainTimerCallback()
 		{
 			callbacks._closedLoopCallback();
 		}
+		else if (ptr->mode == DROPIN)
+		{
+			callbacks._dropInHandler();
+		}
 	}
 }
