@@ -1,9 +1,0 @@
-digraph "C:/Users/Thomas/Documents/Arduino/libraries/uStepperSTM/src/HAL" {
-  compound=true
-  node [ fontsize="10", fontname="Helvetica"];
-  edge [ labelfontsize="10", labelfontname="Helvetica"];
-  subgraph clusterdir_68267d1309a1af8e8297ef4c3efbcdba {
-    graph [ bgcolor="#ddddee", pencolor="black", label="src" fontname="Helvetica", fontsize="10", URL="dir_68267d1309a1af8e8297ef4c3efbcdba.html"]
-  dir_7ebd55e50c14fd51de6fa090121df543 [shape=box, label="HAL", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_7ebd55e50c14fd51de6fa090121df543.html"];
-  }
-}
