@@ -50,7 +50,7 @@ int16_t rpm = 50;
 
 void setup(){
   stepper.setup(NORMAL, STEPSPERREV); 	//Initialize uStepper S32
-  stepper.checkOrientation(15.0);       //Check orientation of motor connector with +/- 15 microsteps movement
+  stepper.checkOrientation(30.0);       //Check orientation of motor connector with +/- 30 microsteps movement
   stepper.setMaxAcceleration(2000);		//Use an acceleration of 2000 fullsteps/s^2
   stepper.setMaxVelocity(500);			//Max velocity of 500 fullsteps/s
   Serial.begin(9600);

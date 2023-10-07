@@ -39,7 +39,7 @@ UstepperS32 stepper;
 
 void setup(void){
   stepper.setup(CLOSEDLOOP,200);     	//Initialize uStepper S32 to use closed loop control with 200 steps per revolution motor - i.e. 1.8 deg stepper  
-  stepper.checkOrientation(15.0);       //Check orientation of motor connector with +/- 15 microsteps movement
+  stepper.checkOrientation(30.0);       //Check orientation of motor connector with +/- 30 microsteps movement
   // For the closed loop position control the acceleration and velocity parameters define the response of the control:
   stepper.setMaxAcceleration(2000);     //use an acceleration of 2000 fullsteps/s^2
   stepper.setMaxVelocity(800);          //Max velocity of 800 fullsteps/s

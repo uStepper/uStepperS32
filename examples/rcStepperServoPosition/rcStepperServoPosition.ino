@@ -60,7 +60,7 @@ int16_t posFilt;
 
 void setup(void){
   stepper.setup(CLOSEDLOOP,200,1,1,1,1,0);    	//Initialize uStepper S32 to use closed loop control with 200 steps per revolution motor - i.e. 1.8 deg stepper and 0 at the end to use encoder absolute zero as reference
-  stepper.checkOrientation(15.0);       		//Check orientation of motor connector with +/- 15 microsteps movement
+  stepper.checkOrientation(30.0);       		//Check orientation of motor connector with +/- 30 microsteps movement
   pinMode(3,INPUT_PULLUP);    					//Hardware interrupt input on D3 with pull-up
   attachInterrupt(3, interruptRC, CHANGE);    	//Attach interrupt to the pin and react on both rising and falling edges
   pinMode(PC4,OUTPUT);							//Setting the LED up

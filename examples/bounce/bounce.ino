@@ -35,7 +35,7 @@ float angle = 360.0; //amount of degrees to move
 
 void setup(){
 	stepper.setup();				  //Initialize uStepper S32
-	stepper.checkOrientation(15.0);   //Check orientation of motor connector with +/- 15 microsteps movement
+	stepper.checkOrientation(30.0);   //Check orientation of motor connector with +/- 30 microsteps movement
 	stepper.setMaxAcceleration(2000); //use an acceleration of 2000 fullsteps/s^2
 	stepper.setMaxVelocity(500);	  //Max velocity of 500 fullsteps/s
 	Serial.begin(9600);

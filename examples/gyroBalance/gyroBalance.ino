@@ -41,7 +41,7 @@ MPU6050 mpu;
 
 void setup(){
   stepper.setup(CLOSEDLOOP,200);   //Initialize uStepper S32 to use closed loop control with 200 steps per revolution motor - i.e. 1.8 deg stepper
-  stepper.checkOrientation(15.0);  //Check orientation of motor connector with +/- 15 microsteps movement
+  stepper.checkOrientation(30.0);  //Check orientation of motor connector with +/- 30 microsteps movement
   stepper.setMaxAcceleration(500); //Use an acceleration of 500 fullsteps/s^2
   stepper.setMaxVelocity(500);     //Max velocity of 500 fullsteps/s
   mpu.Initialize();				   // Initialization of MPU

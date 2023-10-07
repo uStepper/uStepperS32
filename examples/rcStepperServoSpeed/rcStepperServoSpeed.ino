@@ -60,7 +60,7 @@ int16_t velFilt;
 
 void setup(void){
   stepper.setup();    						//Initialize uStepper S32
-  stepper.checkOrientation(15.0);       	//Check orientation of motor connector with +/- 15 microsteps movement
+  stepper.checkOrientation(30.0);       	//Check orientation of motor connector with +/- 30 microsteps movement
   pinMode(3,INPUT_PULLUP);    				//Hardware interrupt input on D3 with pull-up
   attachInterrupt(3, interruptRC, CHANGE);  //Attach interrupt to the pin and react on both rising and falling edges
   pinMode(PC4,OUTPUT);						//Setting the LED up

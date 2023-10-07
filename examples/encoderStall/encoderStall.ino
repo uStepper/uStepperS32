@@ -49,7 +49,7 @@ UstepperS32 stepper;
 
 void setup(){
   stepper.setup();											//Initialize uStepper S32
-  stepper.checkOrientation(15.0);       					//Check orientation of motor connector with +/- 15 microsteps movement
+  stepper.checkOrientation(30.0);       					//Check orientation of motor connector with +/- 30 microsteps movement
   stepper.setRPM(100);										//Set speed 
   stepper.encoder.encoderStallDetectSensitivity = -0.25;	//Encoder stalldetect sensitivity - From -10 to 1 where lower number is less sensitive and higher is more sensitive. -0.25 works for most.
   stepper.encoder.encoderStallDetectEnable = 1; 			//Enable the encoder stall detect

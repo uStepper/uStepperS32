@@ -50,7 +50,7 @@ uint8_t rpm[6] = {25, 50, 80, 120, 130, 150};
 
 void setup(){
   stepper.setup();								//Initialize uStepper S32
-  stepper.checkOrientation(15.0);       		//Check orientation of motor connector with +/- 15 microsteps movement
+  stepper.checkOrientation(30.0);       		//Check orientation of motor connector with +/- 30 microsteps movement
   stepper.encoder.encoderStallDetectEnable = 1; //Enable the encoder stall detect
   Serial.begin(9600);
 }
@@ -76,4 +76,5 @@ void loop() {
     }
     stepper.stop();
   } 
+  while(1);
 }
