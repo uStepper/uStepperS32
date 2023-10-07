@@ -43,9 +43,9 @@
 * For more information, check out the documentation:
 * http://ustepper.com/docs/usteppers/html/index.html
 */
-#include <uStepperS.h>
+#include <UstepperS32.h>
 
-uStepperS stepper;
+UstepperS32 stepper;
 uint8_t rpm[6] = {25, 50, 80, 120, 130, 150};
 
 void setup(){
