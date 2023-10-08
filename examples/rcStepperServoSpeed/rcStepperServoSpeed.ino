@@ -85,9 +85,10 @@ void initRC(void)// Find max and min limits of control input. Requires that the 
 {
   if(deltaTime < 1200 && k<50)
   {
-    if(deltaTime<lowVal)
+    if(deltaTime<lowVal && deltaTime>800)
     {
       lowVal = deltaTime;
+      k=0;
     }
     k++;
     digitalWrite(PC4,LOW);
@@ -98,6 +99,7 @@ void initRC(void)// Find max and min limits of control input. Requires that the 
     if(deltaTime>highVal)
     {
       highVal = deltaTime;
+      k=50;
     }
     k++;
     digitalWrite(PC4,LOW);
