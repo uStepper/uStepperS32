@@ -56,7 +56,7 @@ void setup(){
 
 
 void loop() {
-  Serial.println(stepper.driver.getVelocity());
+  Serial.println("-- Stallguard test --");
   // Run through all five rpm's
   for( uint8_t i = 0; i < sizeof(rpm); i++ ){
     Serial.print(rpm[i]); Serial.println(" rpm");
