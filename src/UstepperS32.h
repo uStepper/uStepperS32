@@ -99,8 +99,8 @@ class UstepperS32
 	 */
 	void setup(uint8_t mode = NORMAL,
 			   uint16_t stepsPerRevolution = 200,
-			   float pTerm = 10.0,
-			   float iTerm = 0.0,
+			   float pTerm = 10,
+			   float iTerm = 0.2,
 			   float dTerm = 0.0,
 			   uint16_t dropinStepSize = 16,
 			   bool setHome = true,

@@ -78,8 +78,6 @@ void UstepperS32::setup(uint8_t mode,
 
 	dropinCliSettings_t tempSettings;
 	this->pidDisabled = 1;
-	// Should setup mode etc. later
-	this->mode = mode;
 	
 	this->fullSteps = stepsPerRevolution;
 	this->angleToStep = (float)this->fullSteps * (float)this->microSteps / 360.0;
@@ -96,7 +94,12 @@ void UstepperS32::setup(uint8_t mode,
 
 	this->setCurrent(40.0);
 	this->setHoldCurrent(40.0);
-	
+
+	if (mode == DROPIN)
+	{
+		this->checkOrientation(10);
+	}
+	this->mode = mode;
 	if (setHome == true)
 	{
 		encoder.setHome();

@@ -16,6 +16,7 @@ void Dropin::init(uint16_t stepSize)
 	this->dirPin.configureInput();
 	this->stepPin.configureInterrupt(LL_GPIO_PULL_NO, LL_EXTI_TRIGGER_RISING, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 1));
 	this->enaPin.configureInterrupt(LL_GPIO_PULL_NO, LL_EXTI_TRIGGER_RISING_FALLING, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+	Serial.begin(115200);
 }
 void Dropin::printHelp()
 {

@@ -40,7 +40,7 @@ void __attribute__((optimize("O0"))) dropInHandler()
 	ptr->dropin.externalStepFrequencyEstimator.runIteration(extStepCnt);
 	int32_t error = extStepCnt - (int32_t)((float)ptr->encoder.getAngleMovedRaw() * ENCODERRAWTOSTEP(ptr->microSteps));
 	
-	float limit = abs(ptr->dropin.externalStepFrequencyEstimator.getVelocityEstimation()) + 10000.0;
+	float limit = abs(ptr->dropin.externalStepFrequencyEstimator.getVelocityEstimation()) + 50000.0;
 	
 	static float integral;
 	static bool integralReset = 0;

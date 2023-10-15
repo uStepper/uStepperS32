@@ -1,7 +1,6 @@
 #include <UstepperS32.h>
 
 UstepperS32 stepper;
-float angle = 360.0; //amount of degrees to move
 
 void setup()
 {
@@ -10,11 +9,7 @@ void setup()
 }
 
 void loop()
-{/*
-	stepper.driver.stepPin.set();
-	delayMicroseconds(10000);
-	stepper.driver.stepPin.reset();
-	delayMicroseconds(10000);
-*/
+{
+	stepper.dropin.cli();
 }
 
