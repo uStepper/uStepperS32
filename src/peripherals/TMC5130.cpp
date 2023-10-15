@@ -28,31 +28,20 @@ void TMC5130::init()
 	
 	if (ptr->mode == DROPIN)
 	{
-		this->stepPin.configureOutput();
-		this->dirPin.configureOutput();
-		this->sdPin.set(); //Set SD_MODE pin HIGH
-		this->spiPin.reset();  //Set SPI_MODE pin LOW
-		ptr->dropin.enaPin.read() == false ? this->enablePin.reset() : this->enablePin.set();
+		//this->stepPin.configureOutput();
+		//this->dirPin.configureOutput();
+		this->sdPin.reset(); //Set SD_MODE pin low
+		this->spiPin.set();  //Set SPI_MODE pin high
 
-		this->dirPin.reset();
-		this->stepPin.reset();
+		//this->dirPin.reset();
+		//this->stepPin.reset();
 		this->enablePin.reset(); //Set EN low
-/*
-		this->reset();
-		this->writeRegister(IHOLD_IRUN, IHOLD(this->holdCurrent) | IRUN(this->current) | IHOLDDELAY(this->holdDelay));
-		this->writeRegister(GCONF, EN_PWM_MODE(1) | I_SCALE_ANALOG(1));
-		this->writeRegister(CHOPCONF, TOFF(8) | TBL(1) | INTPOL(1));
-		this->writeRegister(PWMCONF, 0x00050480 | PWM_AUTOSCALE(1));
-		this->writeRegister(XACTUAL, 0);
-		this->writeRegister(XTARGET, 0);*/
 	}
 	else
 	{
 		this->sdPin.reset(); //Set SD_MODE pin low
 		this->spiPin.set();  //Set SPI_MODE pin high
 		this->enablePin.reset(); //Set EN low
-
-		
 	}
 
 	this->reset();
