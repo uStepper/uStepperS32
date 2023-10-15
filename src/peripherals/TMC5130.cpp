@@ -19,19 +19,41 @@ TMC5130::TMC5130() : spiHandle(
 
 void TMC5130::init()
 {
-
+	this->enablePin.configureOutput();
+	this->enablePin.set(); //Set EN high
 	this->spiHandle.init();
 	this->sdPin.configureOutput();
-	this->sdPin.reset(); //Set SD_MODE pin low
 	this->spiPin.configureOutput();
-	this->spiPin.set(); //Set SPI_MODE pin high
-	//this->stepPin.configureOutput();
-	//this->stepPin.reset();
-	//this->dirPin.configureOutput();
-	//this->dirPin.reset();
-	this->enablePin.configureOutput();
-	this->enablePin.reset(); //Set EN low
 	
+	
+	if (ptr->mode == DROPIN)
+	{
+		this->stepPin.configureOutput();
+		this->dirPin.configureOutput();
+		this->sdPin.set(); //Set SD_MODE pin HIGH
+		this->spiPin.reset();  //Set SPI_MODE pin LOW
+		ptr->dropin.enaPin.read() == false ? this->enablePin.reset() : this->enablePin.set();
+
+		this->dirPin.reset();
+		this->stepPin.reset();
+		this->enablePin.reset(); //Set EN low
+/*
+		this->reset();
+		this->writeRegister(IHOLD_IRUN, IHOLD(this->holdCurrent) | IRUN(this->current) | IHOLDDELAY(this->holdDelay));
+		this->writeRegister(GCONF, EN_PWM_MODE(1) | I_SCALE_ANALOG(1));
+		this->writeRegister(CHOPCONF, TOFF(8) | TBL(1) | INTPOL(1));
+		this->writeRegister(PWMCONF, 0x00050480 | PWM_AUTOSCALE(1));
+		this->writeRegister(XACTUAL, 0);
+		this->writeRegister(XTARGET, 0);*/
+	}
+	else
+	{
+		this->sdPin.reset(); //Set SD_MODE pin low
+		this->spiPin.set();  //Set SPI_MODE pin high
+		this->enablePin.reset(); //Set EN low
+
+		
+	}
 
 	this->reset();
 
@@ -39,7 +61,7 @@ void TMC5130::init()
 	this->writeRegister(IHOLD_IRUN, IHOLD(this->holdCurrent) | IRUN(this->current) | IHOLDDELAY(this->holdDelay));
 
 	this->enableStealth();
-	
+
 	/* Set all-round chopper configuration */
 	this->writeRegister(CHOPCONF, TOFF(2) | TBL(2) | HSTRT_TFD(4) | HEND(0) | DEDGE(0));
 
@@ -55,7 +77,12 @@ void TMC5130::init()
 
 	this->stop();
 
-	while (this->readRegister(VACTUAL) != 0);
+	while (this->readRegister(VACTUAL) != 0)
+		;
+
+	
+
+	
 }
 
 int32_t TMC5130::getVelocity(void)
@@ -152,8 +179,6 @@ void TMC5130::setHome(int32_t initialSteps)
 		this->writeRegister(XACTUAL, initialSteps);
 		this->writeRegister(XTARGET, initialSteps);
 	}
-
-	ptr->pidPositionStepsIssued = initialSteps;
 }
 
 void TMC5130::setPosition(int32_t position)
@@ -234,6 +259,7 @@ void TMC5130::enableStealth()
 {
 	/* Set GCONF and enable stealthChop */
 	this->writeRegister(GCONF, EN_PWM_MODE(1) | I_SCALE_ANALOG(1));
+
 	this->setShaftDirection(0);
 
 	/* Set PWMCONF for StealthChop */

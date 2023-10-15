@@ -167,7 +167,7 @@ class TMC5130
 	volatile int32_t xActual = 0;
 
 	void setRPM(float rpm);
-
+	
   private:
 	/**
 		 * @brief		Writes the current setting registers of the motor driver  
@@ -226,6 +226,8 @@ class TMC5130
 	friend void dropInStepInputEXTI();
 	friend void dropInDirInputEXTI();
 	friend void dropInEnableInputEXTI();
+	friend void dropInHandler();
+	friend class Dropin;
 };
 
 #endif
