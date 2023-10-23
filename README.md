@@ -52,12 +52,19 @@ To add the uStepper S library do the following:
 The documentation for this library can be found at the following URL:
 
 ## Known bugs
+Dropin feature is currently in beta version, and therefore has a few quirks:
+- Can be hard to tune the PID parameters
+- Currently the 4pin motor connector has to be mounted in the correct direction (checkorientation() doesn't work in dropin right now). If the motor runs wild in some direction, turn off the power, turn the connector 180 degrees and power back on.
+- the CLI interface in serial monitor works to change the different settings while running, however it is currently not possible to store the settings persistently during power cycles. so right now, the PID values found during tuning using the CLI needs to be added to the dropin sketch and reuploaded to be persistent between power cycles.
 
 ## Change Log
-0.1.1:	
-- Fixed wifiGui example
-
-0.1.0:	
-- Initial release
+Version 1.1.0:	
+	- Added dropin feature (beta version)
+	- Added robotarm implementation and example
+	- Added additional examples
+	- Fixed bugs and minor issues
+	
+Version 1.0.0:	
+	- Initial release
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">uStepper</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="www.ustepper.com" property="cc:attributionName" rel="cc:attributionURL">ON Development</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.

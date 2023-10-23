@@ -95,17 +95,17 @@ void UstepperS32::setup(uint8_t mode,
 	this->setCurrent(40.0);
 	this->setHoldCurrent(40.0);
 
-	if (mode == DROPIN)
-	{
-		this->checkOrientation(10);
-	}
-	this->mode = mode;
+	
 	if (setHome == true)
 	{
 		encoder.setHome();
 	}
 
-	this->pidDisabled = 0;
+	if (mode == DROPIN)
+	{
+		this->checkOrientation(10);
+	}
+	this->mode = mode;
 	
 	mainTimerInit();
 	if (mode == DROPIN)
