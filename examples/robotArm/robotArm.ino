@@ -1,11 +1,10 @@
-#include "robotArmControl.h"
+#include <robotArmControl.h>
 
 robotArmControl arm;
 
 void setup()
 {
-	delay(5000);
-	arm.begin(SHOULDER);
+	arm.begin(BASE);
 }
 
 void loop()

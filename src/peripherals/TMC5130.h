@@ -7,6 +7,15 @@
 #include "TMC5130RegDef.h"
 #include "utils/semaphore.h"
 #include "../callbacks.h"
+#include "../UstepperS32.h"
+
+#define DRIVERCLOCKFREQ 10000000.0 /**< MCU Clock frequency */
+
+enum TMC5130OperationModes
+{
+	stepDir = 0,
+	spi
+};
 
 class TMC5130
 {
@@ -158,12 +167,14 @@ class TMC5130
 	volatile int32_t xActual = 0;
 
 	void setRPM(float rpm);
-
+	
   private:
 	/**
 		 * @brief		Writes the current setting registers of the motor driver  
 		 */
 	void updateCurrent(void);
+
+	void setOperationMode(uint8_t mode);
 
 	/**
 		 * @brief		Set motor driver to position mode or velocity mode
@@ -190,6 +201,8 @@ class TMC5130
 	GPIO enablePin;
 	GPIO sdPin;
 	GPIO spiPin;
+	GPIO stepPin;
+	GPIO dirPin;
 	/** Default acceleration profile for positioning mode */
 	uint32_t VSTART = 0;
 	uint32_t V1 = 0;
@@ -208,8 +221,13 @@ class TMC5130
 	/** STOP, VELOCITY, POSITION*/
 	uint8_t mode = DRIVER_STOP;
 	Semaphore semaphore;
-	float rpmToVelocity = (float)(279620.267 * 200 * 256) / (12500000);
+	float rpmToVelocity = (float)(279620.267 * 200 * 256) / (DRIVERCLOCKFREQ);
 	friend void closedLoopCallback();
+	friend void dropInStepInputEXTI();
+	friend void dropInDirInputEXTI();
+	friend void dropInEnableInputEXTI();
+	friend void dropInHandler();
+	friend class Dropin;
 };
 
 #endif

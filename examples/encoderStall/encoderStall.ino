@@ -1,11 +1,17 @@
 /********************************************************************************************
-* 	    	File:  continous.ino                                                              *
-*		    Version:    2.3.0                                          						    *
-*      	Date: 		October 7th, 2023 	                                    			*
-*       Author:  Thomas Hørring Olsen                                                       *
-*  Description:  Continous Example Sketch!                                                  *
-*                This example demonstrates how the library can be used to make the motorrun *
-*                continously, in both directions and making it stop an ongoing movement.    *
+* 	    	File:  encoderStall.ino                                                           *
+*		   Version:  1.0.0                                                                      *
+*         Date:  October 7th, 2023                                                       *
+*       Author:  Mogens Groth Nicolaisen                                                    *
+*  Description:  Encoder Stall Example Sketch!                                              *
+*                This example demonstrates how the library can be used to detect a stall    *
+*                using the encoder feedback and stop the motor.                             *
+*				         Alternatively the Trinamic Stallguard feature can be used which is shown	  *
+*				         in LimitDetection.ino and StallguardIsStalled.ino. Stallguard is very 		  *
+*				         sensitive and provides seamless stall detection when tuned for the 		    *
+*				         application. It is dependent on speed, current setting and load conditions	*
+*				         amongst others. The encoder stall detection is unaffected by most of these *
+*				         but can be a bit less sensitive.											                      *
 *                                                                                           *
 * For more information, check out the documentation:                                        *
 *    http://ustepper.com/docs/usteppers/html/index.html                                     *
@@ -30,10 +36,10 @@
 ********************************************************************************************/
 
 /*
-*      Continous Example Sketch!
+*      Encoder Stall Example Sketch!
 *
-* This example demonstrates how the library can be used to make the motorrun continously,
-* in both directions and making it stop an ongoing movement.
+* This example demonstrates how the library can be used to detect a stall using the encoder 
+* feedback and stop the motor.
 * For more information, check out the documentation:
 * http://ustepper.com/docs/usteppers/html/index.html
 */
@@ -42,31 +48,20 @@
 UstepperS32 stepper;
 
 void setup(){
-  stepper.setup();					 //Initialize uStepper S32
-  stepper.checkOrientation(30.0);    //Check orientation of motor connector with +/- 30 microsteps movement
+  stepper.setup();											//Initialize uStepper S32
+  stepper.checkOrientation(30.0);       					//Check orientation of motor connector with +/- 30 microsteps movement
+  stepper.setRPM(100);										//Set speed 
+  stepper.encoder.encoderStallDetectSensitivity = -0.25;	//Encoder stalldetect sensitivity - From -10 to 1 where lower number is less sensitive and higher is more sensitive. -0.25 works for most.
+  stepper.encoder.encoderStallDetectEnable = 1; 			//Enable the encoder stall detect
   Serial.begin(9600);
-  stepper.setRPM(-100);				 //Set speed to -100
 }
 
 void loop() {
-  char cmd;
-
-  // put your main code here, to run repeatedly:
-  while(!Serial.available());
-  Serial.println("ACK!");
-  cmd = Serial.read();
-  if(cmd == '1')                      //Run continous clockwise
-  {
-    stepper.setRPM(-100);
-  }
-  
-  else if(cmd == '2')                 //Run continous counter clockwise
-  {
-    stepper.setRPM(100);
-  }
-  
-  else if(cmd == '3')                 //Stop without deceleration and block motor
-  {
-    stepper.stop();
-  }
+  bool stall = stepper.encoder.encoderStallDetect;//Read the stall decision
+  Serial.println(stall);// Print out the result - 1 = stall detected
+  if(stall)// Look for stall
+    {
+      stepper.stop();// Stop motor !
+      while(1);// Stop program
+    }
 }

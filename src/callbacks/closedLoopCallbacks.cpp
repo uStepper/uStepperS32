@@ -3,7 +3,7 @@ void closedLoopCallback()
 {
 	if (!ptr->driver.semaphore.isLocked()){
 		int32_t stepsMoved = ptr->driver.getPosition();
-		int32_t stepsMeasured = ENCODERRAWTOSTEP(ptr->encoder.getAngleMovedRaw());
+		int32_t stepsMeasured = ENCODERRAWTOSTEP(ptr->microSteps)*ptr->encoder.getAngleMovedRaw();
 	
 		if (!ptr->pidDisabled)
 		{

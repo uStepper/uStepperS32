@@ -1,11 +1,17 @@
 /********************************************************************************************
-* 	    	File:  continous.ino                                                              *
-*		    Version:    2.3.0                                          						    *
-*      	Date: 		October 7th, 2023 	                                    			*
-*       Author:  Thomas Hørring Olsen                                                       *
-*  Description:  Continous Example Sketch!                                                  *
-*                This example demonstrates how the library can be used to make the motorrun *
-*                continously, in both directions and making it stop an ongoing movement.    *
+* 	    	File:  encoderStallSensitivityCalibration.ino                                     *
+*		   Version:  1.0.0                                                                      *
+*         Date:  October 7th, 2023                                                           *
+*       Author:  Mogens Groth Nicolaisen                                                    *
+*  Description:  Encoder Stall Sensitivity Calibration Sketch!                              *
+*                This example demonstrates helps calibrate the encoder stall sensitivity    *
+*                for use with the encoder stall feature. See encoder stall example.         *
+*				         Alternatively the Trinamic Stallguard feature can be used which is shown	  *
+*				         in LimitDetection.ino and StallguardIsStalled.ino. Stallguard is very 		  *
+*				         sensitive and provides seamless stall detection when tuned for the 		    *
+*				         application. It is dependent on speed, current setting and load conditions	*
+*				         amongst others. The encoder stall detection is unaffected by most of these *
+*				         but can be a bit less sensitive.											                      *
 *                                                                                           *
 * For more information, check out the documentation:                                        *
 *    http://ustepper.com/docs/usteppers/html/index.html                                     *
@@ -30,43 +36,45 @@
 ********************************************************************************************/
 
 /*
-*      Continous Example Sketch!
-*
-* This example demonstrates how the library can be used to make the motorrun continously,
-* in both directions and making it stop an ongoing movement.
+*      Encoder Stall Sensitivity Calibration Sketch!
+*      
+* This example demonstrates helps calibrate the encoder stall sensitivity 
+* for use with the encoder stall feature. See encoder stall example.
 * For more information, check out the documentation:
 * http://ustepper.com/docs/usteppers/html/index.html
 */
 #include <UstepperS32.h>
 
 UstepperS32 stepper;
+uint8_t rpm[6] = {25, 50, 80, 120, 130, 150};
 
 void setup(){
-  stepper.setup();					 //Initialize uStepper S32
-  stepper.checkOrientation(30.0);    //Check orientation of motor connector with +/- 30 microsteps movement
+  stepper.setup();								//Initialize uStepper S32
+  stepper.checkOrientation(30.0);       		//Check orientation of motor connector with +/- 30 microsteps movement
+  stepper.encoder.encoderStallDetectEnable = 1; //Enable the encoder stall detect
   Serial.begin(9600);
-  stepper.setRPM(-100);				 //Set speed to -100
 }
 
 void loop() {
-  char cmd;
+  Serial.println("-- Encoder Stall Test --");
 
-  // put your main code here, to run repeatedly:
-  while(!Serial.available());
-  Serial.println("ACK!");
-  cmd = Serial.read();
-  if(cmd == '1')                      //Run continous clockwise
-  {
-    stepper.setRPM(-100);
-  }
-  
-  else if(cmd == '2')                 //Run continous counter clockwise
-  {
-    stepper.setRPM(100);
-  }
-  
-  else if(cmd == '3')                 //Stop without deceleration and block motor
-  {
+  // Run through all five rpm's
+  for( uint8_t i = 0; i < sizeof(rpm); i++ ){
+    Serial.print(rpm[i]); Serial.println(" rpm");
+    stepper.setRPM(rpm[i]); 
+    delay(1000);
+    for(uint8_t stallValue = 0; stallValue<220;stallValue++)
+    {
+      stepper.encoder.encoderStallDetectSensitivity = 1-(stallValue*0.05);
+      delay(100);
+      if(!stepper.encoder.encoderStallDetect)
+      {
+        Serial.print("Sensitivity must be less than: ");
+        Serial.println(1-(stallValue*0.05));
+        stallValue=220;
+      }
+    }
     stepper.stop();
-  }
+  } 
+  while(1);
 }

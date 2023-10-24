@@ -1,11 +1,15 @@
 /********************************************************************************************
-* 	    	File:  continous.ino                                                              *
-*		    Version:    2.3.0                                          						    *
-*      	Date: 		October 7th, 2023 	                                    			*
-*       Author:  Thomas Hørring Olsen                                                       *
-*  Description:  Continous Example Sketch!                                                  *
-*                This example demonstrates how the library can be used to make the motorrun *
-*                continously, in both directions and making it stop an ongoing movement.    *
+* 	    	File:  gyroBalance.ino                                                            *
+*		      Version:    2.3.0                                          						            *
+*      	  Date: 	 October 7th, 2023  	                                    			          *
+*         Author:  Mogens Groth Nicolaisen                                                        *
+*         Description:  Gyro Example Sketch!                                                *
+*                Requires uStepper Gyro Shield !                                            *
+*                This example demonstrates the use of a gyro/accelerometer for feedback to  *
+*                the uStepper.                                                              * 
+*                                                                                           *
+*                The MPU6050 src files are derivatives from the TinyMPU6050 library         *
+*                 - licensing info is found in "LICENSE_TinyMPU6050"                        *
 *                                                                                           *
 * For more information, check out the documentation:                                        *
 *    http://ustepper.com/docs/usteppers/html/index.html                                     *
@@ -29,44 +33,23 @@
 *                                                                                           *
 ********************************************************************************************/
 
-/*
-*      Continous Example Sketch!
-*
-* This example demonstrates how the library can be used to make the motorrun continously,
-* in both directions and making it stop an ongoing movement.
-* For more information, check out the documentation:
-* http://ustepper.com/docs/usteppers/html/index.html
-*/
 #include <UstepperS32.h>
-
 UstepperS32 stepper;
+#include "TinyMPU6050.h"
+
+MPU6050 mpu;
 
 void setup(){
-  stepper.setup();					 //Initialize uStepper S32
-  stepper.checkOrientation(30.0);    //Check orientation of motor connector with +/- 30 microsteps movement
-  Serial.begin(9600);
-  stepper.setRPM(-100);				 //Set speed to -100
+  stepper.setup(CLOSEDLOOP,200);   //Initialize uStepper S32 to use closed loop control with 200 steps per revolution motor - i.e. 1.8 deg stepper
+  stepper.checkOrientation(30.0);  //Check orientation of motor connector with +/- 30 microsteps movement
+  stepper.setMaxAcceleration(500); //Use an acceleration of 500 fullsteps/s^2
+  stepper.setMaxVelocity(500);     //Max velocity of 500 fullsteps/s
+  mpu.Initialize();				   // Initialization of MPU
+  mpu.Calibrate();				   // Calibration - LED will blink until calibration is done !
+  stepper.encoder.setHome(-mpu.GetAngZ());
 }
 
-void loop() {
-  char cmd;
-
-  // put your main code here, to run repeatedly:
-  while(!Serial.available());
-  Serial.println("ACK!");
-  cmd = Serial.read();
-  if(cmd == '1')                      //Run continous clockwise
-  {
-    stepper.setRPM(-100);
-  }
-  
-  else if(cmd == '2')                 //Run continous counter clockwise
-  {
-    stepper.setRPM(100);
-  }
-  
-  else if(cmd == '3')                 //Stop without deceleration and block motor
-  {
-    stepper.stop();
-  }
+void loop(){
+  mpu.Execute();
+  stepper.moveToAngle(-mpu.GetAngZ());
 }

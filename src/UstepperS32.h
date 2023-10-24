@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include "HAL/spi.h"
+#include "HAL/gpio.h"
 #include "peripherals/TMC5130.h"
 #include "peripherals/TLE5012B.h"
 #include "HAL/timer.h"
@@ -32,19 +33,27 @@ class UstepperS32;
 #define CLOSEDLOOP 2   /**< Value defining closed loop mode for normal library functions*/
 #define PID CLOSEDLOOP /**< Value defining PID mode for normal library functions. only here for backwards compatibility*/
 
-#define ACCELERATIONCONVERSION 1.0 / 116.415321827 /**< page 74 datasheet*/
-#define VELOCITYCONVERSION 1.0 / 0.953674316	   /**< page 74 datasheet*/
+#define ACCELERATIONCONVERSION 0.0220 //1.0 / (DRIVERCLOCKFREQ*DRIVERCLOCKFREQ / (512*256) / 16777216) /**< page 74 datasheet*/
+#define VELOCITYCONVERSION 1.677 //1.0 / (DRIVERCLOCKFREQ/2/8388608)   /**< page 74 datasheet*/
 
-#define DRIVERCLOCKFREQ 10000000.0 /**< MCU Clock frequency */
+#ifdef __cplusplus
+extern "C" {
+#endif
+	uint8_t getUstepperMode();
+#ifdef __cplusplus
+}
+#endif
 
 class UstepperS32
 {
 	friend class TMC5130;
 	friend class TLE5012B;
-	
-	public:
+	friend class Dropin;
+
+  public:
 	TLE5012B encoder;
 	TMC5130 driver;
+	Dropin dropin;
 	/**
 	 * @brief	Constructor of uStepper class
 	 */
@@ -90,8 +99,8 @@ class UstepperS32
 	 */
 	void setup(uint8_t mode = NORMAL,
 			   uint16_t stepsPerRevolution = 200,
-			   float pTerm = 10.0,
-			   float iTerm = 0.0,
+			   float pTerm = 10,
+			   float iTerm = 0.2,
 			   float dTerm = 0.0,
 			   uint16_t dropinStepSize = 16,
 			   bool setHome = true,
@@ -372,83 +381,8 @@ class UstepperS32
 	 * @brief      This method returns the current PID error
 	 * @return     PID error (float)
 	 */
-	float getPidError(void);
+	float getPidError(void); //*delete*/
 	
-	/**
-	 * @brief      	This method is used to change the PID proportional parameter P.
-	 *
-	 * @param[in]  	P - PID proportional part P
-	 *
-	 */
-	void setProportional(float P);
-
-	/**
-	 * @brief      	This method is used to change the PID integral parameter I.
-	 *
-	 * @param[in]  	I - PID integral part I
-	 *
-	 */
-	void setIntegral(float I);
-
-	/**
-	 * @brief      	This method is used to change the PID differential parameter D.
-	 *
-	 * @param[in]  	D - PID differential part D
-	 *
-	 */
-	void setDifferential(float D);
-
-	/**
-	 * @brief      	This method is used to invert the drop-in direction pin interpretation.
-	 *
-	 * @param[in]  	invert - 0 = not inverted, 1 = inverted
-	 *
-	 */
-	void invertDropinDir(bool invert);
-
-	/**
-	 * @brief      	This method is used to tune Drop-in parameters.
-	 *				After tuning uStepper S, the parameters are saved in EEPROM
-	 *				
-	 * 				Usage:
-	 *				Set Proportional constant: 'P=10.002;'
-	 *				Set Integral constant: 'I=10.002;'
-	 *				Set Differential constant: 'D=10.002;'
-	 *				Invert Direction: 'invert;'
-	 *				Get Current PID Error: 'error;'
-	 *				Get Run/Hold Current Settings: 'current;'
-	 *				Set Run Current (percent): 'runCurrent=50.0;'
-	 *				Set Hold Current (percent): 'holdCurrent=50.0;'	
-	 *
-	 */
-	void dropinCli();
-
-	/**
-	 * @brief      	This method is used for the dropinCli to take in user commands.
-	 *
-	 * @param[in]  	cmd - input from terminal for dropinCli
-	 *			
-	 */
-	void parseCommand(String *cmd);
-
-	/**
-	 * @brief      	This method is used to print the dropinCli menu explainer:
-	 *				
-	 * 				Usage:
-	 *				Show this command list: 'help;'
-	 *				Get PID Parameters: 'parameters;'
-	 *				Set Proportional constant: 'P=10.002;'
-	 *				Set Integral constant: 'I=10.002;'
-	 *				Set Differential constant: 'D=10.002;'
-	 *				Invert Direction: 'invert;'
-	 *				Get Current PID Error: 'error;'
-	 *				Get Run/Hold Current Settings: 'current;'
-	 *				Set Run Current (percent): 'runCurrent=50.0;'
-	 *				Set Hold Current (percent): 'holdCurrent=50.0;'	
-	 *
-	 */
-	void dropinPrintHelp();
-
 	/**
 	 * @brief      	This method is used to check the orientation of the motor connector. 
 	 *
@@ -481,29 +415,17 @@ class UstepperS32
 	 */
 	float maxAcceleration;
 	float maxDeceleration;
-	bool invertPidDropinDirection;
 	float rpmToVelocity;
 	float angleToStep;
 
 	uint16_t microSteps;
 	uint16_t fullSteps;
 
-	uint16_t dropinStepSize;
-
-	int32_t stepCnt;
-
 	float stepsPerSecondToRPM;
 	float RPMToStepsPerSecond;
-
-	float currentPidSpeed;
 	/** This variable is used to indicate which mode the uStepper is
 	* running in (Normal, dropin or pid)*/
 	volatile uint8_t mode;
-	float pTerm;
-	/** This variable contains the integral coefficient used by the PID */
-	float iTerm;
-
-	float dTerm;
 	bool brake;
 	volatile bool pidDisabled;
 	/** This variable sets the threshold for activating/deactivating closed loop position control - i.e. it is the allowed error in steps for the control**/
@@ -512,9 +434,7 @@ class UstepperS32
 	0 = OK, 1 = stalled */
 	volatile bool stall;
 	// SPI functions
-
-	volatile int32_t pidPositionStepsIssued = 0;
-	volatile float currentPidError;
+	volatile float currentPidError; 
 
 	/** This variable holds the default stall threshold, but can be updated by the user. */
 	int8_t stallThreshold = 4;
@@ -527,16 +447,11 @@ class UstepperS32
 
 	/** Flag to keep track of shaft direction setting */
 	volatile bool shaftDir = 0;
-
-	float pid(float error);
-
-	dropinCliSettings_t dropinSettings;
-	bool loadDropinSettings(void);
-	void saveDropinSettings(void);
-	uint8_t dropinSettingsCalcChecksum(dropinCliSettings_t *settings);
-	
+	friend uint8_t getUstepperMode();
+	friend void dropInHandler();
 };
 
 extern UstepperS32 *ptr;
+
 
 #endif

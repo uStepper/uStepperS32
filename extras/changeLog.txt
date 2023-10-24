@@ -1,4 +1,10 @@
 Changelog - uStepper S32 library
 ----------------------------
-Version 0.1.0:	
+Version 1.1.0:	
+	- Added dropin feature (beta version)
+	- Added robotarm implementation and example
+	- Added additional examples
+	- Fixed bugs and minor issues
+	
+Version 1.0.0:	
 	- Initial release

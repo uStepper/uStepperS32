@@ -32,7 +32,7 @@ void setup()
 
 	stepper.setup(CLOSEDLOOP, 200);
 	stepper.disableClosedLoop();
-
+	stepper.checkOrientation(30.0);       //Check orientation of motor connector with +/- 30 microsteps movement  
 	stepper.setMaxAcceleration(conf.acceleration);
 	stepper.setMaxDeceleration(conf.acceleration);
 	stepper.setMaxVelocity(conf.velocity);

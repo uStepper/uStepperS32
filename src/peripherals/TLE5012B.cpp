@@ -1,4 +1,5 @@
-#include "TLE5012B.h"
+#include "../UstepperS32.h"
+extern UstepperS32 *ptr;
 
 TLE5012B::TLE5012B() : spiHandle(
 						   csActivePolarity_t(activeLow),
@@ -15,6 +16,16 @@ TLE5012B::TLE5012B() : spiHandle(
 void TLE5012B::init()
 {
 	this->spiHandle.init();
+	volatile uint16_t angle;
+	//Invert angle direction of encoder
+	spiHandle.csReset();
+	sendCommand(0x0, 0xA, 0x0, 0x08, 0x1);
+	spiHandle.transmit16BitData(0x0800);
+	this->spiHandle.releaseMosi();
+	angle = spiHandle.transmit16BitData(0x0000) & 0x7FFF;
+	spiHandle.csSet();
+	this->spiHandle.engageMosi();
+	
 	this->sample();
 	this->encoderOffset = this->angle;
 	this->angle = 0;
@@ -29,6 +40,36 @@ void TLE5012B::sendCommand(uint16_t rw, uint16_t lock, uint16_t upd, uint16_t ad
 	spiHandle.transmit16BitData(cmd);
 }
 
+uint16_t TLE5012B::readAngle()
+{
+	uint16_t angle;
+	spiHandle.csReset();
+	sendCommand(0x1, 0x0, 0x0, 0x02, 0x0);
+	this->spiHandle.releaseMosi();
+	angle = spiHandle.transmit16BitData(0x0000) & 0x7FFF;
+	spiHandle.csSet();
+	this->spiHandle.engageMosi();
+	return angle;
+}
+
+int16_t TLE5012B::readSpeed()
+{
+	int16_t speed;
+	spiHandle.csReset();
+	sendCommand(0x1, 0x0, 0x0, 0x03, 0x0);
+	this->spiHandle.releaseMosi();
+	speed = spiHandle.transmit16BitData(0x0000) & 0x7FFF;
+	spiHandle.csSet();
+	this->spiHandle.engageMosi();
+	
+	if(speed & 0x4000)		//Check bit 14 for sign
+	{
+		speed -= 0x8000;
+	}
+	
+	return speed;
+}
+
 bool TLE5012B::sample()
 {
 	int16_t deltaAngle;
@@ -39,12 +80,8 @@ bool TLE5012B::sample()
 		return false;
 	}
 
-	spiHandle.csReset();
-	sendCommand(0x1, 0x0, 0x0, 0x02, 0x0);
-	this->spiHandle.releaseMosi();
-	newAngle = spiHandle.transmit16BitData(0x0000) & 0x7FFF;
-	spiHandle.csSet();
-	this->spiHandle.engageMosi();
+	newAngle = readAngle();
+
 	if (this->spiHandle.getTransmissionStatus() != SPI_TRANSMISSION_SUCCESS)
 	{
 		semaphore.releaseLock();
@@ -58,7 +95,6 @@ bool TLE5012B::sample()
 		newAngle -= 0x8000;
 	}
 
-	
 	deltaAngle = (int16_t)this->angle - (int16_t)newAngle;
 
 	if (deltaAngle < -0x4000)
@@ -70,7 +106,57 @@ bool TLE5012B::sample()
 		deltaAngle -= 0x8000;
 	}
 
-	this->angleMoved -= deltaAngle;
+	/*this->speed = readSpeed();
+	
+	if (this->spiHandle.getTransmissionStatus() != SPI_TRANSMISSION_SUCCESS)
+	{
+		semaphore.releaseLock();
+		return false;
+	}*/
+
+	if(encoderStallDetectEnable)
+	{
+		float driverSpeed = ptr->driver.getVelocity();
+		float encoderSpeed = this->getSpeed(ptr->microSteps);
+		float stallSpeed = driverSpeed*this->encoderStallDetectSensitivity;
+		if (driverSpeed < 0)
+		{
+			if ((((driverSpeed+stallSpeed) < encoderSpeed) || (driverSpeed-stallSpeed) > encoderSpeed) && startDelay > 500)
+		    {
+		       errorCnt++;
+		    }
+		    else
+		    {
+		        errorCnt = 0;
+		    }
+		}
+		else
+		{
+		    if ((((driverSpeed+stallSpeed) > encoderSpeed) || (driverSpeed-stallSpeed) < encoderSpeed) && startDelay > 500)
+		    {
+		       errorCnt++;
+		    }
+		    else
+		    {
+		        errorCnt = 0;
+		    }
+		}
+	    if(errorCnt > 3)
+	    {
+	        this->encoderStallDetect = 1;
+	    }
+	    else
+	    {
+	    	this->encoderStallDetect = 0;
+	    }
+	    startDelay++;
+	    if(startDelay > 500)
+	    {
+	    	startDelay = 501;
+	    }
+	}
+	
+	this->angleMoved += deltaAngle;
 	this->angle = newAngle;
 	this->velocityEstimator.runIteration(this->angleMoved);
 	
@@ -86,6 +172,7 @@ float TLE5012B::getAngle()
 void TLE5012B::setHome(float initialAngle)
 {
 	mainTimerPause();
+	ptr->driver.getVelocity();
 	this->encoderOffset = 0;
 	this->sample();
 	this->encoderOffset = this->angle;
@@ -113,11 +200,17 @@ int32_t TLE5012B::getAngleMovedRaw(bool filtered)
 
 float TLE5012B::getSpeed(uint32_t stepSize)
 {
+	//float temp;
 	return ENCODERRAWTOSTEP((float)stepSize) * this->velocityEstimator.getVelocityEstimation();
+	/*temp = (float)this->speed;
+	temp *= (0.5 * 23419.2037470726 * 0.010986328125 * 142.22222222222);
+
+	return temp;*/
 }
 
 float TLE5012B::getRPM(){
-	return this->velocityEstimator.getVelocityEstimation() * ENCODERRAWTOREVOLUTIONS;
+	float rpm = this->velocityEstimator.getVelocityEstimation() * ENCODERRAWTOREVOLUTIONS;
+	return rpm;
 }
 
 uint8_t TLE5012B::getStatus(void)

@@ -12,3 +12,9 @@ Output/
 .visualgdb/
 */.visualgdb/
 *.dat
+*.
+*.vgdbproj.*
+*.adeps
+docs/*
+!docs/*rar
+!docs/uStepper*

@@ -1,7 +1,6 @@
 #include "../UstepperS32.h"
 void mainTimerCallback()
 {
-	digitalToggle(D0);
 	if (!ptr->encoder.semaphore.isLocked())
 	{
 		ptr->encoder.sample();
@@ -9,7 +8,9 @@ void mainTimerCallback()
 		{
 			callbacks._closedLoopCallback();
 		}
+		else if (ptr->mode == DROPIN)
+		{
+			callbacks._dropInHandler();
+		}
 	}
-	
-	digitalToggle(D0);
 }

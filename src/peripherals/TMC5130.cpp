@@ -3,7 +3,7 @@
 extern UstepperS32 *ptr;
 TMC5130::TMC5130() : spiHandle(
 						 csActivePolarity_t(activeLow),
-						 GPIO(LL_GPIO_PIN_15, 15, GPIOB),
+						 GPIO(LL_GPIO_PIN_15, 15, GPIOB), //DRIVERMOSI
 						 GPIO(LL_GPIO_PIN_14, 14, GPIOB),
 						 GPIO(LL_GPIO_PIN_13, 13, GPIOB),
 						 GPIO(LL_GPIO_PIN_12, 12, GPIOB),
@@ -11,21 +11,38 @@ TMC5130::TMC5130() : spiHandle(
 					 enablePin(LL_GPIO_PIN_1, 1, GPIOA), //#TODO: USE PIN DEFINITIONS FROM gpio.h
 					 sdPin(LL_GPIO_PIN_8, 8, GPIOC),
 					 spiPin(LL_GPIO_PIN_1, 1, GPIOC),
+					 stepPin(LL_GPIO_PIN_1, 1, GPIOC),
+					 dirPin(LL_GPIO_PIN_1, 1, GPIOC),
 					 semaphore()
 {
 }
 
 void TMC5130::init()
 {
-
+	this->enablePin.configureOutput();
+	this->enablePin.set(); //Set EN high
 	this->spiHandle.init();
 	this->sdPin.configureOutput();
-	this->sdPin.reset(); //Set SD_MODE pin low
 	this->spiPin.configureOutput();
-	this->spiPin.set(); //Set SPI_MODE pin high
-	this->enablePin.configureOutput();
-	this->enablePin.reset(); //Set EN low
 	
+	
+	if (ptr->mode == DROPIN)
+	{
+		//this->stepPin.configureOutput();
+		//this->dirPin.configureOutput();
+		this->sdPin.reset(); //Set SD_MODE pin low
+		this->spiPin.set();  //Set SPI_MODE pin high
+
+		//this->dirPin.reset();
+		//this->stepPin.reset();
+		this->enablePin.reset(); //Set EN low
+	}
+	else
+	{
+		this->sdPin.reset(); //Set SD_MODE pin low
+		this->spiPin.set();  //Set SPI_MODE pin high
+		this->enablePin.reset(); //Set EN low
+	}
 
 	this->reset();
 
@@ -33,9 +50,9 @@ void TMC5130::init()
 	this->writeRegister(IHOLD_IRUN, IHOLD(this->holdCurrent) | IRUN(this->current) | IHOLDDELAY(this->holdDelay));
 
 	this->enableStealth();
-	
+
 	/* Set all-round chopper configuration */
-	this->writeRegister(CHOPCONF, TOFF(2) | TBL(2) | HSTRT_TFD(4) | HEND(0));
+	this->writeRegister(CHOPCONF, TOFF(2) | TBL(2) | HSTRT_TFD(4) | HEND(0) | DEDGE(0));
 
 	/* Set startup ramp mode */
 	this->setRampMode(POSITIONING_MODE);
@@ -49,7 +66,12 @@ void TMC5130::init()
 
 	this->stop();
 
-	while (this->readRegister(VACTUAL) != 0);
+	while (this->readRegister(VACTUAL) != 0)
+		;
+
+	
+
+	
 }
 
 int32_t TMC5130::getVelocity(void)
@@ -60,7 +82,7 @@ int32_t TMC5130::getVelocity(void)
 	if (value & 0x00800000)
 		value |= 0xFF000000;
 
-	return value;
+	return (value*(1/VELOCITYCONVERSION))+0.5;
 }
 
 uint8_t TMC5130::readMotorStatus(void)
@@ -146,8 +168,6 @@ void TMC5130::setHome(int32_t initialSteps)
 		this->writeRegister(XACTUAL, initialSteps);
 		this->writeRegister(XTARGET, initialSteps);
 	}
-
-	ptr->pidPositionStepsIssued = initialSteps;
 }
 
 void TMC5130::setPosition(int32_t position)
@@ -228,6 +248,7 @@ void TMC5130::enableStealth()
 {
 	/* Set GCONF and enable stealthChop */
 	this->writeRegister(GCONF, EN_PWM_MODE(1) | I_SCALE_ANALOG(1));
+
 	this->setShaftDirection(0);
 
 	/* Set PWMCONF for StealthChop */
@@ -418,4 +439,18 @@ int32_t TMC5130::readRegister(uint8_t address)
 	semaphore.releaseLock();
 	
 	return value;
+}
+
+void TMC5130::setOperationMode(uint8_t mode)
+{
+	if (mode == TMC5130OperationModes::spi)
+	{
+		this->sdPin.reset(); //Set SD_MODE pin low
+		this->spiPin.set();  //Set SPI_MODE pin high
+	}
+	else if (mode == TMC5130OperationModes::stepDir)
+	{
+		this->sdPin.set(); //Set SD_MODE pin high
+		this->spiPin.reset();  //Set SPI_MODE pin low
+	}
 }
