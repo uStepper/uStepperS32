@@ -24,26 +24,11 @@ void TMC5130::init()
 	this->spiHandle.init();
 	this->sdPin.configureOutput();
 	this->spiPin.configureOutput();
-	
-	
-	if (ptr->mode == DROPIN)
-	{
-		//this->stepPin.configureOutput();
-		//this->dirPin.configureOutput();
-		this->sdPin.reset(); //Set SD_MODE pin low
-		this->spiPin.set();  //Set SPI_MODE pin high
 
-		//this->dirPin.reset();
-		//this->stepPin.reset();
-		this->enablePin.reset(); //Set EN low
-	}
-	else
-	{
-		this->sdPin.reset(); //Set SD_MODE pin low
-		this->spiPin.set();  //Set SPI_MODE pin high
-		this->enablePin.reset(); //Set EN low
-	}
-
+	this->sdPin.reset();	 //Set SD_MODE pin low
+	this->spiPin.set();		 //Set SPI_MODE pin high
+	this->enablePin.reset(); //Set EN low
+	
 	this->reset();
 
 	/* Set motor current */
@@ -66,10 +51,21 @@ void TMC5130::init()
 
 	this->stop();
 
-	while (this->readRegister(VACTUAL) != 0)
-		;
+	while (this->readRegister(VACTUAL) != 0);
 
+	this->enablePin.set(); //Set EN high
 	
+	if (ptr->mode == DROPIN)
+	{
+		this->stepPin.configureOutput();
+		this->dirPin.configureOutput();
+		this->sdPin.set();	//Set SD_MODE pin low
+		this->spiPin.reset(); //Set SPI_MODE pin high
+
+		this->dirPin.reset();
+		this->stepPin.reset();
+		this->enablePin.reset(); //Set EN low
+	}
 
 	
 }
