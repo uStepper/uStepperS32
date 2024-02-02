@@ -66,7 +66,7 @@ void TMC5130::init()
 		this->stepPin.reset();
 		this->enablePin.reset(); //Set EN low
 	}
-
+	this->enablePin.reset(); //Set EN low
 	
 }
 
@@ -213,6 +213,7 @@ uint16_t TMC5130::getStallValue(void)
 
 void TMC5130::reset(void)
 {
+	sendData(0x94, 0x00000040); // TCOOLTHRS -> TSTEP based threshold = 55 (Datasheet Page 38)
 
 	// Reset stallguard
 	this->writeRegister(TCOOLTHRS, 0);
