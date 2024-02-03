@@ -5,7 +5,9 @@
 #include <Arduino.h>
 #include "HAL/spi.h"
 #include "HAL/gpio.h"
-#include "peripherals/TMC5130.h"
+#include "peripherals/TMC5130/TMC5130.h"
+#include "peripherals/TMC5130/TMC5130MotionControlStepDir.h"
+#include "peripherals/TMC5130/TMC5130MotionControlInternalRamp.h"
 #include "peripherals/TLE5012B.h"
 #include "HAL/timer.h"
 #include "callbacks.h"

@@ -41,22 +41,7 @@ void Dropin::cli()
 {
 	static String stringInput;
 	static uint32_t t = millis();
-	//TODO: the following while loop is for debug !!! should be removed !!!
-	while (1)
-	{
-		delay(1);
-		if ((millis() - t) >= 1)
-		{
-			ptr->driver.stepPin.set();
-			delayMicroseconds(1);
-			ptr->driver.stepPin.reset();
-			t = millis();
-		}
-	}
 	
-	
-	
-
 	while (1)
 	{
 		while (!Serial.available())

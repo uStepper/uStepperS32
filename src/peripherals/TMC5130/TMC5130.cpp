@@ -1,4 +1,4 @@
-#include "../UstepperS32.h"
+#include "../../UstepperS32.h"
 
 extern UstepperS32 *ptr;
 TMC5130::TMC5130() : spiHandle(
@@ -11,8 +11,8 @@ TMC5130::TMC5130() : spiHandle(
 					 enablePin(LL_GPIO_PIN_1, 1, GPIOA), //#TODO: USE PIN DEFINITIONS FROM gpio.h
 					 sdPin(LL_GPIO_PIN_8, 8, GPIOC),
 					 spiPin(LL_GPIO_PIN_1, 1, GPIOC),
-					 stepPin(LL_GPIO_PIN_1, 1, GPIOC),
-					 dirPin(LL_GPIO_PIN_1, 1, GPIOC),
+					 stepPin(LL_GPIO_PIN_9, 9, GPIOA),
+					 dirPin(LL_GPIO_PIN_10, 10, GPIOA),
 					 semaphore()
 {
 }
@@ -54,17 +54,20 @@ void TMC5130::init()
 	while (this->readRegister(VACTUAL) != 0);
 
 	this->enablePin.set(); //Set EN high
-	
+	this->stepPin.configureOutput();
+	this->dirPin.configureOutput();
+	this->sdPin.set(); //Set SD_MODE pin low
+	this->spiPin.set(); //Set SPI_MODE pin high
+	this->dirPin.reset();
+	this->stepPin.reset();
 	if (ptr->mode == DROPIN)
 	{
 		this->stepPin.configureOutput();
 		this->dirPin.configureOutput();
 		this->sdPin.set();	//Set SD_MODE pin low
-		this->spiPin.reset(); //Set SPI_MODE pin high
-
+		this->spiPin.set(); //Set SPI_MODE pin high
 		this->dirPin.reset();
 		this->stepPin.reset();
-		this->enablePin.reset(); //Set EN low
 	}
 	this->enablePin.reset(); //Set EN low
 	
@@ -213,8 +216,6 @@ uint16_t TMC5130::getStallValue(void)
 
 void TMC5130::reset(void)
 {
-	sendData(0x94, 0x00000040); // TCOOLTHRS -> TSTEP based threshold = 55 (Datasheet Page 38)
-
 	// Reset stallguard
 	this->writeRegister(TCOOLTHRS, 0);
 	this->writeRegister(THIGH, 0);
@@ -438,16 +439,16 @@ int32_t TMC5130::readRegister(uint8_t address)
 	return value;
 }
 
-void TMC5130::setOperationMode(uint8_t mode)
+void TMC5130::setOperationMode(TMC5130OperationModes_e mode)
 {
-	if (mode == TMC5130OperationModes::spi)
+	if (mode == TMC5130OperationModes_e::spi)
 	{
 		this->sdPin.reset(); //Set SD_MODE pin low
 		this->spiPin.set();  //Set SPI_MODE pin high
 	}
-	else if (mode == TMC5130OperationModes::stepDir)
+	else if (mode == TMC5130OperationModes_e::stepDir)
 	{
 		this->sdPin.set(); //Set SD_MODE pin high
-		this->spiPin.reset();  //Set SPI_MODE pin low
+		this->spiPin.set();  //Set SPI_MODE pin low
 	}
 }
