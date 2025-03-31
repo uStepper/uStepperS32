@@ -4,7 +4,7 @@
 *      	Date: 		December 27th, 2021  	                                    			*
 *      	Authors: 	Thomas Hørring Olsen                                   					*
 *					Emil Jacobsen															*
-*                                                   										*	
+*                                                   										*
 *********************************************************************************************
 *	(C) 2020																				*
 *																							*
@@ -43,7 +43,7 @@ UstepperS32 *ptr;
 UstepperS32::UstepperS32() : driver(), encoder(), dropin()
 {
 	ptr = this;
-	
+
 	this->microSteps = 256;
 
 	this->setMaxAcceleration(2000.0, false);
@@ -63,7 +63,7 @@ UstepperS32::UstepperS32(float acceleration, float velocity) : driver(), encoder
 }
 
 void UstepperS32::setup(uint8_t mode,
-						uint16_t stepsPerRevolution,
+						uint16_t fullstepsPerRevolution,
 						float pTerm,
 						float iTerm,
 						float dTerm,
@@ -72,14 +72,14 @@ void UstepperS32::setup(uint8_t mode,
 						uint8_t invert,
 						uint8_t runCurrent,
 						uint8_t holdCurrent)
-{	
+{
 	this->encoder.init();
 	this->driver.init();
 
 	dropinCliSettings_t tempSettings;
 	this->pidDisabled = 1;
-	
-	this->fullSteps = stepsPerRevolution;
+
+	this->fullSteps = fullstepsPerRevolution;
 	this->angleToStep = (float)this->fullSteps * (float)this->microSteps / 360.0;
 	this->rpmToVelocity = (float)(279620.267 * fullSteps * microSteps) / (DRIVERCLOCKFREQ);
 	this->stepsPerSecondToRPM = 60.0 / (this->microSteps * this->fullSteps);
@@ -88,14 +88,14 @@ void UstepperS32::setup(uint8_t mode,
 	this->stepTime = 16777216.0 / DRIVERCLOCKFREQ; // 2^24/DRIVERCLOCKFREQ
 	this->rpmToVel = (this->fullSteps * this->microSteps) / (60.0 / this->stepTime);
 	this->velToRpm = 1.0 / this->rpmToVel;
-	
+
 	this->driver.setDeceleration((uint32_t)(this->maxDeceleration));
 	this->driver.setAcceleration((uint32_t)(this->maxAcceleration));
 
 	this->setCurrent(40.0);
 	this->setHoldCurrent(40.0);
 
-	
+
 	if (setHome == true)
 	{
 		encoder.setHome();
@@ -106,7 +106,7 @@ void UstepperS32::setup(uint8_t mode,
 		this->checkOrientation(10);
 	}
 	this->mode = mode;
-	
+
 	mainTimerInit();
 	if (mode == DROPIN)
 	{
@@ -146,12 +146,12 @@ void UstepperS32::checkOrientation(float distance)
 	uint8_t inverted = 0;
 	uint8_t noninverted = 0;
 	bool pidEnabled = this->mode == NORMAL ? false : true;
-	
+
 	if (pidEnabled)
 	{
 		this->disablePid();
 	}
-	
+
 	this->shaftDir = 0;
 	this->driver.setShaftDirection(this->shaftDir);
 
@@ -193,7 +193,7 @@ void UstepperS32::setMaxVelocity(float velocity, bool applyToDriver)
 	velocity = abs(velocity) * VELOCITYCONVERSION;
 
 	this->maxVelocity = velocity;
-	
+
 	if (applyToDriver == false)
 	{
 		return;
@@ -213,7 +213,7 @@ void UstepperS32::setMaxAcceleration(float acceleration, bool applyToDriver)
 	{
 		return;
 	}
-	
+
 	// Steps per second, has to be converted to microsteps
 	this->driver.setAcceleration((uint32_t)(this->maxAcceleration));
 }
@@ -229,7 +229,7 @@ void UstepperS32::setMaxDeceleration(float deceleration, bool applyToDriver)
 	{
 		return;
 	}
-	
+
 	// Steps per second, has to be converted to microsteps
 	this->driver.setDeceleration((uint32_t)(this->maxDeceleration));
 }
@@ -503,7 +503,7 @@ void UstepperS32::setHoldCurrent(double current)
 
 	driver.updateCurrent();
 }
-extern "C" uint8_t getUstepperMode() 
+extern "C" uint8_t getUstepperMode()
 {
 	return ptr->mode;
 }
