@@ -52,6 +52,9 @@ To add the uStepper S32 library do the following:
 ## Documentation
 The documentation for this library can be found at the following URL: https://ustepper.com/docs/usteppers32/html/index.html
 
+### Modbus Interface Documentation
+[Modbus Documentation](./docs/ModbusUtilitiesDocumentation.md)
+
 ## Known bugs
 Dropin feature is currently in beta version, and therefore has a few quirks:
 - Can be hard to tune the PID parameters
