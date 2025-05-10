@@ -1,6 +1,10 @@
 #include "../../UstepperS32.h"
 
 extern UstepperS32 *ptr;
+
+TMC5130MotionControlInternalRamp internalRampMotionControl;
+TMC5130MotionControlStepDir stepDirMotionControl;
+
 TMC5130::TMC5130() : spiHandle(
 						 csActivePolarity_t(activeLow),
 						 GPIO(LL_GPIO_PIN_15, 15, GPIOB), //DRIVERMOSI
@@ -11,9 +15,8 @@ TMC5130::TMC5130() : spiHandle(
 					 enablePin(LL_GPIO_PIN_1, 1, GPIOA), //#TODO: USE PIN DEFINITIONS FROM gpio.h
 					 sdPin(LL_GPIO_PIN_8, 8, GPIOC),
 					 spiPin(LL_GPIO_PIN_1, 1, GPIOC),
-					 stepPin(LL_GPIO_PIN_9, 9, GPIOA),
-					 dirPin(LL_GPIO_PIN_10, 10, GPIOA),
-					 semaphore()
+					 semaphore(),
+					 motionControl(nullptr)
 {
 }
 
@@ -25,15 +28,14 @@ void TMC5130::init()
 	this->sdPin.configureOutput();
 	this->spiPin.configureOutput();
 
-	this->sdPin.reset();	 //Set SD_MODE pin low
-	this->spiPin.set();		 //Set SPI_MODE pin high
+	this->setMotionController(TMC5130MotionControllers_e::internalRamp);
 	this->enablePin.reset(); //Set EN low
 	
 	this->reset();
 
 	/* Set motor current */
 	this->writeRegister(IHOLD_IRUN, IHOLD(this->holdCurrent) | IRUN(this->current) | IHOLDDELAY(this->holdDelay));
-
+	this->setShaftDirection(0);
 	this->enableStealth();
 
 	/* Set all-round chopper configuration */
@@ -54,20 +56,20 @@ void TMC5130::init()
 	while (this->readRegister(VACTUAL) != 0);
 
 	this->enablePin.set(); //Set EN high
-	this->stepPin.configureOutput();
-	this->dirPin.configureOutput();
+	//this->stepPin.configureOutput();
+	//this->dirPin.configureOutput();
 	this->sdPin.set(); //Set SD_MODE pin low
 	this->spiPin.set(); //Set SPI_MODE pin high
-	this->dirPin.reset();
-	this->stepPin.reset();
+	//this->dirPin.reset();
+	//this->stepPin.reset();
 	if (ptr->mode == DROPIN)
 	{
-		this->stepPin.configureOutput();
-		this->dirPin.configureOutput();
+		//this->stepPin.configureOutput();
+		//this->dirPin.configureOutput();
 		this->sdPin.set();	//Set SD_MODE pin low
 		this->spiPin.set(); //Set SPI_MODE pin high
-		this->dirPin.reset();
-		this->stepPin.reset();
+		//this->dirPin.reset();
+		//this->stepPin.reset();
 	}
 	this->enablePin.reset(); //Set EN low
 	
@@ -75,13 +77,7 @@ void TMC5130::init()
 
 int32_t TMC5130::getVelocity(void)
 {
-	int32_t value = this->readRegister(VACTUAL);
-
-	// VACTUAL is 24bit two's compliment
-	if (value & 0x00800000)
-		value |= 0xFF000000;
-
-	return (value);
+	return this->motionControl->getVelocity();
 }
 
 uint8_t TMC5130::readMotorStatus(void)
@@ -142,70 +138,26 @@ void TMC5130::disableStallguard(void)
 
 int32_t TMC5130::getPosition(void)
 {
-	return this->readRegister(XACTUAL);
+	return this->motionControl->getPosition();
 }
 
 void TMC5130::setHome(int32_t initialSteps)
 {
-	int32_t xActual, xTarget;
-
-	if (this->mode == DRIVER_POSITION)
-	{
-		xActual = this->getPosition();
-		xTarget = this->readRegister(XTARGET);
-
-		xTarget -= xActual;
-		this->xTarget = xTarget + initialSteps;
-		this->xActual = initialSteps;
-		this->writeRegister(XACTUAL, initialSteps);
-		this->writeRegister(XTARGET, this->xTarget);
-	}
-	else
-	{
-		this->xTarget = initialSteps;
-		this->xActual = initialSteps;
-		this->writeRegister(XACTUAL, initialSteps);
-		this->writeRegister(XTARGET, initialSteps);
-	}
+	this->motionControl->setHome(initialSteps);
 }
 
 void TMC5130::setPosition(int32_t position)
 {
-	this->mode = DRIVER_POSITION;
-	this->setRampMode(POSITIONING_MODE);
-	this->writeRegister(XTARGET, position);
-	this->xTarget = position;
+	this->motionControl->setPosition(position);
 }
 
 void TMC5130::setDirection(bool direction)
 {
-	this->mode = DRIVER_VELOCITY;
-	if (direction)
-	{
-		this->writeRegister(RAMPMODE, VELOCITY_MODE_POS);
-	}
-	else
-	{
-		this->writeRegister(RAMPMODE, VELOCITY_MODE_NEG);
-	}
+	this->motionControl->setDirection(direction);
 }
 void TMC5130::setRPM(float rpm)
 {
-	int32_t velocityDir = rpmToVelocity * rpm;
-
-	if (velocityDir > 0)
-	{
-		this->setDirection(1);
-	}
-	else
-	{
-		this->setDirection(0);
-	}
-
-	// The velocity cannot be signed
-	uint32_t velocity = abs(velocityDir);
-
-	this->setVelocity((uint32_t)velocity);
+	this->motionControl->setRPM(rpm);
 }
 
 uint16_t TMC5130::getStallValue(void)
@@ -247,7 +199,7 @@ void TMC5130::enableStealth()
 	/* Set GCONF and enable stealthChop */
 	this->writeRegister(GCONF, EN_PWM_MODE(1) | I_SCALE_ANALOG(1));
 
-	this->setShaftDirection(0);
+	//this->setShaftDirection(0);
 
 	/* Set PWMCONF for StealthChop */
 	this->writeRegister(PWMCONF, PWM_AUTOSCALE(1) | PWM_GRAD(1) | PWM_AMPL(128) | PWM_FREQ(0) | FREEWHEEL(2));
@@ -263,93 +215,32 @@ void TMC5130::updateCurrent(void)
 
 void TMC5130::setShaftDirection(bool direction)
 {
-	// Read the register to save the settings
-	int32_t value = this->readRegister(GCONF);
-	// Update the direction bit
-	if (direction == 1)
-	{
-		value |= (0x01 << 4);
-	}
-	else
-	{
-		value &= ~(0x01 << 4);
-	}
-	this->writeRegister(GCONF, value);
+	this->motionControl->setShaftDirection(direction);
 }
 
 void TMC5130::setRampMode(uint8_t mode)
 {
-
-	switch (mode)
-	{
-	case POSITIONING_MODE:
-		// Positioning mode
-		this->writeRegister(VSTART_REG, this->VSTART);
-		this->writeRegister(A1_REG, this->A1);
-		this->writeRegister(V1_REG, this->V1);
-		this->writeRegister(AMAX_REG, this->AMAX);
-		this->writeRegister(VMAX_REG, this->VMAX);
-		this->writeRegister(DMAX_REG, this->DMAX);
-		this->writeRegister(D1_REG, this->D1);
-		this->writeRegister(VSTOP_REG, this->VSTOP);	 /* Minimum 10 in POSITIONING_MODE */
-		this->writeRegister(RAMPMODE, POSITIONING_MODE); /* RAMPMODE = POSITIONING_MODE */
-		break;
-
-	case VELOCITY_MODE_POS:
-		// Velocity mode (only AMAX and VMAX is used)
-		this->writeRegister(VSTART_REG, this->VSTART);
-		this->writeRegister(A1_REG, 0);
-		this->writeRegister(V1_REG, 0);
-		this->writeRegister(AMAX_REG, this->AMAX);
-		this->writeRegister(VMAX_REG, this->VMAX);
-		this->writeRegister(DMAX_REG, 0);
-		this->writeRegister(D1_REG, 0);
-		this->writeRegister(VSTOP_REG, 0);
-		this->writeRegister(RAMPMODE, VELOCITY_MODE_POS); /* RAMPMODE = VELOCITY_MODE_POS */
-		break;
-	}
+	this->motionControl.setRampMode(mode);
 }
 
 void TMC5130::setAcceleration(uint32_t acceleration)
 {
-	this->AMAX = acceleration;
-
-	if (this->AMAX > 0xFFFE)
-	{
-		this->AMAX = 0xFFFE;
-	}
-
-	this->writeRegister(AMAX_REG, this->AMAX);
+	this->motionControl->setAcceleration(acceleration);
 }
 
 void TMC5130::setDeceleration(uint32_t deceleration)
 {
-	this->DMAX = deceleration;
-
-	if (this->DMAX > 0xFFFE)
-	{
-		this->DMAX = 0xFFFE;
-	}
-
-	this->writeRegister(DMAX_REG, this->DMAX);
+	this->motionControl->setDeceleration(deceleration);
 }
 
 void TMC5130::stop(void)
 {
-	this->mode = DRIVER_STOP;
-	this->setVelocity(0);
+	this->motionControl->stop();
 }
 
 void TMC5130::setVelocity(uint32_t velocity)
 {
-	this->VMAX = velocity;
-
-	if (this->VMAX > 0x7FFE00)
-	{
-		this->VMAX = 0x7FFE00;
-	}
-
-	this->writeRegister(VMAX_REG, this->VMAX);
+	this->motionControl->setVelocity(velocity);
 }
 
 void TMC5130::clearStall(void)
@@ -439,16 +330,19 @@ int32_t TMC5130::readRegister(uint8_t address)
 	return value;
 }
 
-void TMC5130::setOperationMode(TMC5130OperationModes_e mode)
+void TMC5130::setMotionController(TMC5130MotionControllers_e controller)
 {
-	if (mode == TMC5130OperationModes_e::spi)
+	if (controller == TMC5130MotionControllers_e::internalRamp)
 	{
 		this->sdPin.reset(); //Set SD_MODE pin low
 		this->spiPin.set();  //Set SPI_MODE pin high
+		this->motionControl = &internalRampMotionControl;
+		this->motionControl->init(this);
 	}
-	else if (mode == TMC5130OperationModes_e::stepDir)
+	else if (controller == TMC5130MotionControllers_e::stepDir)
 	{
 		this->sdPin.set(); //Set SD_MODE pin high
-		this->spiPin.set();  //Set SPI_MODE pin low
+		this->spiPin.set();  //Set SPI_MODE pin high
 	}
 }
+

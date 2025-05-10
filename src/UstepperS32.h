@@ -448,8 +448,6 @@ class UstepperS32
 	/** Flag to keep track of stallguard */
 	bool stallEnabled = false;
 
-	/** Flag to keep track of shaft direction setting */
-	volatile bool shaftDir = 0;
 	friend uint8_t getUstepperMode();
 	friend void dropInHandler();
 };

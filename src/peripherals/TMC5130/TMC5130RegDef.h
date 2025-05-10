@@ -97,8 +97,4 @@
 #define VELOCITY_MODE_NEG 0x02 /**< negativ VMAX, using AMAX acceleration*/
 #define HOLD_MODE 0x03		   /**< velocity remains unchanged, unless stop event occurs*/
 
-#define DRIVER_STOP 0	 /**< Define label for indicating driver is in standstill mode */
-#define DRIVER_VELOCITY 1 /**< Define label for indicating driver is in velocity mode */
-#define DRIVER_POSITION 2 /**< Define label for indicating driver is in position mode */
-
 #endif

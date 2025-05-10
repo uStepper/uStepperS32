@@ -152,8 +152,7 @@ void UstepperS32::checkOrientation(float distance)
 		this->disablePid();
 	}
 
-	this->shaftDir = 0;
-	this->driver.setShaftDirection(this->shaftDir);
+	this->driver.setShaftDirection(0);
 
 	while(inverted < 2 && noninverted < 2)
 	{
@@ -178,8 +177,7 @@ void UstepperS32::checkOrientation(float distance)
 	}
 	if (inverted > 0)
 	{
-		this->shaftDir = 1;
-		this->driver.setShaftDirection(this->shaftDir);
+		this->driver.setShaftDirection(1);
 	}
 	if (pidEnabled)
 	{

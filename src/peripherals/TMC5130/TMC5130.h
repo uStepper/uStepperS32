@@ -8,13 +8,14 @@
 #include "../../utils/semaphore.h"
 #include "../../callbacks.h"
 #include "../../UstepperS32.h"
+#include "ITMC5130MotionControl.h"
 
 #define DRIVERCLOCKFREQ 10000000.0 /**< MCU Clock frequency */
 
-enum TMC5130OperationModes_e
+typedef enum TMC5130MotionControllers_e
 {
 	stepDir = 0,
-	spi
+	internalRamp
 };
 
 class TMC5130
@@ -201,17 +202,6 @@ class TMC5130
 	GPIO enablePin;
 	GPIO sdPin;
 	GPIO spiPin;
-	GPIO stepPin;
-	GPIO dirPin;
-	/** Default acceleration profile for positioning mode */
-	uint32_t VSTART = 0;
-	uint32_t V1 = 0;
-	uint32_t VMAX = 200000;
-	uint32_t VSTOP = 10;
-	uint16_t A1 = 600;
-	uint16_t AMAX = 100;
-	uint16_t DMAX = 600;
-	uint16_t D1 = 600;
 	
 	uint8_t status;
 	uint32_t lastReadValue;
@@ -222,6 +212,7 @@ class TMC5130
 	uint8_t mode = DRIVER_STOP;
 	Semaphore semaphore;
 	float rpmToVelocity = (float)(279620.267 * 200 * 256) / (DRIVERCLOCKFREQ);
+	ITMC5130MotionControl* motionControl; // Pointer to the motion control interface
 	friend void closedLoopCallback();
 	friend void dropInStepInputEXTI();
 	friend void dropInDirInputEXTI();
