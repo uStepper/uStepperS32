@@ -81,7 +81,7 @@ int32_t TMC5130::getVelocity(void)
 	if (value & 0x00800000)
 		value |= 0xFF000000;
 
-	return (value*(1/VELOCITYCONVERSION))+0.5;
+	return (value);
 }
 
 uint8_t TMC5130::readMotorStatus(void)

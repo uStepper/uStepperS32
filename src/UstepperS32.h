@@ -89,7 +89,7 @@ class UstepperS32
 	 * @param[in]  dTerm            	The differential coefficent of the DROPIN PID
 	 *                              	controller
 	 * @param[in]  dropinStepSize		number of steps per fullstep, send from
-	 *									external dropin controller   
+	 *									external dropin controller
 	 * @param[in]  setHome          	When set to true, the encoder position is
 	 *									Reset. When set to false, the encoder
 	 *									position is not reset.
@@ -100,7 +100,7 @@ class UstepperS32
 	 * @param[in]  holdCurrent      	Sets the current (in percent) to use while motor is NOT running
 	 */
 	void setup(uint8_t mode = NORMAL,
-			   uint16_t stepsPerRevolution = 200,
+			   uint16_t fullstepsPerRevolution = 200,
 			   float pTerm = 10,
 			   float iTerm = 0.2,
 			   float dTerm = 0.0,
@@ -113,7 +113,7 @@ class UstepperS32
 	/**
 	 * @brief      Set the velocity in rpm
 	 *
-	 *             This function lets the user set the velocity of the motor in rpm. 
+	 *             This function lets the user set the velocity of the motor in rpm.
 	 *             A negative value switches direction of the motor.
 	 *
 	 * @param[in]  rpm  - The velocity in rotations per minute
@@ -123,34 +123,34 @@ class UstepperS32
 	/**
 	 * @brief      Get the RPM from driver
 	 *
-	 *             This function returns the driver velocity of the motor 
+	 *             This function returns the driver velocity of the motor
 	 *
 	 * @return     The velocity in rpm
 	 */
 	float getDriverRPM(void);
 
 	/**
-	 * @brief      Make the motor perform a predefined number of steps
+	 * @brief      Make the motor perform a predefined number of microsteps
 	 *
 	 *             This function makes the motor perform a predefined number of
 	 *             steps, using the acceleration profile. The motor will accelerate
-	 *             at the rate set by setMaxAcceleration(), decelerate at the rate set by setMaxDeceleration() and eventually reach the speed set
-	 *             by setMaxVelocity() function. The direction of rotation
-	 *             is set by the sign of the commanded steps to perform
+	 *             at the rate set by setMaxAcceleration(), decelerate at the rate set by setMaxDeceleration()
+     *             and eventually reach the speed set by setMaxVelocity() function.
+     *             The direction of rotation is set by the sign of the commanded microsteps to perform.
 	 *
-	 * @param[in]      steps     -	Number of steps to be performed. an input value of
-	 *								300 makes the motor go 300 steps in CW direction, and
-	 *								an input value of -300 makes the motor move 300 steps
+	 * @param[in]      microsteps -	Number of microsteps to be performed. an input value of
+	 *								300 makes the motor go 300 microsteps in CW direction, and
+	 *								an input value of -300 makes the motor move 300 microsteps
 	 *								in CCW direction.
 	 */
-	void moveSteps(int32_t steps);
+	void moveSteps(int32_t microsteps);
 
 	/**
 	 * @brief      	Makes the motor rotate a specific angle relative to the current position
 	 *
-	 *              This function makes the motor a rotate by a specific angle relative to 
+	 *              This function makes the motor a rotate by a specific angle relative to
 	 *			    the current position, using the acceleration profile. The motor will accelerate
-	 *              at the rate set by setMaxAcceleration(), decelerate at the rate set by 
+	 *              at the rate set by setMaxAcceleration(), decelerate at the rate set by
 	 *				setMaxDeceleration() and eventually reach the speed set
 	 *              by setMaxVelocity() function. The direction of rotation
 	 *              is set by the sign of the commanded angle to move
@@ -165,16 +165,16 @@ class UstepperS32
 	/**
 	 * @brief      	Makes the motor rotate to a specific absolute angle
 	 *
-	 *              This function makes the motor a rotate to a specific angle, 
+	 *              This function makes the motor a rotate to a specific angle,
 	 *			    using the acceleration profile. The motor will accelerate
-	 *              at the rate set by setMaxAcceleration(), decelerate at the rate set by 
+	 *              at the rate set by setMaxAcceleration(), decelerate at the rate set by
 	 *				setMaxDeceleration() and eventually reach the speed set
 	 *              by setMaxVelocity() function. The direction of rotation
 	 *              is set by the sign of the commanded angle to move
 	 *
 	 * @param[in]  	    angle     -	Angle to move to. An input value of
-	 *								300 makes the motor go to absolute 300 degrees, 
-	 *								and an input value of -300 makes the motor move 
+	 *								300 makes the motor go to absolute 300 degrees,
+	 *								and an input value of -300 makes the motor move
 	 *								to absolute -300 degrees.
 	 */
 	void moveToAngle(float angle);
@@ -190,12 +190,12 @@ class UstepperS32
 	 *					VELOCITY_REACHED - has last commanded velocity been reached?
 	 *					STANDSTILL - Are the motor currently stopped?
 	 *					STALLGUARD2 - Has the stallguard been trickered?
-	 *					
+	 *
 	 *
 	 * @return     The angle moved.
 	 */
 	bool getMotorState(uint8_t statusType = POSITION_REACHED);
-	
+
 	/**
 	 * @brief      Make the motor rotate continuously
 	 *
@@ -212,7 +212,7 @@ class UstepperS32
 	 * @return     The angle moved in degrees.
 	 */
 	float angleMoved(void);
-	
+
 	/**
 	 * @brief      Set motor output current.
 	 *
@@ -234,35 +234,35 @@ class UstepperS32
 	/**
 	 * @brief      Set the maximum acceleration of the stepper motor.
 	 *
-	 *             This function lets the user set the max acceleration used 
+	 *             This function lets the user set the max acceleration used
 	 *             by the stepper driver.
 	 *
-	 * @param[in]      acceleration  - Maximum acceleration in steps/s^2
+	 * @param[in]      acceleration  - Maximum acceleration in fullsteps/s^2
 	 */
 	void setMaxAcceleration(float acceleration, bool applyToDriver = true);
 
 	/**
 	 * @brief      Set the maximum deceleration of the stepper motor.
 	 *
-	 *             This function lets the user set the max deceleration used 
+	 *             This function lets the user set the max deceleration used
 	 *             by the stepper driver.
 	 *
-	 * @param[in]      deceleration  - Maximum deceleration in steps/s^2
+	 * @param[in]      deceleration  - Maximum deceleration in fullsteps/s^2
 	 */
 	void setMaxDeceleration(float deceleration, bool applyToDriver = true);
 
 	/**
 	 * @brief      Set the maximum velocity of the stepper motor.
 	 *
-	 *             This function lets the user set the max velocity used 
+	 *             This function lets the user set the max velocity used
 	 *             by the stepper driver.
 	 *
-	 * @param[in]      velocity  - Maximum velocity in steps/s
+	 * @param[in]      velocity  - Maximum velocity in fullsteps/s
 	 */
 	void setMaxVelocity(float velocity, bool applyToDriver = true);
 
 	/**
-	 * @brief      Enable TMC5130 StallGuard 
+	 * @brief      Enable TMC5130 StallGuard
 	 *
 	 *             	This function enables the builtin stallguard offered from TMC5130 stepper driver.
 	 * 				The threshold should be tuned as to trigger stallguard before a step is lost.
@@ -283,7 +283,7 @@ class UstepperS32
 	void clearStall(void);
 
 	/**
-	 * @brief      	This method returns a bool variable indicating wether the motor is stalled or not. 
+	 * @brief      	This method returns a bool variable indicating wether the motor is stalled or not.
 	 * 				Uses the default stallguard threshold, unless this has been changed by .enableStallguard()
 	 *
 	 * @return     	0 = not stalled, 1 = stalled
@@ -292,29 +292,29 @@ class UstepperS32
 
 	/**
 	 * @brief      	This method returns a bool variable indicating wether the motor is stalled or not.
-	 * 				The stallguard is sensitive to the speed of the motor, as the torque available is a 
-	 * 				function of the speed. Therefore, it is necessary to change the treshold according 
+	 * 				The stallguard is sensitive to the speed of the motor, as the torque available is a
+	 * 				function of the speed. Therefore, it is necessary to change the treshold according
 	 * 				to the application. A higher treshold makes the stallguard less sensitive to external
 	 * 				loads, meaning that, the higher the application speed, the higher the treshold has to
 	 * 				be for the stall guard to perform well
 	 *
 	 * @param[in]   threshold  -  Threshold for stallguard. A value between -64 and +63
-	 * 
-	 * @return     	0 = not stalled, 1 = stalled		
+	 *
+	 * @return     	0 = not stalled, 1 = stalled
 	*/
 	bool isStalled(int8_t threshold);
 
 	/**
-	 * @brief      	
+	 * @brief
 	 *
 	 * @param[in]   mode  -  this parameter specifies how the motor should brake during standstill.
 	 * 				available modes:
 	 * 				FREEWHEELBRAKE - This will result in no holding torque at standstill
-	 *				COOLBRAKE 1 - This will make the motor brake by shorting the two bottom FET's of the H-Bridge. This will provide less holding torque, but will significantly reduce driver heat 
+	 *				COOLBRAKE 1 - This will make the motor brake by shorting the two bottom FET's of the H-Bridge. This will provide less holding torque, but will significantly reduce driver heat
 	 *				HARDBRAKE 2 - This will make the motor brake by sending the full specified current through the coils. This will provide high holding torque, but will make the driver (and motor) dissipate power
-	 * 
+	 *
 	 * @param[in]   brakeCurrent (optional) -  if HARDBRAKE is use as mode, this argument can set the current to use for braking (0-100% of 2A).
-	 * 				If argument is not specified, the motor will brake with 25% of max current	
+	 * 				If argument is not specified, the motor will brake with 25% of max current
 	*/
 	void setBrakeMode(uint8_t mode, float brakeCurrent = 25.0);
 
@@ -358,9 +358,9 @@ class UstepperS32
 	 * @param[in]  	dir  Direction to search for limit
 	 *
 	 * @param[in]   rpm   RPM of the motor while searching for limit
-	 * 
+	 *
 	 * @param[in]  	threshold  Sensitivity of stall detection (-64 to +63), low is more sensitive
-	 * 
+	 *
 	 * @param[in]  	Timeout in milliseconds to exit function if homing doesnt behave as expected
 	 *
 	 * @return 		Degrees turned from calling the function, till end was reached
@@ -378,22 +378,22 @@ class UstepperS32
 	 *						or "SOFT" for deceleration phase.
 	 */
 	void stop(bool mode = HARD);
-	
+
 	/**
 	 * @brief      This method returns the current PID error
 	 * @return     PID error (float)
 	 */
 	float getPidError(void); //*delete*/
-	
+
 	/**
-	 * @brief      	This method is used to check the orientation of the motor connector. 
+	 * @brief      	This method is used to check the orientation of the motor connector.
 	 *
 	 * @param[in]  	distance - the amount of degrees the motor shaft should rotate during orientation determination.
-	 *			
+	 *
 	 */
 
 	void checkOrientation(float distance = 10);
-	
+
   private:
 	friend void mainTimerCallback();
 	friend void dropInStepInputEXTI();
@@ -405,18 +405,19 @@ class UstepperS32
 	float rpmToVel;
 	float velToRpm;
 
-	/** This variable contains the maximum velocity in steps/s, the motor is
-	 * allowed to reach at any given point. The user of the library can
-	 * set this by use of the setMaxVelocity()
-	 */
+	/** This variable contains the maximum velocity, the motor is allowed to reach at any given point.
+     *  The variable is in units of ( 1.0 / ( 2^24 * |f_CLK| ) ) * ( microsteps / second ).
+     *  The user of the library can set this by use of the setMaxVelocity() function,
+     *  which takes in values with units of ( fullsteps / s ). */
 	float maxVelocity;
 
-	/** This variable contains the maximum acceleration in steps/s to be used. The
-	 * can be set and read by the user of the library using the
-	 * functions setMaxAcceleration()
-	 */
+	/** These variables contain the maximum acceleration/deceleration in steps/s to be used. The
+     *  The variables are in units of ( |f_CLK|^2 / 2^41 ) * ( microsteps / s^2 ).
+	 *  can be set and read by the user of the library using the setMaxAcceleration() and setMaxDeceleration() functions,
+     *  which take in values with units of ( fullsteps / s^2 ). */
 	float maxAcceleration;
 	float maxDeceleration;
+
 	float rpmToVelocity;
 	float angleToStep;
 
@@ -436,7 +437,7 @@ class UstepperS32
 	0 = OK, 1 = stalled */
 	volatile bool stall;
 	// SPI functions
-	volatile float currentPidError; 
+	volatile float currentPidError;
 
 	/** This variable holds the default stall threshold, but can be updated by the user. */
 	int8_t stallThreshold = 4;
