@@ -18,3 +18,4 @@ Output/
 docs/*
 !docs/*rar
 !docs/uStepper*
+!docs/ModbusUtilitiesDocumentation.md
