@@ -41,7 +41,7 @@ void Dropin::cli()
 {
 	static String stringInput;
 	static uint32_t t = millis();
-
+	
 	while (1)
 	{
 		while (!Serial.available())

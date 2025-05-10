@@ -33,8 +33,11 @@ void dropInEnableInputEXTI()
 volatile int32_t errorDebug = 0;
 volatile float uDebug = 0.0;
 
+//TODO: is "O0" attribute necessary? probs not
 void __attribute__((optimize("O0"))) dropInHandler()
 {
+	//TODO: remove "return" statement. only for debug
+	return;
 	int32_t extStepCnt = ptr->dropin.stepCnt;
 	
 	ptr->dropin.externalStepFrequencyEstimator.runIteration(extStepCnt);

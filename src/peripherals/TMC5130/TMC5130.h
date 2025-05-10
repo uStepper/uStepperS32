@@ -2,16 +2,16 @@
 #define __TMC5130_H_
 
 #include <Arduino.h>
-#include "../HAL/spi.h"
-#include "../HAL/gpio.h"
+#include "../../HAL/spi.h"
+#include "../../HAL/gpio.h"
 #include "TMC5130RegDef.h"
-#include "utils/semaphore.h"
-#include "../callbacks.h"
-#include "../UstepperS32.h"
+#include "../../utils/semaphore.h"
+#include "../../callbacks.h"
+#include "../../UstepperS32.h"
 
 #define DRIVERCLOCKFREQ 10000000.0 /**< MCU Clock frequency */
 
-enum TMC5130OperationModes
+enum TMC5130OperationModes_e
 {
 	stepDir = 0,
 	spi
@@ -174,7 +174,7 @@ class TMC5130
 		 */
 	void updateCurrent(void);
 
-	void setOperationMode(uint8_t mode);
+	void setOperationMode(TMC5130OperationModes_e mode);
 
 	/**
 		 * @brief		Set motor driver to position mode or velocity mode
