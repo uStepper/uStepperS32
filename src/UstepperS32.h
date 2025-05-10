@@ -10,6 +10,7 @@
 #include "HAL/timer.h"
 #include "callbacks.h"
 #include "utils/dropin.h"
+#include "utils/ModbusUtils.h"
 
 class UstepperS32;
 
@@ -392,6 +393,18 @@ class UstepperS32
 
 	void checkOrientation(float distance = 10);
 
+	/**
+     * @brief Enables Modbus communication.
+     * @param id Modbus slave ID.
+     * @param baud Baud rate for Modbus communication.
+     */
+    void modbusEnable(uint8_t id, uint32_t baud);
+
+    /**
+     * @brief Handles Modbus communication and updates stepper motor control.
+     */
+    void handleModbus();
+	   	
   private:
 	friend void mainTimerCallback();
 	friend void dropInStepInputEXTI();
