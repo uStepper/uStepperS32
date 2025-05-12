@@ -1,10 +1,10 @@
 # Modbus Register Description for uStepper S32
 
 ## Connection
-On uStepper S32 the Modbus interface is pre-defined to be situated at Serial2 pins. The interface directly on the uStepper S32 is TTL. An RS485 transciever is required to handle the physical layer in an Modbus RTU setup.
+On uStepper S32 the Modbus interface is pre-defined to be situated at Serial 2 pins D4 and D5. The interface directly on the uStepper S32 is TTL. An RS485 transciever is required to handle the physical layer in an Modbus RTU setup.
 One option is to use the uStepper S32 WiFi shield, which embeds an RS485 interface and can be programmed to use this interface with the uStepper S32.
 
-Details on this can be found here: LINK TIL GIT
+Details on this can be found here: [uStepper S32 WiFi Shield](https://github.com/uStepper/uStepperS32WiFiShield)
 
 ## Communication Parameters
 - **Protocol**: Modbus RTU
