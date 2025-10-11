@@ -12,9 +12,14 @@
 	#define MAINTIMERINTERRUPTPERIOD 1.0f / MAINTIMERINTERRUPTFREQUENCY
 	
 	void TIM4_IRQHandler(void);
+	void TIM3_IRQHandler(void);
 	void mainTimerInit(void);
 	void mainTimerPause();
 	void mainTimerStart();
+
+	void stepMotionControllerTimerInit(void);
+	void stepMotionControllerTimerPause();
+	void stepMotionControllerTimerStart();
 
 #ifdef __cplusplus
 	}

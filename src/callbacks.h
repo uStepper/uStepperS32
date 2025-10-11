@@ -11,6 +11,7 @@ typedef struct
 	void (*_dropInDirInputEXTI)(void);
 	void (*_dropInEnableInputEXTI)(void);
 	void(*_dropInHandler)(void);
+	void(*_stepMotionControllerTimerCallback)(void);
 } Callbacks_t;
 
 extern Callbacks_t callbacks;
@@ -21,6 +22,7 @@ void dropInStepInputEXTI();
 void dropInDirInputEXTI();
 void dropInEnableInputEXTI();
 void dropInHandler();
+void stepMotionControllerTimerCallback();
 #ifdef __cplusplus
 }
 #endif
