@@ -4,7 +4,7 @@
 #include "../../UstepperS32.h"
 #include "ITMC5130MotionControl.h"
 
-class TMC5130MotionControlInternalRamp : ITMC5130MotionControl
+class TMC5130MotionControlInternalRamp : public ITMC5130MotionControl
 {
 public:
 	TMC5130MotionControlInternalRamp();
@@ -24,7 +24,7 @@ public:
 	void setRampMode(uint8_t mode) override;
 
 	private:
-
+	friend class TMC5130;
 };
 
 #endif

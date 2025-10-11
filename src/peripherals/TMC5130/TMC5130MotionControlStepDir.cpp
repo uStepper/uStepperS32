@@ -44,12 +44,12 @@ void TMC5130MotionControlStepDir::stop(void){
 
 }
 int32_t TMC5130MotionControlStepDir::getVelocity(void){
-
+    return 0; // Not yet implemented
 }
 int32_t TMC5130MotionControlStepDir::getPosition(void){
-
+    return 0; // Not yet implemented
 }
-void TMC5130MotionControlStepDir::setHome(int32_t initialSteps = 0){
+void TMC5130MotionControlStepDir::setHome(int32_t initialSteps){
 
 }
 
@@ -59,9 +59,4 @@ void TMC5130MotionControlStepDir::setDirection(bool direction)
 
 void TMC5130MotionControlStepDir::setRampMode(uint8_t mode)
 {
-}
-
-void TMC5130MotionControlStepDir::setShaftDirection(bool direction)
-{
-
 }

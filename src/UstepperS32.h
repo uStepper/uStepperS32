@@ -394,6 +394,9 @@ class UstepperS32
 
 	void checkOrientation(float distance = 10);
 
+	// Expose RPM->velocity conversion factor for motion control helpers
+	float getRpmToVelocityFactor() const { return rpmToVelocity; }
+
   private:
 	friend void mainTimerCallback();
 	friend void dropInStepInputEXTI();

@@ -56,20 +56,11 @@ void TMC5130::init()
 	while (this->readRegister(VACTUAL) != 0);
 
 	this->enablePin.set(); //Set EN high
-	//this->stepPin.configureOutput();
-	//this->dirPin.configureOutput();
-	this->sdPin.set(); //Set SD_MODE pin low
-	this->spiPin.set(); //Set SPI_MODE pin high
-	//this->dirPin.reset();
-	//this->stepPin.reset();
+
 	if (ptr->mode == DROPIN)
 	{
-		//this->stepPin.configureOutput();
-		//this->dirPin.configureOutput();
 		this->sdPin.set();	//Set SD_MODE pin low
 		this->spiPin.set(); //Set SPI_MODE pin high
-		//this->dirPin.reset();
-		//this->stepPin.reset();
 	}
 	this->enablePin.reset(); //Set EN low
 	
@@ -103,7 +94,7 @@ void TMC5130::enableStallguard(int8_t threshold, bool stopOnStall, float rpm)
 
 	/* Disable StealthChop for stallguard operation */
 	this->writeRegister(GCONF, EN_PWM_MODE(0) | I_SCALE_ANALOG(1));
-	this->setShaftDirection(ptr->shaftDir);
+	this->setShaftDirection(this->motionControl->settings.invertShaftDirection);
 
 	// Configure COOLCONF for stallguard
 	this->writeRegister(COOLCONF, SGT(threshold) | SFILT(1) | SEMIN(5) | SEMAX(2) | SEDN(1));
@@ -127,7 +118,7 @@ void TMC5130::disableStallguard(void)
 {
 	// Reenable stealthchop
 	this->writeRegister(GCONF, EN_PWM_MODE(1) | I_SCALE_ANALOG(1));
-	this->setShaftDirection(ptr->shaftDir);
+	this->setShaftDirection(this->motionControl->settings.invertShaftDirection);
 
 	// Disable all stallguard configuration
 	this->writeRegister(COOLCONF, 0);
@@ -185,13 +176,13 @@ void TMC5130::reset(void)
 	this->writeRegister(TPWMTHRS, 0);
 
 	this->writeRegister(RAMPMODE, 0);
-	this->writeRegister(VSTART, 0);
-	this->writeRegister(A1, 0);
-	this->writeRegister(V1, 0);
-	this->writeRegister(AMAX, 0);
-	this->writeRegister(VMAX, 0);
-	this->writeRegister(D1, 0);
-	this->writeRegister(VSTOP, 0);
+	this->writeRegister(this->motionControl->settings.VSTART, 0);
+	this->writeRegister(this->motionControl->settings.A1, 0);
+	this->writeRegister(this->motionControl->settings.V1, 0);
+	this->writeRegister(this->motionControl->settings.AMAX, 0);
+	this->writeRegister(this->motionControl->settings.VMAX, 0);
+	this->writeRegister(this->motionControl->settings.D1, 0);
+	this->writeRegister(this->motionControl->settings.VSTOP, 0);
 }
 
 void TMC5130::enableStealth()
@@ -220,7 +211,9 @@ void TMC5130::setShaftDirection(bool direction)
 
 void TMC5130::setRampMode(uint8_t mode)
 {
-	this->motionControl.setRampMode(mode);
+	if(this->motionControl){
+		this->motionControl->setRampMode(mode);
+	}
 }
 
 void TMC5130::setAcceleration(uint32_t acceleration)
@@ -343,6 +336,8 @@ void TMC5130::setMotionController(TMC5130MotionControllers_e controller)
 	{
 		this->sdPin.set(); //Set SD_MODE pin high
 		this->spiPin.set();  //Set SPI_MODE pin high
+		this->motionControl = &stepDirMotionControl;
+		this->motionControl->init(this);
 	}
 }
 

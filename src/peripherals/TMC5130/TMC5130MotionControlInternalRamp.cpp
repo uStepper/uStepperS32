@@ -1,4 +1,5 @@
 #include "TMC5130MotionControlInternalRamp.h"
+#include "../../UstepperS32.h"
 
 TMC5130MotionControlInternalRamp::TMC5130MotionControlInternalRamp()
 {
@@ -7,7 +8,12 @@ TMC5130MotionControlInternalRamp::TMC5130MotionControlInternalRamp()
 
 void TMC5130MotionControlInternalRamp::setRPM(float RPM)
 {
-	int32_t velocityDir = rpmToVelocity * rpm;
+	if(!driver) return;
+	// convert RPM using accessor to rpm->velocity factor
+	int32_t velocityDir = 0;
+	if(ptr){
+		velocityDir = (int32_t)(ptr->getRpmToVelocityFactor() * RPM);
+	}
 
 	if (velocityDir > 0)
 	{
@@ -24,16 +30,8 @@ void TMC5130MotionControlInternalRamp::setRPM(float RPM)
 	this->setVelocity((uint32_t)velocity);
 }
 
-void TMC5130MotionControlInternalRamp::init(TMC5130 *driver, ITMC5130MotionControl *motionController){
-    if(motionController == this){
-        return;
-    }
-    this->driver = driver;
-    
-    if(motionController != nullptr){
-        this->settings = motionController->getSettings();
-    }
-    
+void TMC5130MotionControlInternalRamp::init(TMC5130 *driver){
+	this->driver = driver;
 }
 
 void TMC5130MotionControlInternalRamp::deInit(){
@@ -93,7 +91,7 @@ int32_t TMC5130MotionControlInternalRamp::getVelocity(void){
 int32_t TMC5130MotionControlInternalRamp::getPosition(void){
     return this->readRegister(XACTUAL);
 }
-void TMC5130MotionControlInternalRamp::setHome(int32_t initialSteps = 0){
+void TMC5130MotionControlInternalRamp::setHome(int32_t initialSteps){
     int32_t xActual, xTarget;
 
 	if (this->settings.mode == DRIVER_POSITION)
@@ -163,17 +161,17 @@ void TMC5130MotionControlInternalRamp::setRampMode(uint8_t mode)
 
 void TMC5130MotionControlInternalRamp::setShaftDirection(bool direction)
 {
-    this->settings.invertShaftDirection = direction;
-    // Read the register to save the settings
-    int32_t value = this->readRegister(GCONF);
-    // Update the direction bit
-    if (direction == 1)
-    {
-        value |= (0x01 << 4);
-    }
-    else
-    {
-        value &= ~(0x01 << 4);
-    }
-    this->writeRegister(GCONF, value);
+	this->settings.invertShaftDirection = direction;
+	if(!driver) return;
+	// Read the register to save the settings via driver
+	int32_t value = driver->readRegister(GCONF);
+	if (direction == 1)
+	{
+		value |= (0x01 << 4);
+	}
+	else
+	{
+		value &= ~(0x01 << 4);
+	}
+	driver->writeRegister(GCONF, value);
 }

@@ -7,16 +7,15 @@
 #include "TMC5130RegDef.h"
 #include "../../utils/semaphore.h"
 #include "../../callbacks.h"
-#include "../../UstepperS32.h"
+// Avoid including UstepperS32 here to prevent circular dependency; forward declare instead.
+class UstepperS32;
+// Forward declarations to avoid circular dependency
+class ITMC5130MotionControl;
+
+// Motion control interface/enum definitions
 #include "ITMC5130MotionControl.h"
 
 #define DRIVERCLOCKFREQ 10000000.0 /**< MCU Clock frequency */
-
-typedef enum TMC5130MotionControllers_e
-{
-	stepDir = 0,
-	internalRamp
-};
 
 class TMC5130
 {
@@ -168,6 +167,7 @@ class TMC5130
 	volatile int32_t xActual = 0;
 
 	void setRPM(float rpm);
+	void setMotionController(TMC5130MotionControllers_e controller);
 	
   private:
 	/**
@@ -175,7 +175,6 @@ class TMC5130
 		 */
 	void updateCurrent(void);
 
-	void setOperationMode(TMC5130OperationModes_e mode);
 
 	/**
 		 * @brief		Set motor driver to position mode or velocity mode
@@ -209,7 +208,7 @@ class TMC5130
 	uint8_t holdCurrent = 0;
 	uint8_t holdDelay = 0;
 	/** STOP, VELOCITY, POSITION*/
-	uint8_t mode = DRIVER_STOP;
+	uint8_t mode = DRIVER_STOP; // Align with TMC5130MotionControlMode_e first value
 	Semaphore semaphore;
 	float rpmToVelocity = (float)(279620.267 * 200 * 256) / (DRIVERCLOCKFREQ);
 	ITMC5130MotionControl* motionControl; // Pointer to the motion control interface

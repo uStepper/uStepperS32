@@ -1,7 +1,24 @@
 #ifndef __TMC5130MOTIONCONTROL_H
 #define __TMC5130MOTIONCONTROL_H
 
-#include "../../UstepperS32.h"
+// Intentionally avoid including full driver header here to prevent circular include.
+#include <stdint.h>
+// Only a forward declaration is needed for pointer members and parameters.
+class TMC5130;
+
+typedef enum TMC5130MotionControllers_e
+{
+	stepDir = 0,
+	internalRamp
+};
+
+typedef enum TMC5130MotionControlMode_e
+{
+	DRIVER_STOP = 0,
+	DRIVER_POSITION,
+	DRIVER_VELOCITY,
+	DRIVER_STEPPER
+};
 
 typedef struct TMC5130MotionControlSettings_t
 {
@@ -22,16 +39,10 @@ typedef struct TMC5130MotionControlSettings_t
 	TMC5130MotionControlMode_e mode = DRIVER_STOP;
 };
 
-typedef enum TMC5130MotionControlMode_e
-{
-	DRIVER_POSITION = 0,
-	DRIVER_VELOCITY,
-	DRIVER_STEPPER
-};
-
 class ITMC5130MotionControl
 {
 public:
+	virtual ~ITMC5130MotionControl() {}
 	virtual void setRPM(float RPM) = 0;
 	virtual void init(TMC5130 *driver) = 0;
 	virtual void deInit() = 0;
@@ -44,12 +55,19 @@ public:
 	virtual int32_t getVelocity(void) = 0;
 	virtual int32_t getPosition(void) = 0;
 	virtual void setHome(int32_t initialSteps = 0) = 0;
+	virtual void setDirection(bool direction) = 0; // Select motion (velocity/ramp) direction
+	virtual void setRampMode(uint8_t mode) = 0;    // Configure ramp generator mode
 
-private:
+protected:
 	TMC5130MotionControlSettings_t settings;
 	TMC5130 *driver = nullptr;
-	TMC5130MotionControlSettings_t getSettings(void);
-	void setSettings(TMC5130MotionControlSettings_t settings);
+	// Provide derived classes access to previous settings when switching controllers
+	inline TMC5130MotionControlSettings_t getSettings() { return settings; }
+	inline void setSettings(const TMC5130MotionControlSettings_t &s) { settings = s; }
+	// Helper wrappers for driver register access (only valid after init)
+	int32_t writeRegister(uint8_t address, uint32_t datagram);
+	int32_t readRegister(uint8_t address);
+	friend class TMC5130;
 };
 
 #endif

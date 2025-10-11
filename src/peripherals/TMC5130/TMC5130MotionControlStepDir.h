@@ -4,7 +4,7 @@
 #include "../../UstepperS32.h"
 #include "ITMC5130MotionControl.h"
 
-class TMC5130MotionControlStepDir : ITMC5130MotionControl
+class TMC5130MotionControlStepDir : public ITMC5130MotionControl
 {
 public:
 	TMC5130MotionControlStepDir();
@@ -26,6 +26,7 @@ public:
 private:
 	GPIO stepPin;
 	GPIO dirPin;
+	friend class TMC5130;
 };
 
 #endif
