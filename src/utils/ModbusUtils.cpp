@@ -39,7 +39,6 @@ void ModbusUtils::modbusEnable(UstepperS32 &stepper, uint8_t id, uint32_t baud) 
 void ModbusUtils::handleModbus(UstepperS32 &stepper) {
     static uint8_t previousMode = 255; // Track the previous mode to detect changes
     mb.task();                         // Process Modbus tasks
-    yield();                           // Allow other tasks to run
 
     // Update holding registers with the current encoder angle
     float angle = stepper.encoder.getAngleMoved();
