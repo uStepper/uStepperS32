@@ -11,6 +11,7 @@
 #include "callbacks.h"
 #include "utils/dropin.h"
 #include "utils/ModbusUtils.h"
+#include "utils/ModbusMasterUtils.h"
 
 class UstepperS32;
 

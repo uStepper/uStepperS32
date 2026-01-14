@@ -7,6 +7,12 @@ ModbusRTU ModbusUtils::mb;
 // Array to hold two 16-bit registers for float conversion
 uint16_t ModbusUtils::regs[2];
 
+// State tracking for robust command handling
+uint8_t ModbusUtils::previousMode = 255;
+uint8_t ModbusUtils::commandState = CMD_STATE_IDLE;
+uint32_t ModbusUtils::lastCommandTime = 0;
+uint16_t ModbusUtils::lastCommandSeq[4] = {0, 0, 0, 0}; // Track last command values per mode
+
 // Register pairs corresponding to each function
 // Each pair represents two 16-bit Modbus holding registers used to store a 32-bit float value.
 // The first element in each pair is the high register, and the second is the low register.
@@ -29,34 +35,38 @@ void ModbusUtils::modbusEnable(UstepperS32 &stepper, uint8_t id, uint32_t baud) 
     mb.begin(&Serial2);        // Initialize ModbusRTU with Serial2
     mb.slave(id);              // Set the Modbus slave ID
 
-    // Add holding registers (28 total) to the Modbus object
-    for (uint8_t i = 0; i < 28; i++) {
+    // Add holding registers (28 total + command sequence register) to the Modbus object
+    for (uint8_t i = 0; i < 29; i++) {
         mb.addHreg(i, 0);
     }
+    
+    // Initialize state
+    commandState = CMD_STATE_IDLE;
+    previousMode = 255;
 }
 
 // Handle Modbus communication and stepper motor control
 void ModbusUtils::handleModbus(UstepperS32 &stepper) {
-    static uint8_t previousMode = 255; // Track the previous mode to detect changes
-    mb.task();                         // Process Modbus tasks
-
+    // Process Modbus tasks - call multiple times to ensure we handle all pending data
+    mb.task();
+    
     // Update holding registers with the current encoder angle
     float angle = stepper.encoder.getAngleMoved();
     floatToRegisters(angle, regs);
-    mb.Hreg(0, regs[0]); // High part of the angle
-    mb.Hreg(1, regs[1]); // Low part of the angle
+    mb.Hreg(0, regs[0]); // Low part of the angle
+    mb.Hreg(1, regs[1]); // High part of the angle
 
     // Update holding registers with the current driver RPM
     float speed = stepper.getDriverRPM();
     floatToRegisters(speed, regs);
-    mb.Hreg(2, regs[0]); // High part of the RPM
-    mb.Hreg(3, regs[1]); // Low part of the RPM
+    mb.Hreg(2, regs[0]); // Low part of the RPM
+    mb.Hreg(3, regs[1]); // High part of the RPM
 
     // Update holding registers with the current encoder RPM
     float encoderSpeed = stepper.encoder.getRPM();
     floatToRegisters(encoderSpeed, regs);
-    mb.Hreg(4, regs[0]); // High part of the encoder RPM
-    mb.Hreg(5, regs[1]); // Low part of the encoder RPM
+    mb.Hreg(4, regs[0]); // Low part of the encoder RPM
+    mb.Hreg(5, regs[1]); // High part of the encoder RPM
 
     // Update holding registers with motor state and stall status
     mb.Hreg(6, stepper.getMotorState()); // Motor state (e.g., running or stopped)
@@ -64,6 +74,11 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
 
     // Read the current mode from the Modbus holding register
     uint8_t mode = mb.Hreg(17);
+    
+    // Validate mode - only accept modes 0-3
+    if (mode > 3) {
+        mode = previousMode != 255 ? previousMode : 0;
+    }
 
     // Handle mode change to moveToAngle (mode 0)
     if (mode == 0 && previousMode != mode) {
@@ -74,11 +89,23 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
         mb.Hreg(regPairs[0][0], regs[1]); // High part of the current angle
     }
 
-    // Reset registers for all modes except the current one
-    for (uint8_t i = 0; i < 4; i++) {
-        if (i != mode) {
-            mb.Hreg(regPairs[i][0], 0); // Reset high part
-            mb.Hreg(regPairs[i][1], 0); // Reset low part
+    // Check if command registers have been written (detect new commands)
+    bool hasNewCommand = false;
+    uint16_t currentCmdHigh = mb.Hreg(regPairs[mode][0]);
+    uint16_t currentCmdLow = mb.Hreg(regPairs[mode][1]);
+    
+    // Create a combined sequence value to detect changes
+    uint16_t currentCmdSeq = currentCmdHigh ^ currentCmdLow;
+    
+    // For modes 2 and 3 (moveSteps, moveAngle), detect new commands by checking
+    // if registers changed AND are non-zero (indicating a valid command)
+    if (mode == 2 || mode == 3) {
+        // Check if we have a new non-zero command
+        if ((currentCmdHigh != 0 || currentCmdLow != 0) && 
+            commandState == CMD_STATE_IDLE) {
+            hasNewCommand = true;
+            commandState = CMD_STATE_EXECUTING;
+            lastCommandTime = millis();
         }
     }
 
@@ -87,68 +114,106 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
 
     // Execute the corresponding function based on the mode
     switch (mode) {
-        case 0: // moveToAngle
+        case 0: // moveToAngle - continuous mode, always apply
             stepper.moveToAngle(receivedValue);
             mb.Hreg(22, 1); // Set loop mode to closed-loop
             break;
-        case 1: // setRPM
+            
+        case 1: // setRPM - continuous mode, always apply
             stepper.setRPM(receivedValue);
             break;
-        case 2: // moveSteps
-            stepper.moveSteps(receivedValue);
-            // Wait for the motor to finish moving
-            while (stepper.getMotorState()) {
-                mb.task();
-                yield();
-                if (mb.Hreg(17) != 2) {
-                    break;
+            
+        case 2: // moveSteps - command mode, execute only on new commands
+            if (hasNewCommand && receivedValue != 0.0f && isValidFloat(receivedValue)) {
+                stepper.moveSteps(receivedValue);
+            }
+            
+            // Non-blocking wait - check if motor has finished
+            if (commandState == CMD_STATE_EXECUTING) {
+                mb.task(); // Keep processing Modbus during movement
+                
+                // Check if motor has stopped or mode changed
+                if (stepper.getMotorState() == 0 || mb.Hreg(17) != 2) {
+                    // Command completed - reset registers and state
+                    mb.Hreg(regPairs[2][0], 0);
+                    mb.Hreg(regPairs[2][1], 0);
+                    commandState = CMD_STATE_IDLE;
+                }
+                
+                // Timeout protection - prevent infinite waiting (10 second timeout)
+                if (millis() - lastCommandTime > 10000) {
+                    mb.Hreg(regPairs[2][0], 0);
+                    mb.Hreg(regPairs[2][1], 0);
+                    commandState = CMD_STATE_IDLE;
                 }
             }
-            // Reset registers for moveSteps after execution
-            mb.Hreg(regPairs[2][0], 0);
-            mb.Hreg(regPairs[2][1], 0);
             break;
-        case 3: // moveAngle
-            stepper.moveAngle(receivedValue);
-            // Wait for the motor to finish moving
-            while (stepper.getMotorState()) {
-                mb.task();
-                yield();
-                if (mb.Hreg(17) != 3) {
-                    break;
+            
+        case 3: // moveAngle - command mode, execute only on new commands
+            if (hasNewCommand && receivedValue != 0.0f && isValidFloat(receivedValue)) {
+                stepper.moveAngle(receivedValue);
+            }
+            
+            // Non-blocking wait - check if motor has finished
+            if (commandState == CMD_STATE_EXECUTING) {
+                mb.task(); // Keep processing Modbus during movement
+                
+                // Check if motor has stopped or mode changed
+                if (stepper.getMotorState() == 0 || mb.Hreg(17) != 3) {
+                    // Command completed - reset registers and state
+                    mb.Hreg(regPairs[3][0], 0);
+                    mb.Hreg(regPairs[3][1], 0);
+                    commandState = CMD_STATE_IDLE;
+                }
+                
+                // Timeout protection - prevent infinite waiting (10 second timeout)
+                if (millis() - lastCommandTime > 10000) {
+                    mb.Hreg(regPairs[3][0], 0);
+                    mb.Hreg(regPairs[3][1], 0);
+                    commandState = CMD_STATE_IDLE;
                 }
             }
-            // Reset registers for moveAngle after execution
-            mb.Hreg(regPairs[3][0], 0);
-            mb.Hreg(regPairs[3][1], 0);
             break;
     }
 
+    // Reset command state when mode changes
+    if (mode != previousMode) {
+        commandState = CMD_STATE_IDLE;
+    }
+    
     // Update the previous mode
     previousMode = mode;
 
     // Update stepper motor settings based on Modbus registers
     float maxAccel = registersToFloat(5); // Max acceleration (registers 19, 18)
-    stepper.setMaxAcceleration(maxAccel * 200);
-    stepper.setMaxDeceleration(maxAccel * 200);
+    if (isValidFloat(maxAccel) && maxAccel > 0) {
+        stepper.setMaxAcceleration(maxAccel * 200);
+        stepper.setMaxDeceleration(maxAccel * 200);
+    }
 
     if (mode != 1) { // Only update max velocity if not in RPM mode
         float maxSpeed = registersToFloat(6); // Max velocity (registers 21, 20)
-        stepper.setMaxVelocity(maxSpeed * RPMTOSTEPSS);
+        if (isValidFloat(maxSpeed) && maxSpeed > 0) {
+            stepper.setMaxVelocity(maxSpeed * RPMTOSTEPSS);
+        }
     }
 
-    uint8_t brakeMode = mb.Hreg(16); // Brake mode (register 27, 26)
-    stepper.setBrakeMode(brakeMode);
+    uint8_t brakeMode = mb.Hreg(16); // Brake mode (register 16)
+    if (brakeMode <= 3) { // Validate brake mode
+        stepper.setBrakeMode(brakeMode);
+    }
 
-    uint8_t loopMode = mb.Hreg(22); // Loop mode (registers 23, 22)
+    uint8_t loopMode = mb.Hreg(22); // Loop mode (register 22)
     if (loopMode == 0) {
         stepper.disableClosedLoop();
     } else {
         stepper.enableClosedLoop();
     }
 
-    uint8_t runCurrent = mb.Hreg(24); // Running current (registers 25, 24)
-    stepper.setCurrent(runCurrent);
+    uint8_t runCurrent = mb.Hreg(24); // Running current (register 24)
+    if (runCurrent <= 100) { // Validate current percentage
+        stepper.setCurrent(runCurrent);
+    }
 }
 
 // Convert a float to two 16-bit registers
@@ -173,4 +238,18 @@ float ModbusUtils::registersToFloat(uint8_t index) {
     converter.reg[0] = mb.Hreg(regPairs[index][1]); // Low part
 
     return converter.value;
+}
+
+// Check if a float value is valid (not NaN, not Inf, within reasonable range)
+bool ModbusUtils::isValidFloat(float value) {
+    // Check for NaN
+    if (value != value) return false;
+    
+    // Check for infinity
+    if (value == __builtin_inff() || value == -__builtin_inff()) return false;
+    
+    // Check for extremely large values that might indicate corruption
+    if (value > 1e9f || value < -1e9f) return false;
+    
+    return true;
 }

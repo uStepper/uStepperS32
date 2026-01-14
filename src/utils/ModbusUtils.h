@@ -9,6 +9,10 @@ class UstepperS32;
 // Conversion factor: Converts RPM to steps per second
 #define RPMTOSTEPSS 200.0 / 60.0
 
+// Command state machine states
+#define CMD_STATE_IDLE       0
+#define CMD_STATE_EXECUTING  1
+
 /**
  * @class ModbusUtils
  * @brief Utility class for handling Modbus communication and stepper motor control.
@@ -32,6 +36,12 @@ public:
 private:
     static ModbusRTU mb; ///< ModbusRTU instance for handling Modbus communication.
     static uint16_t regs[2]; ///< Array to hold two 16-bit registers for float conversion.
+    
+    // State tracking for robust command handling
+    static uint8_t previousMode; ///< Previous mode for change detection
+    static uint8_t commandState; ///< Current command execution state
+    static uint32_t lastCommandTime; ///< Timestamp of last command for timeout
+    static uint16_t lastCommandSeq[4]; ///< Track command sequence per mode
 
     /**
      * @brief Register pairs for Modbus communication.
@@ -53,6 +63,13 @@ private:
      * @return The converted float value.
      */
     static float registersToFloat(uint8_t index);
+    
+    /**
+     * @brief Validates if a float value is valid (not NaN, not Inf, within reasonable range).
+     * @param value The float value to validate.
+     * @return True if the value is valid, false otherwise.
+     */
+    static bool isValidFloat(float value);
 };
 
 #endif // MODBUSUTILS_H
