@@ -94,15 +94,15 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
     uint16_t currentCmdHigh = mb.Hreg(regPairs[mode][0]);
     uint16_t currentCmdLow = mb.Hreg(regPairs[mode][1]);
     
-    // Create a combined sequence value to detect changes
-    uint16_t currentCmdSeq = currentCmdHigh ^ currentCmdLow;
-    
     // For modes 2 and 3 (moveSteps, moveAngle), detect new commands by checking
-    // if registers changed AND are non-zero (indicating a valid command)
+    // if registers have changed from the last command
     if (mode == 2 || mode == 3) {
-        // Check if we have a new non-zero command
-        if ((currentCmdHigh != 0 || currentCmdLow != 0) && 
+        // Check if the command has changed from the last one
+        if ((currentCmdHigh != lastCommandSeq[0] || currentCmdLow != lastCommandSeq[1]) &&
             commandState == CMD_STATE_IDLE) {
+            // Store new command values for next comparison
+            lastCommandSeq[0] = currentCmdHigh;
+            lastCommandSeq[1] = currentCmdLow;
             hasNewCommand = true;
             commandState = CMD_STATE_EXECUTING;
             lastCommandTime = millis();
