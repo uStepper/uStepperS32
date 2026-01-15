@@ -6,8 +6,8 @@ void setup() {
     stepper.setup();
     stepper.checkOrientation(30.0);
 
-    // Enable Modbus with slave ID 1 and baud rate 500000
-    stepper.modbusEnable(1, 500000);
+    // Enable Modbus with slave ID 1 and baud rate 9600
+    stepper.modbusEnable(1, 9600);
 }
 
 void loop() {

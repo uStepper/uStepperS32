@@ -77,7 +77,7 @@ float readFloat(uint16_t startReg) {
 
 void setup() {
   Serial.begin(9600);
-  Serial2.begin(500000); // RS485 UART
+  Serial2.begin(9600); // RS485 UART
 
   modbus.begin(SLAVE_ID, Serial2);
   delay(1000); // Let everything settle
