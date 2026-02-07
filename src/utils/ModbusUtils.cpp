@@ -30,7 +30,7 @@ const uint8_t ModbusUtils::regPairs[10][2] = {
 };
 
 // Initialize Modbus communication
-void ModbusUtils::modbusEnable(UstepperS32 &stepper, uint8_t id, uint32_t baud) {
+void ModbusUtils::modbusEnable(UstepperS32 *stepper, uint8_t id, uint32_t baud) {
     Serial2.begin(baud);       // Start Serial2 with the specified baud rate
     mb.begin(&Serial2);        // Initialize ModbusRTU with Serial2
     mb.slave(id);              // Set the Modbus slave ID
@@ -46,31 +46,31 @@ void ModbusUtils::modbusEnable(UstepperS32 &stepper, uint8_t id, uint32_t baud) 
 }
 
 // Handle Modbus communication and stepper motor control
-void ModbusUtils::handleModbus(UstepperS32 &stepper) {
+void ModbusUtils::handleModbus(UstepperS32 *stepper) {
     // Process Modbus tasks - call multiple times to ensure we handle all pending data
     mb.task();
     
     // Update holding registers with the current encoder angle
-    float angle = stepper.encoder.getAngleMoved();
+    float angle = stepper->encoder.getAngleMoved();
     floatToRegisters(angle, regs);
     mb.Hreg(0, regs[0]); // Low part of the angle
     mb.Hreg(1, regs[1]); // High part of the angle
 
     // Update holding registers with the current driver RPM
-    float speed = stepper.getDriverRPM();
+    float speed = stepper->getDriverRPM();
     floatToRegisters(speed, regs);
     mb.Hreg(2, regs[0]); // Low part of the RPM
     mb.Hreg(3, regs[1]); // High part of the RPM
 
     // Update holding registers with the current encoder RPM
-    float encoderSpeed = stepper.encoder.getRPM();
+    float encoderSpeed = stepper->encoder.getRPM();
     floatToRegisters(encoderSpeed, regs);
     mb.Hreg(4, regs[0]); // Low part of the encoder RPM
     mb.Hreg(5, regs[1]); // High part of the encoder RPM
 
     // Update holding registers with motor state and stall status
-    mb.Hreg(6, stepper.getMotorState()); // Motor state (e.g., running or stopped)
-    mb.Hreg(7, stepper.isStalled());     // Stall status (1 if stalled, 0 otherwise)
+    mb.Hreg(6, stepper->getMotorState()); // Motor state (e.g., running or stopped)
+    mb.Hreg(7, stepper->isStalled());     // Stall status (1 if stalled, 0 otherwise)
 
     // Read the current mode from the Modbus holding register
     uint8_t mode = mb.Hreg(17);
@@ -82,8 +82,8 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
 
     // Handle mode change to moveToAngle (mode 0)
     if (mode == 0 && previousMode != mode) {
-        stepper.stop(HARD); // Stop the motor
-        float currentAngle = stepper.encoder.getAngleMoved();
+        stepper->stop(HARD); // Stop the motor
+        float currentAngle = stepper->encoder.getAngleMoved();
         floatToRegisters(currentAngle, regs);
         mb.Hreg(regPairs[0][1], regs[0]); // Low part of the current angle
         mb.Hreg(regPairs[0][0], regs[1]); // High part of the current angle
@@ -115,17 +115,17 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
     // Execute the corresponding function based on the mode
     switch (mode) {
         case 0: // moveToAngle - continuous mode, always apply
-            stepper.moveToAngle(receivedValue);
+            stepper->moveToAngle(receivedValue);
             mb.Hreg(22, 1); // Set loop mode to closed-loop
             break;
             
         case 1: // setRPM - continuous mode, always apply
-            stepper.setRPM(receivedValue);
+            stepper->setRPM(receivedValue);
             break;
             
         case 2: // moveSteps - command mode, execute only on new commands
             if (hasNewCommand && receivedValue != 0.0f && isValidFloat(receivedValue)) {
-                stepper.moveSteps(receivedValue);
+                stepper->moveSteps(receivedValue);
             }
             
             // Non-blocking wait - check if motor has finished
@@ -133,7 +133,7 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
                 mb.task(); // Keep processing Modbus during movement
                 
                 // Check if motor has stopped or mode changed
-                if (stepper.getMotorState() == 0 || mb.Hreg(17) != 2) {
+                if (stepper->getMotorState() == 0 || mb.Hreg(17) != 2) {
                     // Command completed - reset registers and state
                     mb.Hreg(regPairs[2][0], 0);
                     mb.Hreg(regPairs[2][1], 0);
@@ -151,7 +151,7 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
             
         case 3: // moveAngle - command mode, execute only on new commands
             if (hasNewCommand && receivedValue != 0.0f && isValidFloat(receivedValue)) {
-                stepper.moveAngle(receivedValue);
+                stepper->moveAngle(receivedValue);
             }
             
             // Non-blocking wait - check if motor has finished
@@ -159,7 +159,7 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
                 mb.task(); // Keep processing Modbus during movement
                 
                 // Check if motor has stopped or mode changed
-                if (stepper.getMotorState() == 0 || mb.Hreg(17) != 3) {
+                if (stepper->getMotorState() == 0 || mb.Hreg(17) != 3) {
                     // Command completed - reset registers and state
                     mb.Hreg(regPairs[3][0], 0);
                     mb.Hreg(regPairs[3][1], 0);
@@ -187,32 +187,32 @@ void ModbusUtils::handleModbus(UstepperS32 &stepper) {
     // Update stepper motor settings based on Modbus registers
     float maxAccel = registersToFloat(5); // Max acceleration (registers 19, 18)
     if (isValidFloat(maxAccel) && maxAccel > 0) {
-        stepper.setMaxAcceleration(maxAccel * 200);
-        stepper.setMaxDeceleration(maxAccel * 200);
+        stepper->setMaxAcceleration(maxAccel * 200);
+        stepper->setMaxDeceleration(maxAccel * 200);
     }
 
     if (mode != 1) { // Only update max velocity if not in RPM mode
         float maxSpeed = registersToFloat(6); // Max velocity (registers 21, 20)
         if (isValidFloat(maxSpeed) && maxSpeed > 0) {
-            stepper.setMaxVelocity(maxSpeed * RPMTOSTEPSS);
+            stepper->setMaxVelocity(maxSpeed * RPMTOSTEPSS);
         }
     }
 
     uint8_t brakeMode = mb.Hreg(16); // Brake mode (register 16)
     if (brakeMode <= 3) { // Validate brake mode
-        stepper.setBrakeMode(brakeMode);
+        stepper->setBrakeMode(brakeMode);
     }
 
     uint8_t loopMode = mb.Hreg(22); // Loop mode (register 22)
     if (loopMode == 0) {
-        stepper.disableClosedLoop();
+        stepper->disableClosedLoop();
     } else {
-        stepper.enableClosedLoop();
+        stepper->enableClosedLoop();
     }
 
     uint8_t runCurrent = mb.Hreg(24); // Running current (register 24)
     if (runCurrent <= 100) { // Validate current percentage
-        stepper.setCurrent(runCurrent);
+        stepper->setCurrent(runCurrent);
     }
 }
 

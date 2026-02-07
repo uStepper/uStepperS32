@@ -56,12 +56,13 @@ float targetAngle = 360.0;
 bool isMoving = false;
 
 // Helper to write a float to two consecutive Modbus registers
-void writeFloat(uint16_t startReg, float value) {
+uint8_t writeFloat(uint16_t startReg, float value) {
   union { float f; uint16_t u16[2]; } data;
   data.f = value;
   modbus.setTransmitBuffer(0, data.u16[0]); // Low word
   modbus.setTransmitBuffer(1, data.u16[1]); // High word
-  modbus.writeMultipleRegisters(startReg, 2);
+  uint8_t RESULT = modbus.writeMultipleRegisters(startReg, 2);
+  return RESULT;
 }
 
 // Helper to read a float from two consecutive Modbus registers
@@ -77,7 +78,7 @@ float readFloat(uint16_t startReg) {
 
 void setup() {
   Serial.begin(9600);
-  Serial2.begin(9600); // RS485 UART
+  Serial2.begin(500000); // RS485 UART
 
   modbus.begin(SLAVE_ID, Serial2);
   delay(1000); // Let everything settle
@@ -87,18 +88,24 @@ void setup() {
   modbus.writeSingleRegister(REG_RUN_CURRENT, 20);  // 30% current
   modbus.writeSingleRegister(REG_MODE, 3);          // Relative angle mode
 
-  writeFloat(REG_MAX_ACCEL, 4000.0);    // Acceleration in fullsteps/s²
-  writeFloat(REG_MAX_VELOCITY, 400.0);  // Velocity in fullsteps/s
+  writeFloat(REG_MAX_ACCEL, 200.0);    // Acceleration in RPM²
+  writeFloat(REG_MAX_VELOCITY, 120.0);  // Velocity in RPM
 }
 
 void loop() {
   // Check if motor has stopped and send next command
   if (!isMoving) {
     if (modbus.readHoldingRegisters(REG_MOTOR_STATE, 1) == modbus.ku8MBSuccess) {
-      writeFloat(REG_MOVE_ANGLE, targetAngle); // Initiate movement
-      isMoving = true;
-      targetAngle = -targetAngle; // Alternate direction
-      delay(100); // Brief delay to ensure command is sent
+      if (writeFloat(REG_MOVE_ANGLE, targetAngle) == modbus.ku8MBSuccess) 
+      {
+        if (modbus.readHoldingRegisters(REG_MOTOR_STATE, 1) == modbus.ku8MBSuccess) {
+          uint16_t state = modbus.getResponseBuffer(0);
+          if (state == 1){
+            isMoving = true;
+            targetAngle = -targetAngle; // Alternate direction
+          }
+        }
+      }
     }
   } else {
     // Motor is moving - check status frequently
@@ -115,6 +122,4 @@ void loop() {
     Serial.print(moved);
     Serial.println(" °");
   }
-
-  delay(100); // Small delay to allow Modbus responses, fast enough for smooth feedback
 }

@@ -117,14 +117,6 @@ void UstepperS32::setup(uint8_t mode,
 	}
 }
 
-void UstepperS32::modbusEnable(uint8_t id, uint32_t baud) {
-    ModbusUtils::modbusEnable(*this, id, baud);
-}
-
-void UstepperS32::handleModbus() {
-    ModbusUtils::handleModbus(*this);
-}
-
 void UstepperS32::runContinous(bool direction)
 {
 	this->driver.setDeceleration((uint32_t)(this->maxDeceleration));

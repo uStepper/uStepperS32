@@ -25,13 +25,13 @@ public:
      * @param id Modbus slave ID.
      * @param baud Baud rate for Modbus communication.
      */
-    static void modbusEnable(UstepperS32 &stepper, uint8_t id, uint32_t baud);
+    static void modbusEnable(UstepperS32 *stepper, uint8_t id, uint32_t baud);
 
     /**
      * @brief Handles Modbus communication and updates stepper motor control.
      * @param stepper Reference to the UstepperS32 object.
      */
-    static void handleModbus(UstepperS32 &stepper);
+    static void handleModbus(UstepperS32 *stepper);
 
 private:
     static ModbusRTU mb; ///< ModbusRTU instance for handling Modbus communication.

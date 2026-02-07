@@ -50,11 +50,14 @@ class UstepperS32
 	friend class TMC5130;
 	friend class TLE5012B;
 	friend class Dropin;
+	friend class ModbusUtils;
 
   public:
 	TLE5012B encoder;
 	TMC5130 driver;
 	Dropin dropin;
+	ModbusUtils modbus;
+	
 	/**
 	 * @brief	Constructor of uStepper class
 	 */
@@ -393,18 +396,6 @@ class UstepperS32
 
 	void checkOrientation(float distance = 10);
 
-	/**
-     * @brief Enables Modbus communication.
-     * @param id Modbus slave ID.
-     * @param baud Baud rate for Modbus communication.
-     */
-    void modbusEnable(uint8_t id, uint32_t baud);
-
-    /**
-     * @brief Handles Modbus communication and updates stepper motor control.
-     */
-    void handleModbus();
-	   	
   private:
 	friend void mainTimerCallback();
 	friend void dropInStepInputEXTI();
