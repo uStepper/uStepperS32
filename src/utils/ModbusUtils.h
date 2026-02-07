@@ -1,7 +1,7 @@
 #ifndef MODBUSUTILS_H
 #define MODBUSUTILS_H
 
-#include "../utils/modbus/ModbusRTU.h"
+#include <ModbusRTU.h>
 
 // Forward declaration of UstepperS32 to avoid circular dependency
 class UstepperS32;
