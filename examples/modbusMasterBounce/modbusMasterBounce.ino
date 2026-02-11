@@ -54,6 +54,8 @@
 ModbusMaster modbus;
 float targetAngle = 360.0;
 bool isMoving = false;
+unsigned long lastStatusCheck = 0;
+const unsigned long STATUS_CHECK_INTERVAL = 20;  // Check motor state every 20ms
 
 // Helper to write a float to two consecutive Modbus registers
 uint8_t writeFloat(uint16_t startReg, float value) {
@@ -85,41 +87,55 @@ void setup() {
 
   // --- Motor Configuration ---
   modbus.writeSingleRegister(REG_BRAKE_MODE, 1);    // Cool brake
+  delay(20);
   modbus.writeSingleRegister(REG_RUN_CURRENT, 20);  // 30% current
+  delay(20);
   modbus.writeSingleRegister(REG_MODE, 3);          // Relative angle mode
+  delay(20);
 
   writeFloat(REG_MAX_ACCEL, 200.0);    // Acceleration in RPM²
   writeFloat(REG_MAX_VELOCITY, 120.0);  // Velocity in RPM
+  
+  Serial.println("Master initialized - starting bounce sequence");
 }
 
 void loop() {
-  // Check if motor has stopped and send next command
-  if (!isMoving) {
+  unsigned long now = millis();
+  
+  // Check motor state at controlled intervals
+  if (now - lastStatusCheck >= STATUS_CHECK_INTERVAL) {
+    lastStatusCheck = now;
+    
     if (modbus.readHoldingRegisters(REG_MOTOR_STATE, 1) == modbus.ku8MBSuccess) {
-      if (writeFloat(REG_MOVE_ANGLE, targetAngle) == modbus.ku8MBSuccess) 
-      {
-        if (modbus.readHoldingRegisters(REG_MOTOR_STATE, 1) == modbus.ku8MBSuccess) {
-          uint16_t state = modbus.getResponseBuffer(0);
-          if (state == 1){
-            isMoving = true;
-            targetAngle = -targetAngle; // Alternate direction
-          }
+      uint16_t state = modbus.getResponseBuffer(0);
+      
+      if (state == 0 && isMoving) {
+        // Motor just stopped - read final angle
+        isMoving = false;
+        float moved = readFloat(REG_ANGLE_MOVED);
+        if (!isnan(moved)) {
+          Serial.print("Movement completed - Angle: ");
+          Serial.print(moved, 2);
+          Serial.println("°");
+        }
+      }
+      
+      else if (state == 0 && !isMoving) {
+        // Motor is idle - send next command
+        Serial.print("Sending move command: ");
+        Serial.print(targetAngle);
+        Serial.println("°");
+        
+        if (writeFloat(REG_MOVE_ANGLE, targetAngle) == modbus.ku8MBSuccess) {
+          isMoving = true;
+          targetAngle = -targetAngle; // Alternate direction
+        } else {
+          Serial.println("ERROR: Failed to write move angle");
         }
       }
     }
-  } else {
-    // Motor is moving - check status frequently
-    if (modbus.readHoldingRegisters(REG_MOTOR_STATE, 1) == modbus.ku8MBSuccess) {
-      uint16_t state = modbus.getResponseBuffer(0);
-      if (state == 0) isMoving = false; // 0 = standstill
-    }
   }
-
-  // Read and display angle moved (frequent reads)
-  float moved = readFloat(REG_ANGLE_MOVED);
-  if (!isnan(moved)) {
-    Serial.print("Angle Moved: ");
-    Serial.print(moved);
-    Serial.println(" °");
-  }
+  
+  // Minimal delay - let slave process
+  delay(5);
 }
