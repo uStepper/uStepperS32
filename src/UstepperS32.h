@@ -10,6 +10,7 @@
 #include "HAL/timer.h"
 #include "callbacks.h"
 #include "utils/dropin.h"
+#include "utils/ModbusUtils.h"
 
 class UstepperS32;
 
@@ -49,11 +50,14 @@ class UstepperS32
 	friend class TMC5130;
 	friend class TLE5012B;
 	friend class Dropin;
+	friend class ModbusUtils;
 
   public:
 	TLE5012B encoder;
 	TMC5130 driver;
 	Dropin dropin;
+	ModbusUtils modbus;
+	
 	/**
 	 * @brief	Constructor of uStepper class
 	 */
