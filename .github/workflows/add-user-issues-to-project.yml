@@ -1,0 +1,15 @@
+name: Add user issues to Project
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add:
+    # Skip issues filed by our own planning workflow (they carry the `planning` label).
+    if: ${{ !contains(github.event.issue.labels.*.name, 'planning') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v1
+        with:
+          project-url: https://github.com/users/zenpai45/projects/1
+          github-token: ${{ secrets.PROJECT_PAT }}
