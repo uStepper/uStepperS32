@@ -567,22 +567,30 @@ bool UstepperS32::calibrateEncoder(uint8_t current)
 		}
 		delay(CALIBRATION_SETTLE_MS);
 
-		// Sample encoder multiple times and average
-		uint32_t sum = 0;
-		uint16_t goodSamples = 0;
-		for (uint16_t s = 0; s < CALIBRATION_SAMPLES_PER_STEP; s++)
-		{
-			uint16_t raw = this->encoder.readAngleAbsolute();
-			if (raw != 0 || s == 0)
-			{
-				sum += raw;
-				goodSamples++;
-			}
-			delayMicroseconds(500);
-		}
-		uint16_t meanAngle = (goodSamples > 0) ? (uint16_t)(sum / goodSamples) : 0;
+		// Sample encoder multiple times and average using wrap-safe method:
+		// Use first sample as reference, average signed differences
+		uint16_t refSample = this->encoder.readAngleAbsolute();
+		int32_t diffSum = 0;
+		uint16_t goodSamples = 1;
 
-		encoderCalibration.setTableEntry(i, meanAngle);
+		for (uint16_t s = 1; s < CALIBRATION_SAMPLES_PER_STEP; s++)
+		{
+			delayMicroseconds(500);
+			uint16_t raw = this->encoder.readAngleAbsolute();
+			// Signed difference with wrap handling (15-bit encoder: 0..32767)
+			int16_t diff = (int16_t)((int32_t)raw - (int32_t)refSample);
+			if (diff > 16384) diff -= 32768;
+			if (diff < -16384) diff += 32768;
+			diffSum += diff;
+			goodSamples++;
+		}
+
+		int32_t meanAngle = (int32_t)refSample + diffSum / goodSamples;
+		// Wrap to [0, 32768)
+		meanAngle %= 32768;
+		if (meanAngle < 0) meanAngle += 32768;
+
+		encoderCalibration.setTableEntry(i, (uint16_t)meanAngle);
 
 		// Progress output every 64 steps
 		if ((i & 63) == 0)
@@ -590,7 +598,7 @@ bool UstepperS32::calibrateEncoder(uint8_t current)
 			Serial.print(F("  Step "));
 			Serial.print(i);
 			Serial.print(F("/512  encoder="));
-			Serial.println(meanAngle);
+			Serial.println((uint16_t)meanAngle);
 		}
 	}
 

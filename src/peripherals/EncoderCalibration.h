@@ -17,8 +17,8 @@
 
 #define CALIBRATION_TABLE_SIZE 512
 #define ENCODER_COUNTS_PER_REV 32768  // TLE5012B 15-bit
-#define CALIBRATION_SAMPLES_PER_STEP 32
-#define CALIBRATION_SETTLE_MS 100
+#define CALIBRATION_SAMPLES_PER_STEP 64
+#define CALIBRATION_SETTLE_MS 200
 
 // Flash storage: use the last 16KB sector of STM32F401 (Sector 7: 0x08060000)
 // STM32F401CC has 256KB flash total, sector 7 = 0x08060000..0x0807FFFF (but
@@ -108,11 +108,12 @@ private:
 
     uint16_t computeChecksum(void);
 
-    // Pre-built reverse lookup index for fast binary search
-    // Maps encoder range to nearest table entry for O(1) reverse lookup
-    // We divide 32768 encoder counts into 512 bins
-    uint16_t reverseIndex[CALIBRATION_TABLE_SIZE];
-    void buildReverseIndex(void);
+    // Pre-computed correction table for O(1) linearization.
+    // For each of 512 bins of raw encoder space, stores the signed correction
+    // to add: linearizedAngle = rawAngle + correctionTable[rawAngle/64]
+    // Values are interpolated between adjacent entries at runtime.
+    int16_t correctionTable[CALIBRATION_TABLE_SIZE];
+    void buildCorrectionTable(void);
 };
 
 #endif

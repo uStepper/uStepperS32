@@ -82,7 +82,7 @@ EncoderCalibration::EncoderCalibration()
     : calibrationReady(false)
 {
     memset(&data, 0, sizeof(data));
-    memset(reverseIndex, 0, sizeof(reverseIndex));
+    memset(correctionTable, 0, sizeof(correctionTable));
 }
 
 bool EncoderCalibration::isCalibrated(void)
@@ -114,7 +114,7 @@ bool EncoderCalibration::loadFromFlash(void)
         return false;
     }
 
-    buildReverseIndex();
+    buildCorrectionTable();
     calibrationReady = true;
     return true;
 }
@@ -191,7 +191,7 @@ void EncoderCalibration::finalizeCalibration(void)
     data.magic = CALIBRATION_MAGIC;
     data.tableSize = CALIBRATION_TABLE_SIZE;
     data.checksum = computeChecksum();
-    buildReverseIndex();
+    buildCorrectionTable();
     calibrationReady = true;
 }
 
@@ -207,35 +207,78 @@ uint16_t EncoderCalibration::computeChecksum(void)
     return sum;
 }
 
-void EncoderCalibration::buildReverseIndex(void)
+void EncoderCalibration::buildCorrectionTable(void)
 {
-    // For each bin of the raw angle space (512 bins of 64 counts each),
-    // store the table index whose raw encoder value is closest to that bin center.
-    uint16_t binSize = ENCODER_COUNTS_PER_REV / CALIBRATION_TABLE_SIZE; // 64
+    // The forward table maps: table[i] = raw encoder reading at ideal position i*64.
+    // We need a reverse correction: given a raw angle, what correction to add.
+    //
+    // For each of 512 bins of raw encoder space (bin b covers raw angles b*64 to (b+1)*64-1),
+    // find which forward table entry bracket contains this raw angle, interpolate to get
+    // the ideal linearized angle, then store the correction = linearized - rawBinCenter.
 
-    for (uint16_t bin = 0; bin < CALIBRATION_TABLE_SIZE; bin++)
+    const int32_t binSize = ENCODER_COUNTS_PER_REV / CALIBRATION_TABLE_SIZE; // 64
+    const int32_t halfRev = ENCODER_COUNTS_PER_REV / 2;
+
+    for (uint16_t b = 0; b < CALIBRATION_TABLE_SIZE; b++)
     {
-        uint16_t targetAngle = bin * binSize + binSize / 2;
-        uint16_t bestIdx = 0;
-        int32_t bestDist = 0x7FFFFFFF;
+        int32_t rawCenter = (int32_t)b * binSize + binSize / 2;
 
-        for (uint16_t j = 0; j < CALIBRATION_TABLE_SIZE; j++)
+        // Find the forward table bracket [i, i+1] that contains rawCenter
+        bool found = false;
+        for (uint16_t i = 0; i < CALIBRATION_TABLE_SIZE; i++)
         {
-            int32_t dist = (int32_t)data.table[j] - (int32_t)targetAngle;
-            if (dist > (int32_t)(ENCODER_COUNTS_PER_REV / 2))
-                dist -= ENCODER_COUNTS_PER_REV;
-            else if (dist < -(int32_t)(ENCODER_COUNTS_PER_REV / 2))
-                dist += ENCODER_COUNTS_PER_REV;
+            uint16_t j = (i + 1) % CALIBRATION_TABLE_SIZE;
 
-            int32_t absDist = dist < 0 ? -dist : dist;
-            if (absDist < bestDist)
+            int32_t ai = (int32_t)data.table[i];
+            int32_t aj = (int32_t)data.table[j];
+
+            // Compute span from table[i] to table[j], handling wrap
+            int32_t span = aj - ai;
+            if (span < 0) span += ENCODER_COUNTS_PER_REV;
+            // Skip degenerate spans (protect against div-by-zero and bad entries)
+            if (span <= 0 || span > ENCODER_COUNTS_PER_REV / 2) continue;
+
+            // Distance from table[i] to rawCenter, wrapped positive
+            int32_t d = rawCenter - ai;
+            if (d < 0) d += ENCODER_COUNTS_PER_REV;
+
+            if (d <= span)
             {
-                bestDist = absDist;
-                bestIdx = j;
+                // Interpolate: linearized = i*binSize + (d/span)*binSize
+                // Using fixed-point: (d * binSize * 256 / span) for precision
+                int32_t frac256 = (d * 256 + span / 2) / span;  // 0..256
+                int32_t linearized = (int32_t)i * binSize + (frac256 * binSize + 128) / 256;
+                linearized %= ENCODER_COUNTS_PER_REV;
+
+                int32_t corr = linearized - rawCenter;
+                // Wrap correction to [-halfRev, halfRev)
+                if (corr > halfRev) corr -= ENCODER_COUNTS_PER_REV;
+                if (corr < -halfRev) corr += ENCODER_COUNTS_PER_REV;
+
+                correctionTable[b] = (int16_t)corr;
+                found = true;
+                break;
             }
         }
-        reverseIndex[bin] = bestIdx;
+        if (!found)
+        {
+            correctionTable[b] = 0;
+        }
     }
+
+    // Smooth the correction table with a 5-tap moving average to reduce noise
+    int16_t smoothed[CALIBRATION_TABLE_SIZE];
+    for (uint16_t b = 0; b < CALIBRATION_TABLE_SIZE; b++)
+    {
+        int32_t sum = 0;
+        for (int8_t k = -2; k <= 2; k++)
+        {
+            uint16_t idx = (b + k + CALIBRATION_TABLE_SIZE) % CALIBRATION_TABLE_SIZE;
+            sum += correctionTable[idx];
+        }
+        smoothed[b] = (int16_t)(sum / 5);
+    }
+    memcpy(correctionTable, smoothed, sizeof(correctionTable));
 }
 
 int32_t EncoderCalibration::linearize(uint16_t rawAngle)
@@ -243,58 +286,34 @@ int32_t EncoderCalibration::linearize(uint16_t rawAngle)
     if (!calibrationReady)
         return rawAngle;
 
-    // table[i] = absolute raw encoder angle when motor is at position i/512 rev.
-    // The linearized angle for step i = i * 64 (evenly spaced, 0..32767).
-    //
-    // Given an absolute raw reading, find the two consecutive table entries
-    // that bracket it, interpolate, and return the linearized angle.
-    // The table is monotonically increasing with one wraparound.
-
+    // O(1) correction lookup with linear interpolation between bins
     const uint16_t binSize = ENCODER_COUNTS_PER_REV / CALIBRATION_TABLE_SIZE; // 64
 
-    // Use reverse index for O(1) approximate lookup
-    uint16_t bin = rawAngle / binSize;
+    uint16_t bin = rawAngle / binSize;           // 0..511
+    uint16_t frac = rawAngle - bin * binSize;    // 0..63 (remainder within bin)
+
     if (bin >= CALIBRATION_TABLE_SIZE)
         bin = CALIBRATION_TABLE_SIZE - 1;
-    uint16_t startIdx = reverseIndex[bin];
 
-    // Search nearby consecutive pairs for the bracket containing rawAngle
-    for (int16_t offset = -4; offset <= 4; offset++)
-    {
-        uint16_t i = (uint16_t)(((int16_t)startIdx + offset + CALIBRATION_TABLE_SIZE) % CALIBRATION_TABLE_SIZE);
-        uint16_t j = (i + 1) % CALIBRATION_TABLE_SIZE;
+    uint16_t nextBin = (bin + 1) % CALIBRATION_TABLE_SIZE;
 
-        int32_t ai = (int32_t)data.table[i];
-        int32_t aj = (int32_t)data.table[j];
+    // Linear interpolation of correction between adjacent bins
+    int32_t c0 = correctionTable[bin];
+    int32_t c1 = correctionTable[nextBin];
 
-        // Span from table[i] to table[j], always positive for monotonic table
-        int32_t span = aj - ai;
-        if (span < 0)
-            span += ENCODER_COUNTS_PER_REV;
+    // Handle wrap-around in correction values (shouldn't happen normally,
+    // but be safe for bins near the 0/32768 boundary)
+    int32_t cdiff = c1 - c0;
+    if (cdiff > ENCODER_COUNTS_PER_REV / 4) cdiff -= ENCODER_COUNTS_PER_REV;
+    if (cdiff < -ENCODER_COUNTS_PER_REV / 4) cdiff += ENCODER_COUNTS_PER_REV;
 
-        if (span == 0)
-            continue;
+    int32_t correction = c0 + (cdiff * (int32_t)frac + binSize / 2) / binSize;
 
-        // Distance from table[i] to rawAngle, wrapped positive
-        int32_t d = (int32_t)rawAngle - ai;
-        if (d < 0)
-            d += ENCODER_COUNTS_PER_REV;
+    int32_t result = (int32_t)rawAngle + correction;
 
-        // rawAngle is in [table[i], table[j]] if 0 <= d <= span
-        if (d <= span)
-        {
-            // Interpolate: linearized = i*64 + (d/span)*64
-            int32_t linAngle = (int32_t)i * binSize + (d * binSize + span / 2) / span;
+    // Wrap to [0, 32768)
+    result %= ENCODER_COUNTS_PER_REV;
+    if (result < 0) result += ENCODER_COUNTS_PER_REV;
 
-            // Wrap to [0, 32768)
-            linAngle %= ENCODER_COUNTS_PER_REV;
-            if (linAngle < 0)
-                linAngle += ENCODER_COUNTS_PER_REV;
-
-            return linAngle;
-        }
-    }
-
-    // Fallback: return best-guess from reverse index
-    return ((int32_t)startIdx * binSize) % ENCODER_COUNTS_PER_REV;
+    return result;
 }
