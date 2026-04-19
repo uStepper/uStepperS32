@@ -552,7 +552,7 @@ bool UstepperS32::calibrateEncoder(uint8_t current)
 	// At 2 RPM: 51200 * 2 / 60 = 1706.7 usteps/s
 	// With fCLK ~12MHz: VMAX = 1707 * 2^24 / 12e6 ≈ 2389
 	// Use a conservative low speed for accuracy
-	uint32_t calVelocity = 3000;  // ~2-3 RPM depending on clock
+	uint32_t calVelocity = 5000;  // ~3-5 RPM depending on clock
 
 	this->driver.setAcceleration(500);
 	this->driver.setDeceleration(500);
@@ -583,8 +583,8 @@ bool UstepperS32::calibrateEncoder(uint8_t current)
 		if (xactual >= stepsPerRev * CALIBRATION_NUM_REVOLUTIONS)
 			break;
 
-		// Timeout safety (120 seconds max)
-		if (millis() - startTime > 120000UL)
+		// Timeout safety (180 seconds max)
+		if (millis() - startTime > 180000UL)
 		{
 			Serial.println(F("  Timeout!"));
 			this->driver.setVelocity(0);

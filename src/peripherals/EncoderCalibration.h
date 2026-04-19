@@ -17,7 +17,7 @@
 
 #define CALIBRATION_TABLE_SIZE 512
 #define ENCODER_COUNTS_PER_REV 32768  // TLE5012B 15-bit
-#define CALIBRATION_NUM_REVOLUTIONS 8  // Number of revolutions to average over
+#define CALIBRATION_NUM_REVOLUTIONS 4  // Number of revolutions to average over
 
 // Flash storage: last 2KB of sector 5 on STM32F401CCU6 (256KB flash, sectors 0-5)
 //   Sector 5: 0x08020000 (128KB)
