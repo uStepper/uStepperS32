@@ -530,88 +530,155 @@ bool UstepperS32::calibrateEncoder(uint8_t current)
 	// Set calibration current
 	this->setCurrent((double)current);
 
-	// Use internal ramp for calibration (reliable positioning)
-	this->driver.setDeceleration(0xFFFE);
-	this->driver.setAcceleration(0xFFFE);
-	this->driver.setVelocity(0x50000);
+	// Microsteps per full revolution
+	int32_t stepsPerRev = (int32_t)this->fullSteps * (int32_t)this->microSteps;
+	// Bin size in encoder counts
+	const int32_t binSize = ENCODER_COUNTS_PER_REV / CALIBRATION_TABLE_SIZE; // 64
 
-	// 512 positions across one full revolution
-	int32_t stepsPerPosition = (int32_t)(this->fullSteps * this->microSteps) / CALIBRATION_TABLE_SIZE;
+	// Accumulator arrays for error averaging (allocated on stack — 2KB each)
+	int32_t errorSum[CALIBRATION_TABLE_SIZE];
+	uint16_t errorCount[CALIBRATION_TABLE_SIZE];
+	memset(errorSum, 0, sizeof(errorSum));
+	memset(errorCount, 0, sizeof(errorCount));
 
-	// Zero the driver position counter at current physical position
+	// Zero the driver position counter
 	this->driver.writeRegister(XACTUAL, 0);
 	this->driver.writeRegister(XTARGET, 0);
-	delay(500);
+	delay(200);
 
-	Serial.println(F("Calibration: stepping through 512 positions..."));
+	// Configure velocity mode: slow constant speed (~2 RPM)
+	// TMC5130 velocity units: v [Hz] = VMAX * fCLK / 2^24
+	// For 200 full steps * 256 microsteps = 51200 usteps/rev
+	// At 2 RPM: 51200 * 2 / 60 = 1706.7 usteps/s
+	// With fCLK ~12MHz: VMAX = 1707 * 2^24 / 12e6 ≈ 2389
+	// Use a conservative low speed for accuracy
+	uint32_t calVelocity = 3000;  // ~2-3 RPM depending on clock
 
-	for (uint16_t i = 0; i < CALIBRATION_TABLE_SIZE; i++)
+	this->driver.setAcceleration(500);
+	this->driver.setDeceleration(500);
+	this->driver.setVelocity(calVelocity);
+	this->driver.setRampMode(VELOCITY_MODE_POS);
+
+	Serial.println(F("Calibration: running at constant speed..."));
+	Serial.print(F("  Revolutions: "));
+	Serial.println(CALIBRATION_NUM_REVOLUTIONS);
+
+	// Wait for motor to reach steady speed
+	delay(2000);
+
+	Serial.println(F("  Sampling..."));
+
+	// Sample continuously until we've completed the target number of revolutions
+	int32_t lastXactual = 0;
+	uint32_t totalSamples = 0;
+	uint32_t startTime = millis();
+
+	while (true)
 	{
-		// Move to next position
-		int32_t targetPos = (int32_t)i * stepsPerPosition;
-		this->driver.setPosition(targetPos);
+		// Read XACTUAL (cumulative microstep count) and encoder simultaneously
+		int32_t xactual = this->driver.readRegister(XACTUAL);
+		uint16_t encRaw = this->encoder.readAngleAbsolute();
 
-		// Wait for motor to reach position with timeout
-		delay(50);
-		uint32_t timeout = millis() + 5000;
-		while (this->getMotorState(POSITION_REACHED))
+		// Check if we've completed enough revolutions
+		if (xactual >= stepsPerRev * CALIBRATION_NUM_REVOLUTIONS)
+			break;
+
+		// Timeout safety (120 seconds max)
+		if (millis() - startTime > 120000UL)
 		{
-			if (millis() > timeout)
-			{
-				Serial.print(F("Timeout at step "));
-				Serial.println(i);
-				mainTimerStart();
-				return false;
-			}
-			delay(1);
-		}
-		delay(CALIBRATION_SETTLE_MS);
-
-		// Sample encoder multiple times and average using wrap-safe method:
-		// Use first sample as reference, average signed differences
-		uint16_t refSample = this->encoder.readAngleAbsolute();
-		int32_t diffSum = 0;
-		uint16_t goodSamples = 1;
-
-		for (uint16_t s = 1; s < CALIBRATION_SAMPLES_PER_STEP; s++)
-		{
-			delayMicroseconds(500);
-			uint16_t raw = this->encoder.readAngleAbsolute();
-			// Signed difference with wrap handling (15-bit encoder: 0..32767)
-			int16_t diff = (int16_t)((int32_t)raw - (int32_t)refSample);
-			if (diff > 16384) diff -= 32768;
-			if (diff < -16384) diff += 32768;
-			diffSum += diff;
-			goodSamples++;
+			Serial.println(F("  Timeout!"));
+			this->driver.setVelocity(0);
+			delay(500);
+			mainTimerStart();
+			return false;
 		}
 
-		int32_t meanAngle = (int32_t)refSample + diffSum / goodSamples;
-		// Wrap to [0, 32768)
-		meanAngle %= 32768;
-		if (meanAngle < 0) meanAngle += 32768;
+		// Compute expected encoder angle from XACTUAL
+		// expected = (xactual % stepsPerRev) * 32768 / stepsPerRev
+		int32_t posInRev = xactual % stepsPerRev;
+		if (posInRev < 0) posInRev += stepsPerRev;
+		int32_t expectedEnc = (int32_t)((int64_t)posInRev * ENCODER_COUNTS_PER_REV / stepsPerRev);
 
-		encoderCalibration.setTableEntry(i, (uint16_t)meanAngle);
+		// Error = actual - expected (wrap to [-16384, 16384))
+		int32_t error = (int32_t)encRaw - expectedEnc;
+		if (error > ENCODER_COUNTS_PER_REV / 2) error -= ENCODER_COUNTS_PER_REV;
+		if (error < -ENCODER_COUNTS_PER_REV / 2) error += ENCODER_COUNTS_PER_REV;
 
-		// Progress output every 64 steps
-		if ((i & 63) == 0)
+		// Bin by expected encoder position (this is the "ideal" angle axis)
+		uint16_t bin = (uint16_t)(expectedEnc / binSize);
+		if (bin >= CALIBRATION_TABLE_SIZE) bin = CALIBRATION_TABLE_SIZE - 1;
+
+		errorSum[bin] += error;
+		errorCount[bin]++;
+		totalSamples++;
+
+		// ~1ms between samples → ~1kHz sampling rate
+		delayMicroseconds(1000);
+
+		// Progress every 2 seconds
+		if ((totalSamples & 0x7FF) == 0)
 		{
-			Serial.print(F("  Step "));
-			Serial.print(i);
-			Serial.print(F("/512  encoder="));
-			Serial.println((uint16_t)meanAngle);
+			int32_t rev100 = (int32_t)((int64_t)xactual * 100 / stepsPerRev);
+			Serial.print(F("  Rev "));
+			Serial.print(rev100 / 100);
+			Serial.print('.');
+			Serial.print(rev100 % 100);
+			Serial.print('/');
+			Serial.print(CALIBRATION_NUM_REVOLUTIONS);
+			Serial.print(F("  samples="));
+			Serial.println(totalSamples);
 		}
 	}
 
-	Serial.println(F("Calibration: returning to start..."));
+	// Stop motor
+	this->driver.setVelocity(0);
+	delay(1000);
 
-	// Return to start
-	this->driver.setPosition(0);
-	uint32_t timeout = millis() + 10000;
-	delay(500);
-	while (this->getMotorState(POSITION_REACHED))
+	Serial.print(F("  Total samples: "));
+	Serial.println(totalSamples);
+
+	// Compute average error per bin → this becomes the correction table
+	// The correction is NEGATIVE of the error: corrected = raw + correction
+	// where correction = -error (we want to subtract the encoder's error)
+	uint16_t emptyBins = 0;
+	for (uint16_t b = 0; b < CALIBRATION_TABLE_SIZE; b++)
 	{
-		if (millis() > timeout) break;
-		delay(10);
+		if (errorCount[b] > 0)
+		{
+			int16_t avgError = (int16_t)(errorSum[b] / (int32_t)errorCount[b]);
+			encoderCalibration.setCorrectionEntry(b, -avgError);
+		}
+		else
+		{
+			encoderCalibration.setCorrectionEntry(b, 0);
+			emptyBins++;
+		}
+	}
+
+	if (emptyBins > 0)
+	{
+		Serial.print(F("  Warning: "));
+		Serial.print(emptyBins);
+		Serial.println(F(" bins had no samples (interpolated as 0)"));
+	}
+
+	// Apply smoothing: 5-tap moving average on the correction table
+	// Read back, smooth, write back
+	int16_t tempBuf[CALIBRATION_TABLE_SIZE];
+	const int16_t *corr = encoderCalibration.getCorrectionTable();
+	for (uint16_t b = 0; b < CALIBRATION_TABLE_SIZE; b++)
+	{
+		int32_t sum = 0;
+		for (int8_t k = -2; k <= 2; k++)
+		{
+			uint16_t idx = (b + k + CALIBRATION_TABLE_SIZE) % CALIBRATION_TABLE_SIZE;
+			sum += corr[idx];
+		}
+		tempBuf[b] = (int16_t)(sum / 5);
+	}
+	for (uint16_t b = 0; b < CALIBRATION_TABLE_SIZE; b++)
+	{
+		encoderCalibration.setCorrectionEntry(b, tempBuf[b]);
 	}
 
 	// Finalize and save

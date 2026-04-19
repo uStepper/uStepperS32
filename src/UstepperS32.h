@@ -400,8 +400,9 @@ class UstepperS32
 	// ========== Encoder Calibration API ==========
 
 	/**
-	 * @brief Run encoder calibration routine. Motor will step through all positions.
-	 *        This is a blocking call that takes ~60 seconds.
+	 * @brief Run encoder calibration routine. Motor runs at constant speed
+	 *        for multiple revolutions while sampling encoder vs driver position.
+	 *        Blocking call, takes ~60-90 seconds depending on speed.
 	 * @param current Motor current in percent for calibration (default 30%).
 	 * @return true if calibration succeeded and was saved to flash.
 	 */

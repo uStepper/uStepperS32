@@ -4,42 +4,32 @@
 #include <stdint.h>
 
 /**
- * @brief Encoder linearization calibration using a 512-point lookup table.
+ * @brief Encoder linearization using a 512-point correction table.
  *
  * The TLE5012B magnetic encoder can have non-linearities from magnet placement.
  * This class provides:
- *   - A calibration routine that steps the motor through 512 positions and
- *     records the encoder reading at each (building a forward lookup table).
+ *   - A continuous-speed calibration routine that runs the motor at constant
+ *     velocity and samples (XACTUAL, encoder) pairs over multiple revolutions,
+ *     directly computing a correction table by averaging.
  *   - Flash storage so calibration persists across reboots.
- *   - A runtime reverse-lookup with linear interpolation to convert raw
- *     encoder readings into linearized angles.
+ *   - An O(1) runtime correction with linear interpolation.
  */
 
 #define CALIBRATION_TABLE_SIZE 512
 #define ENCODER_COUNTS_PER_REV 32768  // TLE5012B 15-bit
-#define CALIBRATION_SAMPLES_PER_STEP 64
-#define CALIBRATION_SETTLE_MS 200
+#define CALIBRATION_NUM_REVOLUTIONS 8  // Number of revolutions to average over
 
-// Flash storage: use the last 16KB sector of STM32F401 (Sector 7: 0x08060000)
-// STM32F401CC has 256KB flash total, sector 7 = 0x08060000..0x0807FFFF (but
-// STM32F401CC only has 256KB so sector 5 at 0x08020000 is the last 128KB sector).
-// Actually STM32F401CCU6 has 256KB flash: sectors 0-5
-//   Sector 0: 0x08000000 (16KB)
-//   Sector 1: 0x08004000 (16KB)
-//   Sector 2: 0x08008000 (16KB)
-//   Sector 3: 0x0800C000 (16KB)
-//   Sector 4: 0x08010000 (64KB)
+// Flash storage: last 2KB of sector 5 on STM32F401CCU6 (256KB flash, sectors 0-5)
 //   Sector 5: 0x08020000 (128KB)
-// We'll use the last 2KB of sector 5 (end of flash) to store the table.
 // 512 entries * 2 bytes = 1024 bytes + header = ~1040 bytes
-#define CALIBRATION_FLASH_BASE 0x0803F800  // Last 2KB of sector 5
+#define CALIBRATION_FLASH_BASE 0x0803F800
 
-#define CALIBRATION_MAGIC 0xCA1B  // Magic number to validate stored data
+#define CALIBRATION_MAGIC 0xCA1C  // Magic number (changed: new table format)
 
 typedef struct __attribute__((packed)) {
     uint16_t magic;          // CALIBRATION_MAGIC if valid
     uint16_t tableSize;      // Should be CALIBRATION_TABLE_SIZE
-    uint16_t table[CALIBRATION_TABLE_SIZE];  // Forward LUT: step_index -> encoder_angle
+    int16_t  correction[CALIBRATION_TABLE_SIZE];  // Signed correction per bin
     uint16_t checksum;       // Simple sum checksum
 } CalibrationData_t;
 
@@ -71,21 +61,18 @@ public:
     bool eraseCalibration(void);
 
     /**
-     * @brief Forward lookup: given a step index (0..511), return expected encoder angle.
+     * @brief Set a correction table entry directly (used by calibration routine).
+     * @param index Bin index (0..511)
+     * @param correction Signed correction in encoder counts
      */
-    uint16_t getEncoderAngleForStep(uint16_t stepIndex);
+    void setCorrectionEntry(uint16_t index, int16_t correction);
 
     /**
-     * @brief Reverse lookup with linear interpolation:
-     *        Given a raw encoder reading (0..32767), return the linearized angle (0..32767).
-     *        This is the main runtime function used in the control loop.
+     * @brief Apply linearization: given a raw encoder reading (0..32767),
+     *        return the corrected angle (0..32767).
+     *        O(1) with linear interpolation between bins.
      */
     int32_t linearize(uint16_t rawAngle);
-
-    /**
-     * @brief Set a calibration table entry (used during calibration routine).
-     */
-    void setTableEntry(uint16_t index, uint16_t encoderAngle);
 
     /**
      * @brief Finalize calibration: compute checksum, mark as valid.
@@ -93,9 +80,9 @@ public:
     void finalizeCalibration(void);
 
     /**
-     * @brief Get the calibration table pointer (for debugging/serial output).
+     * @brief Get the correction table pointer (for debugging/serial output).
      */
-    const uint16_t* getTable(void) const { return &data.table[0]; }
+    const int16_t* getCorrectionTable(void) const { return data.correction; }
 
     /**
      * @brief Check if calibration is loaded and ready for use.
@@ -107,13 +94,6 @@ private:
     bool calibrationReady;
 
     uint16_t computeChecksum(void);
-
-    // Pre-computed correction table for O(1) linearization.
-    // For each of 512 bins of raw encoder space, stores the signed correction
-    // to add: linearizedAngle = rawAngle + correctionTable[rawAngle/64]
-    // Values are interpolated between adjacent entries at runtime.
-    int16_t correctionTable[CALIBRATION_TABLE_SIZE];
-    void buildCorrectionTable(void);
 };
 
 #endif

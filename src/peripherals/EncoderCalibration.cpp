@@ -50,7 +50,6 @@ static void flash_lock(void)
 static bool flash_erase_sector5(void)
 {
     flash_wait_busy();
-    // Clear error flags
     FLASH_SR = FLASH_SR_PGSERR | FLASH_SR_PGPERR | FLASH_SR_PGAERR | FLASH_SR_WRPERR;
 
     FLASH_CR = FLASH_CR_SER | FLASH_CR_SNB_5 | FLASH_CR_PSIZE_WORD;
@@ -82,7 +81,6 @@ EncoderCalibration::EncoderCalibration()
     : calibrationReady(false)
 {
     memset(&data, 0, sizeof(data));
-    memset(correctionTable, 0, sizeof(correctionTable));
 }
 
 bool EncoderCalibration::isCalibrated(void)
@@ -103,10 +101,8 @@ bool EncoderCalibration::loadFromFlash(void)
         return false;
     }
 
-    // Copy from flash to RAM
     memcpy(&data, flashData, sizeof(CalibrationData_t));
 
-    // Verify checksum
     uint16_t expected = data.checksum;
     if (computeChecksum() != expected)
     {
@@ -114,7 +110,6 @@ bool EncoderCalibration::loadFromFlash(void)
         return false;
     }
 
-    buildCorrectionTable();
     calibrationReady = true;
     return true;
 }
@@ -124,7 +119,6 @@ bool EncoderCalibration::saveToFlash(void)
     if (!flash_unlock())
         return false;
 
-    // Erase sector 5 (128KB)
     __disable_irq();
     bool ok = flash_erase_sector5();
     __enable_irq();
@@ -135,8 +129,6 @@ bool EncoderCalibration::saveToFlash(void)
         return false;
     }
 
-    // Write data word by word (32-bit aligned)
-    // Copy to aligned buffer to avoid packed struct issues
     uint32_t alignedBuf[(sizeof(CalibrationData_t) + 3) / 4];
     memcpy(alignedBuf, &data, sizeof(CalibrationData_t));
 
@@ -171,18 +163,11 @@ bool EncoderCalibration::eraseCalibration(void)
     return ok;
 }
 
-uint16_t EncoderCalibration::getEncoderAngleForStep(uint16_t stepIndex)
-{
-    if (stepIndex >= CALIBRATION_TABLE_SIZE)
-        stepIndex = CALIBRATION_TABLE_SIZE - 1;
-    return data.table[stepIndex];
-}
-
-void EncoderCalibration::setTableEntry(uint16_t index, uint16_t encoderAngle)
+void EncoderCalibration::setCorrectionEntry(uint16_t index, int16_t correction)
 {
     if (index < CALIBRATION_TABLE_SIZE)
     {
-        data.table[index] = encoderAngle;
+        data.correction[index] = correction;
     }
 }
 
@@ -191,7 +176,6 @@ void EncoderCalibration::finalizeCalibration(void)
     data.magic = CALIBRATION_MAGIC;
     data.tableSize = CALIBRATION_TABLE_SIZE;
     data.checksum = computeChecksum();
-    buildCorrectionTable();
     calibrationReady = true;
 }
 
@@ -202,83 +186,9 @@ uint16_t EncoderCalibration::computeChecksum(void)
     sum += data.tableSize;
     for (uint16_t i = 0; i < CALIBRATION_TABLE_SIZE; i++)
     {
-        sum += data.table[i];
+        sum += (uint16_t)data.correction[i];
     }
     return sum;
-}
-
-void EncoderCalibration::buildCorrectionTable(void)
-{
-    // The forward table maps: table[i] = raw encoder reading at ideal position i*64.
-    // We need a reverse correction: given a raw angle, what correction to add.
-    //
-    // For each of 512 bins of raw encoder space (bin b covers raw angles b*64 to (b+1)*64-1),
-    // find which forward table entry bracket contains this raw angle, interpolate to get
-    // the ideal linearized angle, then store the correction = linearized - rawBinCenter.
-
-    const int32_t binSize = ENCODER_COUNTS_PER_REV / CALIBRATION_TABLE_SIZE; // 64
-    const int32_t halfRev = ENCODER_COUNTS_PER_REV / 2;
-
-    for (uint16_t b = 0; b < CALIBRATION_TABLE_SIZE; b++)
-    {
-        int32_t rawCenter = (int32_t)b * binSize + binSize / 2;
-
-        // Find the forward table bracket [i, i+1] that contains rawCenter
-        bool found = false;
-        for (uint16_t i = 0; i < CALIBRATION_TABLE_SIZE; i++)
-        {
-            uint16_t j = (i + 1) % CALIBRATION_TABLE_SIZE;
-
-            int32_t ai = (int32_t)data.table[i];
-            int32_t aj = (int32_t)data.table[j];
-
-            // Compute span from table[i] to table[j], handling wrap
-            int32_t span = aj - ai;
-            if (span < 0) span += ENCODER_COUNTS_PER_REV;
-            // Skip degenerate spans (protect against div-by-zero and bad entries)
-            if (span <= 0 || span > ENCODER_COUNTS_PER_REV / 2) continue;
-
-            // Distance from table[i] to rawCenter, wrapped positive
-            int32_t d = rawCenter - ai;
-            if (d < 0) d += ENCODER_COUNTS_PER_REV;
-
-            if (d <= span)
-            {
-                // Interpolate: linearized = i*binSize + (d/span)*binSize
-                // Using fixed-point: (d * binSize * 256 / span) for precision
-                int32_t frac256 = (d * 256 + span / 2) / span;  // 0..256
-                int32_t linearized = (int32_t)i * binSize + (frac256 * binSize + 128) / 256;
-                linearized %= ENCODER_COUNTS_PER_REV;
-
-                int32_t corr = linearized - rawCenter;
-                // Wrap correction to [-halfRev, halfRev)
-                if (corr > halfRev) corr -= ENCODER_COUNTS_PER_REV;
-                if (corr < -halfRev) corr += ENCODER_COUNTS_PER_REV;
-
-                correctionTable[b] = (int16_t)corr;
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-        {
-            correctionTable[b] = 0;
-        }
-    }
-
-    // Smooth the correction table with a 5-tap moving average to reduce noise
-    int16_t smoothed[CALIBRATION_TABLE_SIZE];
-    for (uint16_t b = 0; b < CALIBRATION_TABLE_SIZE; b++)
-    {
-        int32_t sum = 0;
-        for (int8_t k = -2; k <= 2; k++)
-        {
-            uint16_t idx = (b + k + CALIBRATION_TABLE_SIZE) % CALIBRATION_TABLE_SIZE;
-            sum += correctionTable[idx];
-        }
-        smoothed[b] = (int16_t)(sum / 5);
-    }
-    memcpy(correctionTable, smoothed, sizeof(correctionTable));
 }
 
 int32_t EncoderCalibration::linearize(uint16_t rawAngle)
@@ -286,23 +196,20 @@ int32_t EncoderCalibration::linearize(uint16_t rawAngle)
     if (!calibrationReady)
         return rawAngle;
 
-    // O(1) correction lookup with linear interpolation between bins
     const uint16_t binSize = ENCODER_COUNTS_PER_REV / CALIBRATION_TABLE_SIZE; // 64
 
     uint16_t bin = rawAngle / binSize;           // 0..511
-    uint16_t frac = rawAngle - bin * binSize;    // 0..63 (remainder within bin)
+    uint16_t frac = rawAngle - bin * binSize;    // 0..63
 
     if (bin >= CALIBRATION_TABLE_SIZE)
         bin = CALIBRATION_TABLE_SIZE - 1;
 
     uint16_t nextBin = (bin + 1) % CALIBRATION_TABLE_SIZE;
 
-    // Linear interpolation of correction between adjacent bins
-    int32_t c0 = correctionTable[bin];
-    int32_t c1 = correctionTable[nextBin];
+    int32_t c0 = data.correction[bin];
+    int32_t c1 = data.correction[nextBin];
 
-    // Handle wrap-around in correction values (shouldn't happen normally,
-    // but be safe for bins near the 0/32768 boundary)
+    // Handle wrap-around at 0/32768 boundary
     int32_t cdiff = c1 - c0;
     if (cdiff > ENCODER_COUNTS_PER_REV / 4) cdiff -= ENCODER_COUNTS_PER_REV;
     if (cdiff < -ENCODER_COUNTS_PER_REV / 4) cdiff += ENCODER_COUNTS_PER_REV;
