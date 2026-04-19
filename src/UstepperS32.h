@@ -7,6 +7,7 @@
 #include "HAL/gpio.h"
 #include "peripherals/TMC5130.h"
 #include "peripherals/TLE5012B.h"
+#include "peripherals/EncoderCalibration.h"
 #include "HAL/timer.h"
 #include "callbacks.h"
 #include "utils/dropin.h"
@@ -396,6 +397,26 @@ class UstepperS32
 
 	void checkOrientation(float distance = 10);
 
+	// ========== Encoder Calibration API ==========
+
+	/**
+	 * @brief Run encoder calibration routine. Motor will step through all positions.
+	 *        This is a blocking call that takes ~60 seconds.
+	 * @param current Motor current in percent for calibration (default 30%).
+	 * @return true if calibration succeeded and was saved to flash.
+	 */
+	bool calibrateEncoder(uint8_t current = 30);
+
+	/**
+	 * @brief Check if encoder calibration data exists in flash.
+	 */
+	bool isEncoderCalibrated(void);
+
+	/**
+	 * @brief Erase encoder calibration from flash.
+	 */
+	bool eraseEncoderCalibration(void);
+
   private:
 	friend void mainTimerCallback();
 	friend void dropInStepInputEXTI();
@@ -449,6 +470,9 @@ class UstepperS32
 
 	/** Flag to keep track of stallguard */
 	bool stallEnabled = false;
+
+	/** Encoder calibration data for linearization */
+	EncoderCalibration encoderCalibration;
 
 	/** Flag to keep track of shaft direction setting */
 	volatile bool shaftDir = 0;

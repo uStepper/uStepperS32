@@ -101,6 +101,11 @@ void UstepperS32::setup(uint8_t mode,
 		encoder.setHome();
 	}
 
+	// Load encoder calibration from flash if available
+	encoderCalibration.loadFromFlash();
+	// Wire calibration into encoder for runtime linearization
+	this->encoder.setCalibration(&encoderCalibration);
+
 	if (mode == DROPIN)
 	{
 		this->checkOrientation(10);
@@ -506,4 +511,131 @@ void UstepperS32::setHoldCurrent(double current)
 extern "C" uint8_t getUstepperMode()
 {
 	return ptr->mode;
+}
+
+// ========== Encoder Calibration Implementation ==========
+
+bool UstepperS32::calibrateEncoder(uint8_t current)
+{
+	// Disable PID and any motion
+	bool wasPidEnabled = !this->pidDisabled;
+	uint8_t prevMode = this->mode;
+	this->disablePid();
+	this->stop(HARD);
+	delay(500);
+
+	// Pause main timer to prevent interference with calibration sampling
+	mainTimerPause();
+
+	// Set calibration current
+	this->setCurrent((double)current);
+
+	// Use internal ramp for calibration (reliable positioning)
+	this->driver.setDeceleration(0xFFFE);
+	this->driver.setAcceleration(0xFFFE);
+	this->driver.setVelocity(0x50000);
+
+	// 512 positions across one full revolution
+	int32_t stepsPerPosition = (int32_t)(this->fullSteps * this->microSteps) / CALIBRATION_TABLE_SIZE;
+
+	// Zero the driver position counter at current physical position
+	this->driver.writeRegister(XACTUAL, 0);
+	this->driver.writeRegister(XTARGET, 0);
+	delay(500);
+
+	Serial.println(F("Calibration: stepping through 512 positions..."));
+
+	for (uint16_t i = 0; i < CALIBRATION_TABLE_SIZE; i++)
+	{
+		// Move to next position
+		int32_t targetPos = (int32_t)i * stepsPerPosition;
+		this->driver.setPosition(targetPos);
+
+		// Wait for motor to reach position with timeout
+		delay(50);
+		uint32_t timeout = millis() + 5000;
+		while (this->getMotorState(POSITION_REACHED))
+		{
+			if (millis() > timeout)
+			{
+				Serial.print(F("Timeout at step "));
+				Serial.println(i);
+				mainTimerStart();
+				return false;
+			}
+			delay(1);
+		}
+		delay(CALIBRATION_SETTLE_MS);
+
+		// Sample encoder multiple times and average
+		uint32_t sum = 0;
+		uint16_t goodSamples = 0;
+		for (uint16_t s = 0; s < CALIBRATION_SAMPLES_PER_STEP; s++)
+		{
+			uint16_t raw = this->encoder.readAngleAbsolute();
+			if (raw != 0 || s == 0)
+			{
+				sum += raw;
+				goodSamples++;
+			}
+			delayMicroseconds(500);
+		}
+		uint16_t meanAngle = (goodSamples > 0) ? (uint16_t)(sum / goodSamples) : 0;
+
+		encoderCalibration.setTableEntry(i, meanAngle);
+
+		// Progress output every 64 steps
+		if ((i & 63) == 0)
+		{
+			Serial.print(F("  Step "));
+			Serial.print(i);
+			Serial.print(F("/512  encoder="));
+			Serial.println(meanAngle);
+		}
+	}
+
+	Serial.println(F("Calibration: returning to start..."));
+
+	// Return to start
+	this->driver.setPosition(0);
+	uint32_t timeout = millis() + 10000;
+	delay(500);
+	while (this->getMotorState(POSITION_REACHED))
+	{
+		if (millis() > timeout) break;
+		delay(10);
+	}
+
+	// Finalize and save
+	encoderCalibration.finalizeCalibration();
+	bool saved = encoderCalibration.saveToFlash();
+
+	// Wire calibration into encoder for runtime use
+	this->encoder.setCalibration(&encoderCalibration);
+
+	// Restart main timer
+	mainTimerStart();
+
+	// Re-home encoder now that linearization is active
+	this->encoder.setHome();
+
+	// Restore previous state
+	if (wasPidEnabled)
+	{
+		this->enablePid();
+	}
+	this->mode = prevMode;
+
+	Serial.println(saved ? F("Calibration saved to flash!") : F("Flash write FAILED!"));
+	return saved;
+}
+
+bool UstepperS32::isEncoderCalibrated(void)
+{
+	return encoderCalibration.isCalibrated();
+}
+
+bool UstepperS32::eraseEncoderCalibration(void)
+{
+	return encoderCalibration.eraseCalibration();
 }

@@ -8,6 +8,8 @@
 #include "utils/semaphore.h"
 #include "../callbacks.h"
 
+class EncoderCalibration;  // Forward declaration
+
 #define ANGLETOENCODERRAW 32768.0 / 360.0 /**< Constant to convert angle to raw encoder data */
 #define CONVERTENCODERRAWTOANGLE(x) ((360.0 / 32768.0) * (float)x)
 #define CONVERTENCODERANGLETORAW(x) ((uint16_t)(x * (32768.0 / 360.0)))
@@ -30,6 +32,19 @@ class TLE5012B
 	float getRPM();
 	uint8_t getStatus(void);
 	bool detectMagnet(void);
+
+	/**
+	 * @brief Read absolute raw encoder angle (no offset, no linearization).
+	 *        Used during calibration routine.
+	 */
+	uint16_t readAngleAbsolute(void);
+
+	/**
+	 * @brief Set the calibration data pointer for runtime linearization.
+	 *        When set, sample() applies linearization to raw readings.
+	 */
+	void setCalibration(EncoderCalibration *cal);
+
 	/** Encoder stalldetect enable - enabled when set to 1 **/
 	volatile  bool encoderStallDetectEnable = 0;
 	/** Encoder stalldetect return value - stall = 1 **/
@@ -51,6 +66,8 @@ class TLE5012B
 	int16_t readSpeed();
 	VelocityEstimator velocityEstimator;
 	Semaphore semaphore;
+	/** Pointer to calibration data for linearization (null = no linearization) */
+	EncoderCalibration *calibration;
 	friend void mainTimerCallback();
 	/** Encoder stall detect counter - Delay start of the stalldetect to let the encoder velocity filter initialize properly */
 	volatile uint16_t startDelay = 0;

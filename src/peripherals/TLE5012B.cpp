@@ -1,4 +1,5 @@
 #include "../UstepperS32.h"
+#include "EncoderCalibration.h"
 extern UstepperS32 *ptr;
 
 TLE5012B::TLE5012B() : spiHandle(
@@ -9,7 +10,8 @@ TLE5012B::TLE5012B() : spiHandle(
 						   ENCODERCS,
 						   SPI3),
 					   velocityEstimator(MAINTIMERINTERRUPTPERIOD),
-					   semaphore()
+					   semaphore(),
+					   calibration(nullptr)
 {
 }
 
@@ -86,6 +88,12 @@ bool TLE5012B::sample()
 	{
 		semaphore.releaseLock();
 		return false;
+	}
+
+	// Apply encoder linearization if calibration is available
+	if (calibration && calibration->isReady())
+	{
+		newAngle = (uint16_t)calibration->linearize(newAngle);
 	}
 
 	newAngle -= this->encoderOffset;
@@ -221,4 +229,22 @@ uint8_t TLE5012B::getStatus(void)
 bool TLE5012B::detectMagnet(void)
 {
 	return true;
+}
+
+uint16_t TLE5012B::readAngleAbsolute(void)
+{
+	// Read raw SPI angle — no offset subtraction, no linearization
+	uint16_t raw;
+	spiHandle.csReset();
+	sendCommand(0x1, 0x0, 0x0, 0x02, 0x0);
+	this->spiHandle.releaseMosi();
+	raw = spiHandle.transmit16BitData(0x0000) & 0x7FFF;
+	spiHandle.csSet();
+	this->spiHandle.engageMosi();
+	return raw;
+}
+
+void TLE5012B::setCalibration(EncoderCalibration *cal)
+{
+	this->calibration = cal;
 }
